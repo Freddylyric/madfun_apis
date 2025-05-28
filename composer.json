@@ -1,0 +1,20 @@
+{
+    "name": "southwell-solutions-africa/devtec-apps",
+    "description": "Description of project devtec_apps.",
+    "authors": [
+        {
+            "name": "Kevin K Mwando",
+            "email": "kmwando@vaspro.co"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "@dev",
+        "firebase/php-jwt": "@dev",
+        "php-amqplib/php-amqplib": "2.6.3",
+        "league/csv": "^8.0",
+        "phalcon/devtools": "~3.2",
+        "swiftmailer/swiftmailer": "^5.4",
+         "aws/aws-sdk-php": "^3.212",
+        "nesbot/carbon": "^1.32"
+    }
+}
