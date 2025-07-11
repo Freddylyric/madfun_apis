@@ -391,7 +391,7 @@ class DashboardController extends ControllerBase {
 
             if ($event_show_venue_id) {
                 $searchQuery2 = " WHERE event_show_tickets_type.event_show_venue_id = " . $event_show_venue_id;
-                 $searchQuery3 = " WHERE event_show_venue.event_show_venue_id = " . $event_show_venue_id;
+                $searchQuery3 = " WHERE event_show_venue.event_show_venue_id = " . $event_show_venue_id;
 
                 $sql = "SELECT (SELECT `events`.currency FROM `events` JOIN  "
                         . "event_shows on `events`.eventID =event_shows.eventID "
@@ -2077,8 +2077,8 @@ class DashboardController extends ControllerBase {
                 $selectQuery .= $queryBuilder;
             }
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery, [], 'db2');
+            $matches = $this->rawSelect($selectQuery, [], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalTransactions'];
@@ -2379,7 +2379,6 @@ class DashboardController extends ControllerBase {
                 $whereQuery .= " AND event_profile_tickets.isShowTicket = 1";
             }
             $selectQuery = $selectQuery . $baseQuery . $whereQuery;
-            
 
             if ($export == 0) {
                 $queryBuilder = $this->tableQueryBuilder($sortField, $orderBy, $currentPage, $perPage, '');
@@ -2686,8 +2685,7 @@ class DashboardController extends ControllerBase {
 
 
             $whereQuery = $whereQuery ? "WHERE $whereQuery AND event_profile_tickets.hasRefunded =1 " : " WHERE event_profile_tickets.hasRefunded =1";
-            
-           
+
             if ($checkEvents->hasMultipleShow == 0) {
                 $whereQuery .= " AND event_profile_tickets.isShowTicket = 1";
             }
@@ -2801,6 +2799,4 @@ class DashboardController extends ControllerBase {
             $this->successVueTable($response);
         }
     }
-
-    
 }
