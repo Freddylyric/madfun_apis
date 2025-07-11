@@ -648,7 +648,7 @@ class EventsController extends ControllerBase {
                             , 'Ok'
                             , ['code' => 200
                         , 'message' => "Successfully Queried Ticket Types results ($stop_end Seconds)"
-                        , 'record_count' => $result[0]['total'], 'data' => $result]);
+                        , 'record_count' => count($result), 'data' => $result]);
         } catch (Exception $ex) {
             $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
                     . " | Exceptions:" . $ex->getMessage());
