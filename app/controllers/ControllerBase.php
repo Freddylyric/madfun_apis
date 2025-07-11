@@ -904,7 +904,7 @@ class ControllerBase extends Controller {
             }
 
             $success = $connection->query($statement, $params);
-            $success->setFetchMode(Phalcon\Db::FETCH_ASSOC);
+             $success->setFetchMode(2);
             $result = $success->fetchAll($success);
 
             return $result;
@@ -922,7 +922,7 @@ class ControllerBase extends Controller {
         try {
             $connection = $this->di->getShared("db2");
             $success = $connection->query($sql, $params);
-            $success->setFetchMode(Phalcon\Db::FETCH_ASSOC);
+            $success->setFetchMode(2);
             $result = $success->fetchAll($success);
 
             return $result;
