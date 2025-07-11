@@ -52,7 +52,7 @@ $logPath = [
 
 $APIServer = '35.195.83.76';
 
-return new \Phalcon\Config([
+return new \Phalcon\Config\Config([
     'database' => $connection,
     'db2' => $connection2,
     'application' => [
