@@ -979,7 +979,7 @@ class ProfileController extends ControllerBase {
             }
 
             $sorting = $this->tableQueryBuilder($sort, $order, $offset, $limit);
-            $sql = " SELECT * FROM ( select transaction.transaction_id,'M-Pesa' "
+            $sql = " SELECT * FROM ( select transaction.transaction_id,'M-Pesa' COLLATE utf8mb4_bin "
                     . "as paymentType,transaction.description as unique_reference, "
                     . "mpesa_transaction.mpesa_code as pay_receipt, mpesa_transaction.mpesa_amount "
                     . "as amountPay,mpesa_transaction.mpesa_account as account,"
@@ -987,7 +987,7 @@ class ProfileController extends ControllerBase {
                     . "join mpesa_transaction on transaction.reference_id  = mpesa_transaction.id "
                     . "join event_profile_tickets on event_profile_tickets.reference_id"
                     . "  = transaction.description $searchQuery  UNION select "
-                    . "dpo_transaction_initiated.transaction_id,'Card' as paymentType,"
+                    . "dpo_transaction_initiated.transaction_id,'Card' COLLATE utf8mb4_bin as paymentType,"
                     . "transaction_initiated.extra_data->>'$.unique_id' as unique_reference,"
                     . " dpo_transaction.CCDapproval as pay_receipt,transaction_initiated.extra_data->>'$.amount' "
                     . "as amountPay, dpo_transaction.account, dpo_transaction.created as payDate "
