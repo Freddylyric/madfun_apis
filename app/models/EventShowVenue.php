@@ -1,69 +1,24 @@
 <?php
 
-class EventShowVenue extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class EventShowVenue extends Model
 {
-    /**
-     *
-     * @var integer
-     */
-    public $event_show_venue_id;
-    /**
-     *
-     * @var integer
-     */
-    public $event_show_id;
-    /**
-     *
-     * @var string
-     */
-    public $venue;
-     /**
-     *
-     * @var integer
-     */
-    public $status;
-    /**
-     *
-     * @var string
-     */
-    public $created;
+    public ?int $event_show_venue_id = null;
+    public ?int $event_show_id = null;
+    public ?string $venue = null;
+    public ?int $status = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var string
+     * Initialize model: set table name and relationships
      */
-    public $updated;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'event_show_venue';
-    }
+        $this->setSource('event_show_venue');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return EventShowVenue[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        // Define relationships here if needed, e.g.:
+        // $this->belongsTo('event_show_id', EventShow::class, 'id', ['alias' => 'EventShow']);
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return EventShowVenue
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

@@ -1,77 +1,25 @@
 <?php
 
-class InvoicePaymentType extends \Phalcon\Mvc\Model {
+use Phalcon\Mvc\Model;
+
+class InvoicePaymentType extends Model
+{
+    public ?int $invoice_payment_type_id = null;
+    public ?string $invoice_payment_type = null;
+    public ?int $invoice_fee = null;
+    public ?string $description = null;
+    public ?int $status = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var integer
+     * Initialize the model and define the table
      */
-    public $invoice_payment_type_id;
-    
-    /**
-     *
-     * @var string
-     */
-    public $invoice_payment_type;
+    public function initialize(): void
+    {
+        $this->setSource('invoice_payment_type');
 
-    /**
-     *
-     * @var integer
-     */
-    public $invoice_fee;
-    
-    /**
-     *
-     * @var string
-     */
-    public $description;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $status;
-    
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource() {
-        return 'invoice_payment_type';
+        // Define relationships if needed, e.g.:
+        // $this->hasMany('invoice_payment_type_id', Invoice::class, 'invoice_payment_type_id', ['alias' => 'Invoices']);
     }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return InvoicePaymentType[]
-     */
-    public static function find($parameters = null) {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return InvoicePaymentType
-     */
-    public static function findFirst($parameters = null) {
-        return parent::findFirst($parameters);
-    }
-
 }

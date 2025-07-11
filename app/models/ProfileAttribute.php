@@ -1,166 +1,36 @@
 <?php
-/**
- * Description of ProfileAttribute
- *
- * @author kevinkmwando
- */
 
-class ProfileAttribute extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class ProfileAttribute extends Model
 {
+    public ?int $id = null;
+    public ?int $profile_id = null;
+    public ?int $year_of_birth = null;
+    public ?string $first_name = null;
+    public ?string $surname = null;
+    public ?string $last_name = null;
+    public ?string $age_bracket = null;
+    public ?string $gender = null;
+    public ?string $idNumber = null;
+    public ?string $network = null;
+    public ?string $pin = null;
+    public ?string $country = null;
+    public ?string $city = null;
+    public ?string $token = null;
+    public ?int $status = null;
+    public ?int $frequency = null;
+    public ?string $last_dial_date = null;
+    public ?string $created_by = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var integer
+     * Initialize model relationships and table
      */
-    public $id;
-
-    /**
-     *
-     * @var integer
-     */
-    public $profile_id;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $year_of_birth;
-
-    /**
-     *
-     * @var string
-     */
-    public $first_name;
-    /**
-     *
-     * @var string
-     */
-    public $surname;
-    /**
-     *
-     * @var string
-     */
-    public $last_name;
-    /**
-     *
-     * @var string
-     */
-    public $age_bracket;
-    /**
-     *
-     * @var string
-     */
-    public $gender;
-    /**
-     *
-     * @var string
-     */
-    public $idNumber;
-
-    /**
-     *
-     * @var string
-     */
-    public $network;
-    
-    /**
-     *
-     * @var string 
-     */
-    public $pin;
-    
-    /**
-     *
-     * @var string 
-     */
-    public $country;
-    
-    /**
-     *
-     * @var string 
-     */
-    public $city;
-
-    /**
-     *
-     * @var string
-     */
-    public $token;
-
-    /**
-     *
-     * @var integer
-     */
-    public $status;
-
-    /**
-     *
-     * @var integer
-     */
-    public $frequency;
-  
-    /**
-     *
-     * @var string
-     */
-    public $last_dial_date;
-    
-     /**
-     *
-     * @var string
-     */
-    public $created_by;
-
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-    /**
-     * Initialize method for model.
-     */
-    public function initialize()
+    public function initialize(): void
     {
-        $this->belongsTo('profile_id', 'Profile', 'profile_id', array('alias' => 'Profile'));
+        $this->setSource('profile_attribute');
+        $this->belongsTo('profile_id', Profile::class, 'profile_id', ['alias' => 'Profile']);
     }
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'profile_attribute';
-    }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return ProfileAttribute[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return ProfileAttribute
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

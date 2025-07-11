@@ -1,72 +1,24 @@
 <?php
 
-class TicketTypes extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class TicketTypes extends Model
 {
+    public ?int $typeId = null;
+    public ?string $ticket_type = null;
+    public ?int $status = null;
+    public ?string $caption = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var integer
+     * Initialize the model and map the table
      */
-    public $typeId;
-
-    /**
-     *
-     * @var string
-     */
-    public $ticket_type;
-    /**
-     *
-     * @var integer
-     */
-    public $status;
-    /**
-     *
-     * @var string
-     */
-    public $caption;
-    
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'ticket_types';
-    }
+        $this->setSource('ticket_types');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return  TicketTypes[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        // Example: Define relationships here if needed
+        // $this->hasMany('typeId', EventTicketsType::class, 'typeId', ['alias' => 'EventTickets']);
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return TicketTypes
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

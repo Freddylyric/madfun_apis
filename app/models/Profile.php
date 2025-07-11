@@ -1,62 +1,22 @@
 <?php
 
-class Profile extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class Profile extends Model
 {
+    public ?int $profile_id = null;
+    public ?string $msisdn = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var integer
+     * Initialize the model and define the database table
      */
-    public $profile_id;
-
-    /**
-     *
-     * @var string
-     */
-    public $msisdn;
-    
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'profile';
-    }
+        $this->setSource('profile');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Profile[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        // Define relationships if needed
+        // $this->hasMany('profile_id', GreenJobClient::class, 'profile_id', ['alias' => 'GreenJobClients']);
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Profile
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

@@ -23,7 +23,8 @@ if (!in_array($host, $hosts)) {
         'charset' => 'utf8',
         "options" => array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true)
     );
-} else {
+}
+else {
     $connection = array(
         'adapter' => 'mysql',
          'host' => '146.148.27.7', //104.199.25.225',

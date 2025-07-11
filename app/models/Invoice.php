@@ -1,138 +1,37 @@
 <?php
 
-class Invoice extends \Phalcon\Mvc\Model {
+use Phalcon\Mvc\Model;
+
+class Invoice extends Model
+{
+    public ?int $invoice_id = null;
+    public ?string $reference = null;
+    public ?int $invoice_type_id = null;
+    public ?int $invoice_reference_id = null;
+    public ?int $invoice_from_client_id = null;
+    public ?int $invoice_to_client_id = null;
+    public ?int $invoice_payment_type_id = null;
+    public ?int $invoice_billing_reference = null;
+    public ?int $invoice_status = null;
+    public ?string $invoice_notes = null;
+    public ?string $invoice_issued_date = null;
+    public ?string $invoice_due_date = null;
+    public ?float $invoice_amount = null;
+    public ?int $total_items = null;
+    public ?float $invoice_amount_paid = null;
+    public ?float $invoice_fee = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var integer
+     * Set the database table for this model
      */
-    public $invoice_id;
-    
-    /**
-     *
-     * @var string
-     */
-    public $reference;
+    public function initialize(): void
+    {
+        $this->setSource('invoices');
 
-    /**
-     *
-     * @var integer
-     */
-    public $invoice_type_id;
-    /**
-     *
-     * @var integer
-     */
-    public $invoice_reference_id;
-    /**
-     *
-     * @var integer
-     */
-    public $invoice_from_client_id;
-    /**
-     *
-     * @var integer
-     */
-    public $invoice_to_client_id;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $invoice_payment_type_id;
-    /**
-     *
-     * @var integer
-     */
-    public $invoice_billing_reference;
-    /**
-     *
-     * @var integer
-     */
-    public $invoice_status;
-
-    /**
-     *
-     * @var string
-     */
-    public $invoice_notes;
-
-    /**
-     *
-     * @var string
-     */
-    public $invoice_issued_date;
-
-    /**
-     *
-     * @var string
-     */
-    public $invoice_due_date;
-
-    /**
-     *
-     * @var float
-     */
-    public $invoice_amount;
-
-    /**
-     *
-     * @var integer
-     */
-    public $total_items;
-    
-     /**
-     *
-     * @var float
-     */
-    public $invoice_amount_paid;
-    
-     /**
-     *
-     * @var float
-     */
-    public $invoice_fee;
-    
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource() {
-        return 'invoices';
+        // Example relationships (uncomment and adjust if needed):
+        // $this->belongsTo('invoice_from_client_id', Clients::class, 'client_id', ['alias' => 'FromClient']);
+        // $this->belongsTo('invoice_to_client_id', Clients::class, 'client_id', ['alias' => 'ToClient']);
     }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Invoice[]
-     */
-    public static function find($parameters = null) {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Invoice
-     */
-    public static function findFirst($parameters = null) {
-        return parent::findFirst($parameters);
-    }
-
 }

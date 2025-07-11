@@ -1,92 +1,28 @@
 <?php
 
-class UserLogin extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class UserLogin extends Model
 {
+    public ?int $user_login_id = null;
+    public ?int $user_id = null;
+    public ?string $login_code = null;
+    public ?int $successful_attempts = null;
+    public ?int $failed_attempts = null;
+    public ?int $cumlative_failed_attempts = null;
+    public ?string $last_failed_attempt = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
-    /**
-     *
-     * @var integer
-     */
-    public $user_login_id;
-
-    /**
-     *
-     * @var integer
-     */
-    public $user_id;
-
-    /**
-     *
-     * @var string
-     */
-    public $login_code;
-
-    /**
-     *
-     * @var integer
-     */
-    public $successful_attempts;
-
-    /**
-     *
-     * @var integer
-     */
-    public $failed_attempts;
-
-    /**
-     *
-     * @var integer
-     */
-    public $cumlative_failed_attempts;
-
-    /**
-     *
-     * @var string
-     */
-    public $last_failed_attempt;
-
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'user_login';
-    }
+        $this->setSource('user_login');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return UserLogin[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        $this->belongsTo(
+            'user_id',
+            User::class,
+            'user_id',
+            ['alias' => 'User']
+        );
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return UserLogin
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

@@ -1,99 +1,30 @@
 <?php
 
-class StreamProfileRequest extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class StreamProfileRequest extends Model
 {
-    /**
-     *
-     * @var integer
-     */
-    public $id;
-    /**
-     *
-     * @var integer
-     */
-    public $profile_id;
-    /**
-     *
-     * @var string
-     */
-    public $order_key;
-    /**
-     *
-     * @var string
-     */
-    public $currency;
-     /**
-     *
-     * @var integer
-     */
-    public $amount;
-     /**
-     *
-     * @var string
-     */
-    public $reference_id;
-    /**
-     *
-     * @var string
-     */
-    public $item_name;
-    /**
-     *
-     * @var string
-     */
-    public $returnURL;
-    /**
-     *
-     * @var string
-     */
-    public $cancelURL;
-    /**
-     *
-     * @var integer
-     */
-    public $status;
-    /**
-     *
-     * @var string
-     */
-    public $created;
+    public ?int $id = null;
+    public ?int $profile_id = null;
+    public ?string $order_key = null;
+    public ?string $currency = null;
+    public ?int $amount = null;
+    public ?string $reference_id = null;
+    public ?string $item_name = null;
+    public ?string $returnURL = null;
+    public ?string $cancelURL = null;
+    public ?int $status = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var string
+     * Initialize model and define relationships
      */
-    public $updated;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'stream_profile_request';
-    }
+        $this->setSource('stream_profile_request');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return StreamProfileRequest[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        // Optional: Define relationship if Profile exists
+        // $this->belongsTo('profile_id', Profile::class, 'profile_id', ['alias' => 'Profile']);
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return StreamProfileRequest
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

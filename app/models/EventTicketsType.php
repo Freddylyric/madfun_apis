@@ -1,156 +1,41 @@
 <?php
 
-class EventTicketsType extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class EventTicketsType extends Model
 {
-    /**
-     *
-     * @var integer
-     */
-    public $event_ticket_id;
-    /**
-     *
-     * @var integer
-     */
-    public $typeId;
-    /**
-     *
-     * @var string
-     */
-    public $color_code;
-    
-    
-    /**
-     *
-     * @var integer
-     */
-    public $maxCap;
-    /**
-     *
-     * @var string
-     */
-    public $main_color_code;
-    /**
-     *
-     * @var string
-     */
-    public $description;
-    /**
-     *
-     * @var integer
-     */
-    public $eventId;
-    /**
-     *
-     * @var integer
-     */
-    public $amount;
-     /**
-     *
-     * @var integer
-     */
-    public $total_tickets;
-    /**
-     *
-     * @var integer
-     */
-    public $discount;
-    /**
-     *
-     * @var integer
-     */
-    public $group_ticket_quantity;
-    /**
-     *
-     * @var integer
-     */
-    public $total_complimentary;
-    /**
-     *
-     * @var integer
-     */
-    public $total_ticket_code;
-    /**
-     *
-     * @var integer
-     */
-    public $ticket_purchased;
-    /**
-     *
-     * @var integer
-     */
-    public $issued_complimentary;
-    /**
-     *
-     * @var integer
-     */
-    public $issued_ticket_code;
-    /**
-     *
-     * @var integer
-     */
-    public $ticket_redeemed;
-    /**
-     *
-     * @var integer
-     */
-    public $isPartialPay;
-    /**
-     *
-     * @var integer
-     */
-    public $isPublic;
-    /**
-     *
-     * @var integer
-     */
-    public $hasOption;
-    /**
-     *
-     * @var integer
-     */
-    public $status;
-    /**
-     *
-     * @var string
-     */
-    public $created;
+    public ?int $event_ticket_id = null;
+    public ?int $typeId = null;
+    public ?string $color_code = null;
+    public ?int $maxCap = null;
+    public ?string $main_color_code = null;
+    public ?string $description = null;
+    public ?int $eventId = null;
+    public ?int $amount = null;
+    public ?int $total_tickets = null;
+    public ?int $discount = null;
+    public ?int $group_ticket_quantity = null;
+    public ?int $total_complimentary = null;
+    public ?int $total_ticket_code = null;
+    public ?int $ticket_purchased = null;
+    public ?int $issued_complimentary = null;
+    public ?int $issued_ticket_code = null;
+    public ?int $ticket_redeemed = null;
+    public ?int $isPartialPay = null;
+    public ?int $isPublic = null;
+    public ?int $hasOption = null;
+    public ?int $status = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var string
+     * Initialize model: define table name and relationships
      */
-    public $updated;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'event_tickets_type';
-    }
+        $this->setSource('event_tickets_type');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return EventTicketsType[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        // Define relationships if applicable:
+        // $this->belongsTo('eventId', Event::class, 'id', ['alias' => 'Event']);
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return EventTicketsType
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

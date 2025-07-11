@@ -1,106 +1,31 @@
 <?php
 
-class User extends \Phalcon\Mvc\Model {
+use Phalcon\Mvc\Model;
+
+class User extends Model
+{
+    public ?int $user_id = null;
+    public ?string $email = null;
+    public ?int $profile_id = null;
+    public ?string $password = null;
+    public ?string $api_token = null;
+    public ?string $last_login = null;
+    public ?string $date_activated = null;
+    public ?int $status = null;
+    public ?int $role_id = null;
+    public ?string $created = null;
+    public ?string $updated = null;
+    public ?string $deleted = null;
 
     /**
-     *
-     * @var integer
+     * Initialize the model and map the source table
      */
-    public $user_id;
-    
-    /**
-     *
-     * @var string
-     */
-    public $email;
+    public function initialize(): void
+    {
+        $this->setSource('user');
 
-    /**
-     *
-     * @var integer
-     */
-    public $profile_id;
-
-    /**
-     *
-     * @var string
-     */
-    public $password;
-
-    /**
-     *
-     * @var string
-     */
-    public $api_token;
-
-    /**
-     *
-     * @var string
-     */
-    public $last_login;
-
-    /**
-     *
-     * @var string
-     */
-    public $date_activated;
-
-    /**
-     *
-     * @var integer
-     */
-    public $status;
-
-    /**
-     *
-     * @var integer
-     */
-    public $role_id;
-    
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-    /**
-     *
-     * @var string
-     */
-    public $deleted;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource() {
-        return 'user';
+        // Example relationships (uncomment if needed)
+        // $this->belongsTo('profile_id', Profile::class, 'profile_id', ['alias' => 'Profile']);
+        // $this->belongsTo('role_id', Role::class, 'role_id', ['alias' => 'Role']);
     }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return User[]
-     */
-    public static function find($parameters = null) {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return User
-     */
-    public static function findFirst($parameters = null) {
-        return parent::findFirst($parameters);
-    }
-
 }

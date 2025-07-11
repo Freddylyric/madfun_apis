@@ -1,97 +1,28 @@
 <?php
 
-class Country extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class Country extends Model
 {
+    public ?int $country_id = null;
+    public ?string $country_name = null;
+    public ?string $country_flag = null;
+    public ?string $isoCode = null;
+    public ?string $isoCode2 = null;
+    public ?string $currency = null;
+    public ?int $status = null;
+    public ?string $mobile_prefix = null;
+    public ?string $created_at = null;
+    public ?string $updated_at = null;
 
     /**
-     *
-     * @var integer
+     * Initialize the model: table name, relationships
      */
-    public $country_id;
-
-    /**
-     *
-     * @var string
-     */
-    public $country_name;
-    /**
-     *
-     * @var string
-     */
-    public $country_flag;
-    /**
-     *
-     * @var string
-     */
-    public $isoCode;
-    /**
-     *
-     * @var string
-     */
-    public $isoCode2;
-
-    /**
-     *
-     * @var string
-     */
-    public $currency;
-
-    /**
-     *
-     * @var integer
-     */
-    public $status;
-    
-    /**
-     *
-     * @var string
-     */
-    public $mobile_prefix;
-
-    /**
-     *
-     * @var string
-     */
-    public $created_at;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated_at;
-
-    
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'country';
-    }
+        $this->setSource('country');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Country[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        // You can define relationships here if needed, for example:
+        // $this->hasMany('country_id', Clients::class, 'country_id', ['alias' => 'Clients']);
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Country
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

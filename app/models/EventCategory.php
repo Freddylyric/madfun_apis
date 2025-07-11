@@ -1,79 +1,25 @@
 <?php
 
-class EventCategory extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class EventCategory extends Model
 {
+    public ?int $id = null;
+    public ?string $category = null;
+    public ?string $desciption = null;
+    public ?string $status = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var integer
+     * Initialize the model and its relationships
      */
-    public $id;
-
-    /**
-     *
-     * @var string
-     */
-    public $category;
-    /**
-     *
-     * @var string
-     */
-    public $desciption;
-    /**
-     *
-     * @var string
-     */
-    public $status;
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-    /**
-     * Initialize method for model.
-     */
-    public function initialize()
+    public function initialize(): void
     {
-        $this->hasMany('client_id', 'UserClientMap', 'client_id', array('alias' => 'UserClientMap'));
-    }
+        $this->setSource('event_category');
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'event_category';
+        // This line below looks incorrect in original model (client_id does not belong here)
+        // Removed unless you confirm it's needed:
+        // $this->hasMany('client_id', 'UserClientMap', 'client_id', ['alias' => 'UserClientMap']);
     }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return EventCategory[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return EventCategory
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

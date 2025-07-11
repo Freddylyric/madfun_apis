@@ -1,108 +1,31 @@
 <?php
 
-class GreenJobClient extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class GreenJobClient extends Model
 {
+    public ?int $green_job_customer_id = null;
+    public ?int $profile_id = null;
+    public ?string $full_name = null;
+    public ?string $email = null;
+    public ?string $organisation = null;
+    public ?string $title = null;
+    public ?string $preferred_workstreams = null;
+    public ?string $county = null;
+    public ?string $age = null;
+    public ?string $gender = null;
+    public ?string $category = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var integer
+     * Set table name and define relationships if necessary
      */
-    public $green_job_customer_id;
-
-    /**
-     *
-     * @var integer
-     */
-    public $profile_id;
-    
-    /**
-     *
-     * @var string
-     */
-    public $full_name;
-
-     /**
-     *
-     * @var string
-     */
-    public $email;
-    /**
-     *
-     * @var string
-     */
-    public $organisation;
-    /**
-     *
-     * @var string
-     */
-    public $title;
-    /**
-     *
-     * @var string
-     */
-    public $preferred_workstreams;
-    /**
-     *
-     * @var string
-     */
-    public $county;
-    /**
-     *
-     * @var string
-     */
-    public $age;
-    /**
-     *
-     * @var string
-     */
-    public $gender;
-    
-     /**
-     *
-     * @var string
-     */
-    public $category;
-     /**
-     *
-     * @var string
-     */
-    public $created;
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'green_job_client';
-    }
+        $this->setSource('green_job_client');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return GreenJobClient[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        // Define relationships here if needed
+        // $this->belongsTo('profile_id', Profile::class, 'id', ['alias' => 'Profile']);
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return GreenJobClient
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

@@ -1,68 +1,23 @@
-
 <?php
 
-class Affiliators extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class Affiliators extends Model
 {
+    public ?int $affilator_id = null;
+    public ?int $user_id = null;
+    public ?int $status = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var integer
+     * Initialize model: set table and relationships
      */
-    public $affilator_id;
-
-    /**
-     *
-     * @var integer
-     */
-    public $user_id;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $status;
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'affiliators';
-    }
+        $this->setSource('affiliators');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Affiliators[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        // Example of possible relationship
+        // $this->belongsTo('user_id', Users::class, 'id', ['alias' => 'User']);
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Affiliators
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

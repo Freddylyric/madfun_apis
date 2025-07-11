@@ -1,208 +1,49 @@
 <?php
 
-class Events extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class Events extends Model
 {
+    public ?int $eventID = null;
+    public ?string $eventName = null;
+    public ?string $company = null;
+    public ?string $venue = null;
+    public ?string $eventTag = null;
+    public ?int $ageLimit = null;
+    public ?int $isFeeOnOrganizer = null;
+    public ?int $target = null;
+    public ?int $category_id = null;
+    public ?int $isPublic = null;
+    public ?int $soldOut = null;
+    public ?int $isFeatured = null;
+    public ?int $showOnSlide = null;
+    public ?int $isFree = null;
+    public ?string $aboutEvent = null;
+    public ?string $eventType = null;
+    public ?string $posterURL = null;
+    public ?string $bannerURL = null;
+    public ?float $revenueShare = null;
+    public ?string $currency = null;
+    public ?int $hasMultipleShow = null;
+    public ?int $hasAffiliator = null;
+    public ?int $min_price = null;
+    public ?int $hasLinkingTag = null;
+    public ?string $dateInfo = null;
+    public ?int $status = null;
+    public ?int $accept_mpesa_payment = null;
+    public ?string $start_date = null;
+    public ?string $end_date = null;
+    public ?string $created = null;
+    public ?string $updated = null;
 
     /**
-     *
-     * @var integer
+     * Initialize model: set table name and define relationships if needed
      */
-    public $eventID;
-
-    /**
-     *
-     * @var string
-     */
-    public $eventName;
-    /**
-     *
-     * @var string
-     */
-    public $company;
-    /**
-     *
-     * @var string
-     */
-    public $venue;
-    /**
-     *
-     * @var string
-     */
-    public $eventTag;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $ageLimit;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $isFeeOnOrganizer;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $target;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $category_id;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $isPublic;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $soldOut;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $isFeatured;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $showOnSlide;
-    /**
-     *
-     * @var integer
-     */
-    public $isFree;
-    /**
-     *
-     * @var string
-     */
-    public $aboutEvent;
-    /**
-     *
-     * @var string
-     */
-    public $eventType;
-    /**
-     *
-     * @var string
-     */
-    public $posterURL;
-    /**
-     *
-     * @var string
-     */
-    public $bannerURL;
-    
-    /**
-     *
-     * @var double
-     */
-    public $revenueShare;
-    /**
-     *
-     * @var string
-     */
-    public $currency;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $hasMultipleShow;
-     /**
-     *
-     * @var integer
-     */
-    public $hasAffiliator;
-    /**
-     *
-     * @var integer
-     */
-    public $min_price;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $hasLinkingTag;
-    /**
-     *
-     * @var string
-     */
-    public $dateInfo;
-    /**
-     *
-     * @var integer
-     */
-    public $status;
-    
-    /**
-     *
-     * @var integer
-     */
-    public $accept_mpesa_payment;
-    /**
-     *
-     * @var string
-     */
-    public $start_date;
-    /**
-     *
-     * @var string
-     */
-    public $end_date;
-    /**
-     *
-     * @var string
-     */
-    public $created;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated;
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
+    public function initialize(): void
     {
-        return 'events';
-    }
+        $this->setSource('events');
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Events[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
+        // Define relationships if applicable, e.g.:
+        // $this->belongsTo('category_id', EventCategory::class, 'id', ['alias' => 'Category']);
     }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Events
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }

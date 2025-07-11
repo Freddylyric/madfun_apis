@@ -1,97 +1,33 @@
 <?php
 
-class Clients extends \Phalcon\Mvc\Model
+use Phalcon\Mvc\Model;
+
+class Clients extends Model
 {
+    public ?int $client_id = null;
+    public ?string $client_name = null;
+    public ?string $address = null;
+    public ?string $msisdn = null;
+    public ?string $email_address = null;
+    public ?string $description = null;
+    public ?int $created_by = null;
+    public ?string $created_at = null;
+    public ?string $updated_at = null;
 
     /**
-     *
-     * @var integer
+     * Initialize the model and its relationships
      */
-    public $client_id;
-
-    /**
-     *
-     * @var string
-     */
-    public $client_name;
-    /**
-     *
-     * @var string
-     */
-    public $address;
-    /**
-     *
-     * @var string
-     */
-    public $msisdn;
-    /**
-     *
-     * @var string
-     */
-    public $email_address;
-
-    /**
-     *
-     * @var string
-     */
-    public $description;
-
-    /**
-     *
-     * @var integer
-     */
-    public $created_by;
-
-    /**
-     *
-     * @var string
-     */
-    public $created_at;
-
-    /**
-     *
-     * @var string
-     */
-    public $updated_at;
-
-    /**
-     * Initialize method for model.
-     */
-    public function initialize()
+    public function initialize(): void
     {
-        $this->hasMany('client_id', 'UserClientMap', 'client_id', array('alias' => 'UserClientMap'));
-    }
+        $this->setSource('clients');
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'clients';
+        $this->hasMany(
+            'client_id',
+            UserClientMap::class,
+            'client_id',
+            [
+                'alias' => 'UserClientMap',
+            ]
+        );
     }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Clients[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Clients
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
 }
