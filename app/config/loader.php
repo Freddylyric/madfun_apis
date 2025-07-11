@@ -4,13 +4,20 @@ use Phalcon\Autoload\Loader;
 
 $loader = new Loader();
 
-/**
- * We're a registering a set of directories taken from the configuration file
- */
-$loader->registerDirs(
-        array(
-            "app/controllers/",
-            "app/models/",
-            "app/utils/",
-        )
-)->register();
+
+// Register namespaces (using setNamespaces instead of registerNamespaces)
+$loader->setNamespaces([
+    'App\Controllers' => '../app/controllers/',
+    'App\Models'      => '../app/models/',
+    'App\Utils'     => '../app/utils/',
+]);
+
+$loader->setDirectories([
+    APP_PATH . '/app/controllers/',
+    APP_PATH . '/app/models/',
+    APP_PATH . '/app/utils/',
+]);
+
+
+
+$loader->register();
