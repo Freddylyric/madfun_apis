@@ -2069,7 +2069,7 @@ class DashboardController extends ControllerBase {
             $countQuery = $countQuery . $baseQuery . $whereQuery;
             $selectQuery = $selectQuery . $baseQuery . $whereQuery . " group by " . $groupByDay;
 
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Query:" . $selectQuery);
 
             if ($export == 0) {
