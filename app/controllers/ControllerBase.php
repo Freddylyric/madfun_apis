@@ -89,15 +89,14 @@ class ControllerBase extends Controller {
             "mysql_query", "mysqli_query", "PDO::query"
                 // Add more keywords or patterns as needed.
         );
-        if (is_array($requestData)) {
-            $requestData = array_map('strtolower', $requestData);
-        } else {
-            if (is_object($requestData)) {
-                $requestData = json_encode($requestData);
-            }
+         // Convert the request data to lowercase for case-insensitive matching.
+        if (is_string($requestData)) {
             $requestData = strtolower($requestData);
+        } else {
+            $requestData = ''; // or leave as-is, or set default
         }
-        
+
+        // Check if any of the MySQL keywords or patterns are found in the request data.
         foreach ($mysqlKeywords as $keyword) {
             if (strpos($requestData, strtolower($keyword)) !== false) {
                 return true; // Found a MySQL-related keyword.
