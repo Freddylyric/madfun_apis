@@ -5,7 +5,7 @@ defined('APP_PATH') || define('APP_PATH', realpath('.'));
 $connection = [];
 
 $host = gethostname();
-$hosts = ['ke-pr-core-1', 'ke-pr-web-1', 'ke-pr-ncp'];
+$hosts = ['ke-pr-core-2'];
 if (!in_array($host, $hosts)) {
     $connection = [
         'adapter' => 'mysql',
