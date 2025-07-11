@@ -895,7 +895,7 @@ class ControllerBase extends Controller {
      * @param type $statement 
      * @return type $quer resultset
      */
-    public function rawSelect($statement, $params = null, $db = null) {
+    public function rawSelect($statement, $params = [], $db = null) {
         try {
             if ($db == null) {
                 $connection = $this->di->getShared("db");
@@ -918,7 +918,7 @@ class ControllerBase extends Controller {
      * @param type $sql
      * @return type
      */
-    public function selectQuery($sql, $params = null) {
+    public function selectQuery($sql, $params = []) {
         try {
             $connection = $this->di->getShared("db2");
             $success = $connection->query($sql, $params);
@@ -936,7 +936,7 @@ class ControllerBase extends Controller {
      * @param type $sql
      * @return type
      */
-    public function rawSelectOneRecord($sql, $params = null, $db = null) {
+    public function rawSelectOneRecord($sql, $params = [], $db = null) {
         try {
             $connection = null;
             if ($db == null) {
