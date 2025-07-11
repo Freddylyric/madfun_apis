@@ -1340,7 +1340,11 @@ class ControllerBase extends Controller {
         /**
          * Read the configuration
          */
-        $logPathLocation = $this->logPath['location'];
+        $logPathLocation = "/var/www/logs/madfun/";
+
+        if (!is_dir($logPathLocation)) {
+            mkdir($logPathLocation, 0755, true); // Creates directory if it doesn't exist
+        }
         $dateFormat = $this->logPath['dateFormat'];
         $output = $this->logPath['output'];
         $filename = $this->logPath['systemName'];
