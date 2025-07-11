@@ -905,7 +905,7 @@ class ControllerBase extends Controller {
 
             $success = $connection->query($statement, $params);
              $success->setFetchMode(2);
-            $result = $success->fetchAll($success);
+             $result = $success->fetchAll();
 
             return $result;
         } catch (Exception $e) {
@@ -923,7 +923,7 @@ class ControllerBase extends Controller {
             $connection = $this->di->getShared("db2");
             $success = $connection->query($sql, $params);
             $success->setFetchMode(2);
-            $result = $success->fetchAll($success);
+            $result = $success->fetchAll();
 
             return $result;
         } catch (Exception $e) {
