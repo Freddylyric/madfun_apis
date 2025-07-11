@@ -85,7 +85,7 @@ class Tickets {
                 ":barcodeURL" => $params['barcodeURL'],
                 ":created" => $base->now(),
                 ":utmSource" => $params['reference'],
-                ":discount" => $params['discount'],
+                ":discount" => isset($params['discount']) ? $params['discount'] :0,
                 ":isComplimentary" => $isComplimentary,
                 ":company" => strtoupper($company),
                 ":event_tickets_option_id" => $optionId,
@@ -310,8 +310,16 @@ class Tickets {
                     ':ticket_redeemed' => $params['ticket_redeemed']
                 ];
             }
+            
+            
+            
+            $isUpgrade = false;
+            if(isset($params['isUpgrade'])){
+               $isUpgrade  = $params['isUpgrade'];
+            }
+            
 
-            if ($params['isUpgrade'] && $params['old_event_ticket_id'] != null) {
+            if ($isUpgrade && $params['old_event_ticket_id'] != null) {
                 if ($hasMultipleShow == 1) {
                     $statementUpdateUpgrade = "UPDATE event_show_tickets_type SET "
                             . "event_show_tickets_type.ticket_purchased ="
