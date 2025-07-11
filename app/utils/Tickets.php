@@ -65,7 +65,7 @@ class Tickets {
             
             $resultCount = $base->rawSelect($countTickets, $statement_param_tickets);
             $base->getLogFile('info')->emergency(__LINE__ . ":" . __CLASS__
-                                . " | TicketCount URL: " .$resultCount[0]['totalProfile']. " quantity "+$quantity );
+                                . " | TicketCount URL: " .$resultCount[0]['totalProfile']. " quantity ".$quantity );
             if($resultCount && $params['event_ticket_id'] == 632){
                 if(((INT)$resultCount[0]['totalProfile'] + (INT) $quantity) > $ticketCap){
                     
