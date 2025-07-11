@@ -13,14 +13,14 @@ if (!in_array($host, $hosts)) {
         'username' => 'root',
         'password' => '',
         'dbname' => 'madfun',
-        'charset' => 'utf8'];
+        'charset' => 'utf8mb4'];
     $connection2 = array(
         'adapter' => 'mysql',
         'host' => '35.187.90.51', //35.241.169.32',//35.205.116.205', //104.199.25.225',
         'username' => 'madfun_user',
         'password' => 'POD5e\d9IabkzEsd@IgE&Oh4bqJkOYYHld',
         'dbname' => 'madfun',
-        'charset' => 'utf8',
+        'charset' => 'utf8mb4',
         "options" => array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true)
     );
 }
@@ -31,7 +31,7 @@ else {
         'username' => 'vas_user',
         'password' => '{l$yCT1nh2Vf/d-2',
         'dbname' => 'madfun',
-        'charset' => 'utf8',
+        'charset' => 'utf8mb4',
         "options" => [\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true, \PDO::ATTR_PERSISTENT]
     );
 
@@ -41,7 +41,7 @@ else {
         'username' => 'vas_user',
         'password' => '{l$yCT1nh2Vf/d-2',
         'dbname' => 'madfun',
-        'charset' => 'utf8',
+        'charset' => 'utf8mb4',
         "options" => array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true)
     );
 }
