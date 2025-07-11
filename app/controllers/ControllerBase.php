@@ -332,7 +332,7 @@ class ControllerBase extends Controller {
         $res = json_encode($message);
         $response->setContent($res);
 
-        $this->getLogFile('debug')->addWarning("$function - SUCCESS:$res");
+        $this->getLogFile('debug')->warning("$function - SUCCESS:$res");
 
         return $response;
     }
@@ -355,7 +355,7 @@ class ControllerBase extends Controller {
 
         $res = json_encode($res);
         $response->setContent($res);
-        $this->getLogFile('debug')->addWarning("$function - FORBIDDEN ACCESS:$res");
+        $this->getLogFile('debug')->warning("$function - FORBIDDEN ACCESS:$res");
 
         return $response;
     }
@@ -384,7 +384,7 @@ class ControllerBase extends Controller {
 
         $res = json_encode($res);
         $response->setContent($res);
-        $this->getLogFile('debug')->addInfo("$function - SUCCESS: Data sent back");
+        $this->getLogFile('debug')->info("$function - SUCCESS: Data sent back");
 
         return $response;
     }
@@ -426,7 +426,7 @@ class ControllerBase extends Controller {
 
         $res = json_encode($res);
         $response->setContent($res);
-        $this->getLogFile('debug')->addInfo("$function - SUCCESS:$res");
+        $this->getLogFile('debug')->info("$function - SUCCESS:$res");
 
         return $response;
     }
@@ -449,7 +449,7 @@ class ControllerBase extends Controller {
 
         $res = json_encode($res);
         $response->setContent($res);
-        $this->getLogFile('debug')->addError("$function - UNPROCESSABLE:$res");
+        $this->getLogFile('debug')->error("$function - UNPROCESSABLE:$res");
 
         return $response;
     }
@@ -499,7 +499,7 @@ class ControllerBase extends Controller {
 
         $res = json_encode($error);
         $response->setContent($res);
-        $this->getLogFile('debug')->addEmergency("$function - INTERNAL SERVER ERROR:$res");
+        $this->getLogFile('debug')->emergency("$function - INTERNAL SERVER ERROR:$res");
 
         return $response;
     }
@@ -522,7 +522,7 @@ class ControllerBase extends Controller {
 
         $res = json_encode($res);
         $response->setContent($res);
-        $this->getLogFile('debug')->addWarning("$function - UN-AUTHORISED::$res");
+        $this->getLogFile('debug')->warning("$function - UN-AUTHORISED::$res");
 
         return $response;
     }
@@ -541,7 +541,7 @@ class ControllerBase extends Controller {
         $response->setStatusCode(200, "OK");
         $res = json_encode($data);
         $response->setContent($res);
-        $this->getLogFile('debug')->addEmergency("$function - SUCCESS:$res");
+        $this->getLogFile('debug')->emergency("$function - SUCCESS:$res");
 
         return $response;
     }
@@ -564,7 +564,7 @@ class ControllerBase extends Controller {
 
         $res = json_encode($res);
         $response->setContent($res);
-        $this->getLogFile('debug')->addWarning("$function - METHOD NOT ALLOWED:$res");
+        $this->getLogFile('debug')->warning("$function - METHOD NOT ALLOWED:$res");
 
         return $response;
     }
@@ -587,7 +587,7 @@ class ControllerBase extends Controller {
 
         $res = json_encode($res);
         $response->setContent($res);
-        $this->getLogFile('debug')->addNotice("$function - PAYMENT REQUIRED:$res");
+        $this->getLogFile('debug')->notice("$function - PAYMENT REQUIRED:$res");
 
         return $response;
     }
@@ -612,7 +612,7 @@ class ControllerBase extends Controller {
 
         $res = json_encode($res);
         $response->setContent($res);
-        $this->getLogFile('debug')->addNotice("$function - BAD REQUEST:$res");
+        $this->getLogFile('debug')->notice("$function - BAD REQUEST:$res");
 
         return $response;
     }
