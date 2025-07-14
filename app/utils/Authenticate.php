@@ -115,7 +115,7 @@ class Authenticate extends Controller {
                 return true;
             }
         } catch (Exception $ex) {
-            $base->getLogFile('error')->addError(__LINE__ . ":" . __CLASS__
+            $base->getLogFile('error')->error(__LINE__ . ":" . __CLASS__
                     . " | Exception >>> " . json_encode($ex->getCode()));
         }
 
@@ -168,7 +168,7 @@ class Authenticate extends Controller {
                 return false;
             }
         } catch (Exception $ex) {
-            $base->getLogFile('error')->addError(__LINE__ . ":" . __CLASS__
+            $base->getLogFile('error')->error(__LINE__ . ":" . __CLASS__
                     . " | Exception >>> " . json_encode($ex->getCode()));
 
             return false;

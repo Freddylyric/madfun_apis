@@ -95,13 +95,13 @@ class Messaging extends Controller {
 
                     $result = $this->SendOndemandMessage($sms);
                     $end = $this->base->getMicrotime() - $start;
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | $unique_id - " . $params['link_id']
                             . " | Execution Time $end Sec SendOndemandMessage::$sms");
                 }
 
                 if (!$result) {
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | $unique_id - " . $params['msisdn'] . " payload " . json_encode($result)
                             . " | Failed SMS Submit REQUEUE");
 
@@ -165,7 +165,7 @@ class Messaging extends Controller {
         try {
             $postUrl = $this->base->settings['mnoApps']['BulkSMSAPI'];
             $result = $this->base->sendJsonPostData($postUrl, $postData);
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | sendJsonPostData SendBulkMessage::" . 
                     json_encode($result) . " payload " . json_encode($postData));
 
@@ -314,7 +314,7 @@ class Messaging extends Controller {
             $authorisation = $base->settings["whatsApp"]["Authorization"];
 
             $result = $base->SendJsonPostAuthData($postUrl, $postData, $authorisation, 1);
-            $base->getLogFile("info")->addError(__LINE__ . ":" . __CLASS__
+            $base->getLogFile("info")->error(__LINE__ . ":" . __CLASS__
                     . "Authorization: " . $authorisation . " | WhatsApp Info Log" . json_encode($result));
             return ['status' => true,
                 'response' => $result['response']
@@ -402,13 +402,13 @@ class Messaging extends Controller {
                     ]
                 ];
             }
-            $base->getLogFile("info")->addInfo(__LINE__ . ":" . __CLASS__
+            $base->getLogFile("info")->info(__LINE__ . ":" . __CLASS__
                     . " | WhatsApp Payload " . json_encode($postData) . " url: " . $postUrl);
 
             $authorisation = $base->settings["whatsApp"]["Authorization"];
             $wahtsAppResponse = $base->SendJsonPostAuthData($postUrl, $postData, $authorisation, 1);
             $data = json_encode($wahtsAppResponse['response'], JSON_UNESCAPED_SLASHES);
-            $base->getLogFile("info")->addInfo(__LINE__ . ":" . __CLASS__
+            $base->getLogFile("info")->info(__LINE__ . ":" . __CLASS__
                     . " | WhatsApp Infobip Response" . $data);
 
             return ['status' => true,

@@ -34,7 +34,7 @@ class CustomerController extends ControllerBase {
 
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | customerInfoAction:" . json_encode($request->getJsonRawBody()));
         $token = isset($data->api_key) ? $data->api_key : null;
         $mobile = isset($data->msisdn) ? $data->msisdn : null;

@@ -56,7 +56,7 @@ class Transactions {
 
             return $base->rawInsert($insert_sql, $insert_params);
         } catch (Exception $ex) {
-            $base->getLogFile('error')->addEmergency(__LINE__ . ":" . __CLASS__ . " | Execption::" . $ex->getCode()
+            $base->getLogFile('error')->emergency(__LINE__ . ":" . __CLASS__ . " | Execption::" . $ex->getCode()
                     . " | " . $ex->getMessage()
                     . " | " . $ex->getTraceAsString());
             throw $ex;
@@ -96,7 +96,7 @@ class Transactions {
             return $base->rawInsert($insert_sql, $insert_params);
             
         } catch (Exception $ex) {
-             $base->getLogFile('error')->addEmergency(__LINE__ . ":" . __CLASS__ . " | Execption::" . $ex->getCode()
+             $base->getLogFile('error')->emergency(__LINE__ . ":" . __CLASS__ . " | Execption::" . $ex->getCode()
                     . " | " . $ex->getMessage()
                     . " | " . $ex->getTraceAsString());
             throw $ex;

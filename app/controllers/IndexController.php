@@ -24,7 +24,7 @@ class IndexController extends ControllerBase {
         $request = new Request();
         $start_time = $this->getMicrotime();
 
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | IPNPesapal:" . json_encode($this->request->get()) .
                 "IPAddress:" . $this->getClientIPAddress());
 
@@ -103,7 +103,7 @@ class IndexController extends ControllerBase {
 
             if (!$check_trxn) {
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | UniqueId:" . $OrderTrackingId
                         . " | PESAPAL Transaction Id:" . $dpo_trxnId
                         . " | DIRECT_DEPOSIT Transactions Empty Account "
@@ -177,7 +177,7 @@ class IndexController extends ControllerBase {
             $check_trxn_profile = $this->rawSelect($select_ticket_profile,
                     [':reference_id' => $referenceID]);
 
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Payment Action Tickets Request:" . json_encode($check_trxn_profile));
 
             if (!$check_trxn_profile) {
@@ -243,7 +243,7 @@ class IndexController extends ControllerBase {
                         [":event_profile_ticket_id" => $profileTrans['event_profile_ticket_id']]);
 
                 if (!$check_trn_profile_state) {
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                             . " | UniqueId:" . $OrderTrackingId
                             . " | DPO Transaction Id:" . $dpo_trxnId
                             . " | event_profile_ticket_id:" . $profileTrans['event_profile_ticket_id']
@@ -322,7 +322,7 @@ class IndexController extends ControllerBase {
                 'receipt_number' => "A" . $accountNumber . '$' . $this->now('YmdHis') . "" . $this->randStrGen(30),];
             $callback_id = Transactions::CreateTransactionCallback($callback_data);
 
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | UniqueId:" . $OrderTrackingId
                     . " | DPO Transaction Id:" . $dpo_trxnId
                     . " | Account:" . $accountNumber
@@ -426,7 +426,7 @@ class IndexController extends ControllerBase {
 
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | CallbackStream:" . json_encode($request->getJsonRawBody()));
 
         return $this->success(__LINE__ . ":" . __CLASS__
@@ -446,7 +446,7 @@ class IndexController extends ControllerBase {
 
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger-info(__LINE__ . ":" . __CLASS__
                 . " | View Code Request:" . json_encode($request->getJsonRawBody()));
 
         $code = isset($data->code) ? $data->code : null;
@@ -502,7 +502,7 @@ class IndexController extends ControllerBase {
             }
             if ($code != null) {
                 $codeResponse = Codes::queryCode($code);
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | View Code Request:" . json_encode($codeResponse));
 
                 if ($codeResponse['response_code'] != 200) {
@@ -581,7 +581,7 @@ class IndexController extends ControllerBase {
 
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | View Code Request:" . json_encode($request->getJsonRawBody()));
 
         $code = isset($data->code) ? $data->code : null;
@@ -653,13 +653,13 @@ class IndexController extends ControllerBase {
 
             if ($code != null) {
                 $codeResponse = Codes::queryCode($code);
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | View Code Request:" . json_encode($codeResponse));
 
                 if ($codeResponse['response_code'] != 200) {
 
                     $stop_end = $this->getMicrotime() - $start_time;
-                    return $this->dataError(__LINE__ . ":" . __CLASS__, $codeResponse['message'], [
+                    return $this->error(__LINE__ . ":" . __CLASS__, $codeResponse['message'], [
                                 'code' => $codeResponse['response_code']
                                 , 'message' => "Query returned no results ( $stop_end Seconds)", 'data' => $codeResponse
                                 , 'record_count' => 0]);
@@ -932,7 +932,7 @@ class IndexController extends ControllerBase {
                 $st = $this->getMicrotime();
                 $transactionId = Transactions::Initiate($params);
                 $stop = $this->getMicrotime() - $st;
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Took $stop Seconds"
                         . " | UniqueId:" . $unique_id
                         . " | Mobile:$msisdn"
@@ -966,7 +966,7 @@ class IndexController extends ControllerBase {
                 $sts = $this->getMicrotime();
                 $response = $this->sendJsonPostData($this->settings['Mpesa']['CheckOutUrl'], $checkout_payload);
                 $stopped = $this->getMicrotime() - $sts;
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Took $stopped Seconds"
                         . " | UniqueId:" . $unique_id
                         . " | Mobile:$msisdn"
@@ -992,7 +992,7 @@ class IndexController extends ControllerBase {
                     $message = new Messaging();
                     $queueMessageResponse = $message->LogOutbox($sms);
                     $stopped = $this->getMicrotime() - $sts;
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                             . " | Took $stopped Seconds"
                             . " | UniqueId:" . $unique_id
                             . " | Mobile:$msisdn"
@@ -2407,7 +2407,7 @@ class IndexController extends ControllerBase {
             $st = $this->getMicrotime();
             $transactionId = Transactions::Initiate($params);
             $stop = $this->getMicrotime() - $st;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stop Seconds"
                     . " | UniqueId:" . $unique_id
                     . " | Mobile:$msisdn"
@@ -2461,7 +2461,7 @@ class IndexController extends ControllerBase {
                 $sts = $this->getMicrotime();
                 $response = $this->sendJsonPostData($this->settings['Mpesa']['CheckOutUrl'], $checkout_payload);
                 $stopped = $this->getMicrotime() - $sts;
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Took $stopped Seconds"
                         . " | UniqueId:" . $unique_id
                         . " | Mobile:$msisdn"
@@ -2487,7 +2487,7 @@ class IndexController extends ControllerBase {
                     $message = new Messaging();
                     $queueMessageResponse = $message->LogOutbox($sms);
                     $stopped = $this->getMicrotime() - $sts;
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                             . " | Took $stopped Seconds"
                             . " | UniqueId:" . $unique_id
                             . " | Mobile:$msisdn"
@@ -2634,7 +2634,7 @@ class IndexController extends ControllerBase {
             $stDPO = $this->getMicrotime();
             $DPOResultInitiated = Transactions::dpoInititate($paramsDPOInititated);
             $stopDPO = $this->getMicrotime() - $stDPO;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stopDPO Seconds"
                     . " | UniqueId:" . $DPOResultInitiated
                     . " | Mobile:$msisdn"
@@ -3200,7 +3200,7 @@ class IndexController extends ControllerBase {
             $st = $this->getMicrotime();
             $transactionId = Transactions::Initiate($params);
             $stop = $this->getMicrotime() - $st;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stop Seconds"
                     . " | UniqueId:" . $unique_id
                     . " | Mobile:$msisdn"
@@ -3252,7 +3252,7 @@ class IndexController extends ControllerBase {
                 $sts = $this->getMicrotime();
                 $response = $this->sendJsonPostData($this->settings['Mpesa']['CheckOutUrl'], $checkout_payload);
                 $stopped = $this->getMicrotime() - $sts;
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Took $stopped Seconds"
                         . " | UniqueId:" . $unique_id
                         . " | Mobile:$msisdn"
@@ -3278,7 +3278,7 @@ class IndexController extends ControllerBase {
                     $message = new Messaging();
                     $queueMessageResponse = $message->LogOutbox($sms);
                     $stopped = $this->getMicrotime() - $sts;
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                             . " | Took $stopped Seconds"
                             . " | UniqueId:" . $unique_id
                             . " | Mobile:$msisdn"
@@ -3349,7 +3349,7 @@ class IndexController extends ControllerBase {
             $stDPO = $this->getMicrotime();
             $DPOResultInitiated = Transactions::dpoInititate($paramsDPOInititated);
             $stopDPO = $this->getMicrotime() - $stDPO;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stopDPO Seconds"
                     . " | UniqueId:" . $DPOResultInitiated
                     . " | Mobile:$msisdn"
@@ -3536,7 +3536,7 @@ class IndexController extends ControllerBase {
             $st = $this->getMicrotime();
             $transactionId = Transactions::Initiate($params);
             $stop = $this->getMicrotime() - $st;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stop Seconds"
                     . " | UniqueId:" . $unique_id
                     . " | Mobile:$msisdn"
@@ -3578,7 +3578,7 @@ class IndexController extends ControllerBase {
             $sts = $this->getMicrotime();
             $response = $this->sendJsonPostData($this->settings['Mpesa']['CheckOutUrl'], $checkout_payload);
             $stopped = $this->getMicrotime() - $sts;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stopped Seconds"
                     . " | UniqueId:" . $unique_id
                     . " | Mobile:$msisdn"
@@ -3604,7 +3604,7 @@ class IndexController extends ControllerBase {
                 $message = new Messaging();
                 $queueMessageResponse = $message->LogOutbox($sms);
                 $stopped = $this->getMicrotime() - $sts;
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | Took $stopped Seconds"
                         . " | UniqueId:" . $unique_id
                         . " | Mobile:$msisdn"
@@ -3875,7 +3875,7 @@ class IndexController extends ControllerBase {
             $st = $this->getMicrotime();
             $transactionId = Transactions::Initiate($params);
             $stop = $this->getMicrotime() - $st;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stop Seconds"
                     . " | UniqueId:" . $unique_id
                     . " | Mobile:$msisdn"
@@ -3909,7 +3909,7 @@ class IndexController extends ControllerBase {
                 $sts = $this->getMicrotime();
                 $response = $this->sendJsonPostData($this->settings['Mpesa']['CheckOutUrl'], $checkout_payload);
                 $stopped = $this->getMicrotime() - $sts;
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Took $stopped Seconds"
                         . " | UniqueId:" . $unique_id
                         . " | Mobile:$msisdn"
@@ -3935,7 +3935,7 @@ class IndexController extends ControllerBase {
                     $message = new Messaging();
                     $message->LogOutbox($sms);
                     $stopped = $this->getMicrotime() - $sts;
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                             . " | Took $stopped Seconds"
                             . " | UniqueId:" . $unique_id
                             . " | Mobile:$msisdn"
@@ -4011,7 +4011,7 @@ class IndexController extends ControllerBase {
             $stDPO = $this->getMicrotime();
             $DPOResultInitiated = Transactions::dpoInititate($paramsDPOInititated);
             $stopDPO = $this->getMicrotime() - $stDPO;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stopDPO Seconds"
                     . " | UniqueId:" . $DPOResultInitiated
                     . " | Mobile:$msisdn"
@@ -4175,7 +4175,7 @@ class IndexController extends ControllerBase {
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
 
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | Payment Action Request:" . json_encode($request->getJsonRawBody()));
 
         $TransType = isset($data->TransType) ? $data->TransType : null;
@@ -4233,7 +4233,7 @@ class IndexController extends ControllerBase {
                 ///Send Post data
                 $resultStaging = $this->sendJsonPostData("https://stage-204.ridgeways.xyz/api/payment/Confirm", $data);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Response Staging Payload:" . json_encode($resultStaging));
             }
 
@@ -4244,7 +4244,7 @@ class IndexController extends ControllerBase {
 
             if (!$check_trxn) {
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | UniqueId:" . $TransID
                         . " | Account:" . $accountNumber
                         . " | DIRECT_DEPOSIT Transactions Empty Account "
@@ -4321,7 +4321,7 @@ class IndexController extends ControllerBase {
             } else if (in_array($check_trxn[0]['service_id'], [3, 4, 5])) {
                 $extra_data = json_decode($check_trxn[0]['extra_data']);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Utilities:" . $extra_data->account_number);
                 if ($check_trxn[0]['service_id'] == 3) {
                     //Airtime
@@ -4337,7 +4337,7 @@ class IndexController extends ControllerBase {
                         $postData['msisdn'] = $msisdn;
                     }
                     $result = $this->sendJsonPostData($this->settings['Rewards']['VasproAirtimeUrl'], $postData);
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $TransID
                             . " | $msisdn "
                             . " | ServiceId:" . $check_trxn[0]['service_id']
@@ -4368,7 +4368,7 @@ class IndexController extends ControllerBase {
                         'receipt_number' => $receipt_number,];
                     $callback_id = Transactions::CreateTransactionCallback($callback_data);
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $TransID
                             . " | $msisdn"
                             . " | Service: Airtime Purchase"
@@ -4403,7 +4403,7 @@ class IndexController extends ControllerBase {
                         $postData['msisdn'] = $msisdn;
                     }
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $TransID
                             . " | $msisdn"
                             . " | Service:$service_name"
@@ -4411,7 +4411,7 @@ class IndexController extends ControllerBase {
                             . " | Eletricity Payload::" . json_encode($postData));
 
                     $result = $this->sendJsonPostData($this->settings['Rewards']['ElectricityUrl'], $postData);
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $TransID
                             . " | $msisdn"
                             . " | Service:$service_name"
@@ -4445,7 +4445,7 @@ class IndexController extends ControllerBase {
                                     , "accounts" => $extra_data->account_number
                                     , "account_details" => $account_details]);
 
-                        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                        $this->infologger->info(__LINE__ . ":" . __CLASS__
                                 . " | MpesaCode:" . $TransID
                                 . " | $msisdn"
                                 . " | Service:$service_name"
@@ -4466,7 +4466,7 @@ class IndexController extends ControllerBase {
                         'receipt_number' => $receipt_number,];
                     $callback_id = Transactions::CreateTransactionCallback($callback_data);
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $TransID
                             . " | $msisdn"
                             . " | Service:$service_name"
@@ -4482,7 +4482,7 @@ class IndexController extends ControllerBase {
                 $check_trxn_profile = $this->rawSelect($select_ticket_profile,
                         [':reference_id' => $referenceID]);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Payment Action Tickets Request:" . json_encode($check_trxn_profile));
 
                 if (!$check_trxn_profile) {
@@ -4525,7 +4525,7 @@ class IndexController extends ControllerBase {
                             [":event_profile_ticket_id" => $profileTrans['event_profile_ticket_id']]);
 
                     if (!$check_trn_profile_state) {
-                        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                        $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                                 . " | UniqueId:" . $TransID
                                 . " | Mobile:" . $msisdn
                                 . " | event_profile_ticket_id:" . $profileTrans['event_profile_ticket_id']
@@ -4601,7 +4601,7 @@ class IndexController extends ControllerBase {
                     'receipt_number' => "A" . $accountNumber . '$' . $this->now('YmdHis') . "" . $this->randStrGen(30),];
                 $callback_id = Transactions::CreateTransactionCallback($callback_data);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | MpesaCode:" . $TransID
                         . " | $msisdn - "
                         . " | Account:" . $accountNumber
@@ -4695,7 +4695,7 @@ class IndexController extends ControllerBase {
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
 
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | Payment Action Request:" . json_encode($request->getJsonRawBody()));
 
         $payload = isset($data->payload->payment_data) ? $data->payload->payment_data : null;
@@ -4766,7 +4766,7 @@ class IndexController extends ControllerBase {
                 ///Send Post data
                 $resultStaging = $this->sendJsonPostData("https://stage-204.ridgeways.xyz/api/payment/Confirm", $data);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Response Staging Payload:" . json_encode($resultStaging));
             }
 
@@ -4785,7 +4785,7 @@ class IndexController extends ControllerBase {
 
             if (!$check_trxn) {
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | UniqueId:" . $object->TransID
                         . " | Mobile:" . $object->MSISDN
                         . " | DIRECT_DEPOSIT Transactions Empty Account "
@@ -4899,7 +4899,7 @@ class IndexController extends ControllerBase {
 
                 $extra_data = json_decode($check_trxn[0]['extra_data']);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Utilities:" . $extra_data->account_number);
                 if ($check_trxn[0]['service_id'] == 3) {
                     //Airtime
@@ -4915,7 +4915,7 @@ class IndexController extends ControllerBase {
                         $postData['msisdn'] = $check_trxn[0]['msisdn'];
                     }
                     $result = $this->sendJsonPostData($this->settings['Rewards']['VasproAirtimeUrl'], $postData);
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $object->TransID
                             . " | " . $check_trxn[0]['msisdn']
                             . " | ServiceId:" . $check_trxn[0]['service_id']
@@ -4946,7 +4946,7 @@ class IndexController extends ControllerBase {
                         'receipt_number' => $receipt_number,];
                     $callback_id = Transactions::CreateTransactionCallback($callback_data);
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $object->TransID
                             . " | " . $check_trxn[0]['msisdn']
                             . " | Service: Airtime Purchase"
@@ -4981,7 +4981,7 @@ class IndexController extends ControllerBase {
                         $postData['msisdn'] = $check_trxn[0]['msisdn'];
                     }
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $object->TransID
                             . " | " . $check_trxn[0]['msisdn']
                             . " | Service:$service_name"
@@ -4989,7 +4989,7 @@ class IndexController extends ControllerBase {
                             . " | Eletricity Payload::" . json_encode($postData));
 
                     $result = $this->sendJsonPostData($this->settings['Rewards']['ElectricityUrl'], $postData);
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $object->TransID
                             . " | " . $check_trxn[0]['msisdn']
                             . " | Service:$service_name"
@@ -5023,7 +5023,7 @@ class IndexController extends ControllerBase {
                                     , "accounts" => $extra_data->account_number
                                     , "account_details" => $account_details]);
 
-                        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                        $this->infologger->info(__LINE__ . ":" . __CLASS__
                                 . " | MpesaCode:" . $object->TransID
                                 . " | $object->MSISDN  - $source"
                                 . " | Service:$service_name"
@@ -5044,7 +5044,7 @@ class IndexController extends ControllerBase {
                         'receipt_number' => $receipt_number,];
                     $callback_id = Transactions::CreateTransactionCallback($callback_data);
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | MpesaCode:" . $object->TransID
                             . " | $object->MSISDN  - $source"
                             . " | Service:$service_name"
@@ -5062,7 +5062,7 @@ class IndexController extends ControllerBase {
                 $check_trxn_profile = $this->rawSelect($select_ticket_profile,
                         [':reference_id' => $referenceID]);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Payment Action Tickets Request:" . json_encode($check_trxn_profile));
 
                 if (!$check_trxn_profile) {
@@ -5138,7 +5138,7 @@ class IndexController extends ControllerBase {
                             [":event_profile_ticket_id" => $profileTrans['event_profile_ticket_id']]);
 
                     if (!$check_trn_profile_state) {
-                        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                        $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                                 . " | UniqueId:" . $object->TransID
                                 . " | Mobile:" . $object->MSISDN
                                 . " | event_profile_ticket_id:" . $profileTrans['event_profile_ticket_id']
@@ -5242,7 +5242,7 @@ class IndexController extends ControllerBase {
                     'receipt_number' => "A" . $accountNumber . '$' . $this->now('YmdHis') . "" . $this->randStrGen(30),];
                 $callback_id = Transactions::CreateTransactionCallback($callback_data);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | MpesaCode:" . $object->TransID
                         . " | $object->MSISDN - "
                         . " | Account:" . $accountNumber
@@ -5441,7 +5441,7 @@ class IndexController extends ControllerBase {
 
             if (!$check_trxn) {
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | UniqueId:" . $TransID
                         . " | DPO Transaction Id:" . $dpo_trxnId
                         . " | DIRECT_DEPOSIT Transactions Empty Account "
@@ -5509,7 +5509,7 @@ class IndexController extends ControllerBase {
             $check_trxn_profile = $this->rawSelect($select_ticket_profile,
                     [':reference_id' => $referenceID]);
 
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | dpo Payment Action Tickets Request:" . json_encode($check_trxn_profile));
 
             if (!$check_trxn_profile) {
@@ -5572,7 +5572,7 @@ class IndexController extends ControllerBase {
                         [":event_profile_ticket_id" => $profileTrans['event_profile_ticket_id']]);
 
                 if (!$check_trn_profile_state) {
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                             . " | UniqueId:" . $TransID
                             . " | DPO Transaction Id:" . $dpo_trxnId
                             . " | event_profile_ticket_id:" . $profileTrans['event_profile_ticket_id']
@@ -5648,7 +5648,7 @@ class IndexController extends ControllerBase {
                 'receipt_number' => "A" . $accountNumber . '$' . $this->now('YmdHis') . "" . $this->randStrGen(30),];
             $callback_id = Transactions::CreateTransactionCallback($callback_data);
 
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | UniqueId:" . $TransID
                     . " | DPO Transaction Id:" . $dpo_trxnId
                     . " | Account:" . $accountNumber
@@ -6081,7 +6081,7 @@ class IndexController extends ControllerBase {
                 $message = new Messaging();
                 $queueMessageResponse = $message->LogOutbox($sms);
                 $stopped = $this->getMicrotime() - $sts;
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | Took $stopped Seconds"
                         . " | ProfleID:" . $profile_id
                         . " | Mobile:$msisdn"
@@ -6317,7 +6317,7 @@ class IndexController extends ControllerBase {
                 $message = new Messaging();
                 $queueMessageResponse = $message->LogOutbox($sms);
                 $stopped = $this->getMicrotime() - $sts;
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | Took $stopped Seconds"
                         . " | ProfleID:" . $profile_id
                         . " | Mobile:$msisdn"
@@ -6769,7 +6769,7 @@ class IndexController extends ControllerBase {
             $st = $this->getMicrotime();
             $transactionId = Transactions::Initiate($params);
             $stop = $this->getMicrotime() - $st;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stop Seconds"
                     . " | UniqueId:" . $unique_id
                     . " | Mobile:$msisdn"
@@ -6860,7 +6860,7 @@ class IndexController extends ControllerBase {
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
 
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | SMS DLR:" . json_encode($data));
 
         $correlator = isset($data->correlator) ? $data->correlator : null;

@@ -37,7 +37,7 @@ class Profiling {
 
             return $base->rawInsert($insert_sql, $insert_params);
         } catch (Exception $ex) {
-            $base->getLogFile("error")->addEmergency(_LINE_ . ":" . _CLASS_
+            $base->getLogFile("error")->emergency(_LINE_ . ":" . _CLASS_
                     . " | Exception:" . $ex->getMessage());
 
             return false;
@@ -74,7 +74,7 @@ class Profiling {
 
             return $base->rawInsert($insert_sql, $insert_params);
         } catch (Exception $ex) {
-            $base->getLogFile("error")->addEmergency(_LINE_ . ":" . _CLASS_
+            $base->getLogFile("error")->emergency(_LINE_ . ":" . _CLASS_
                     . " | Exception:" . $ex->getMessage());
 
             return false;
@@ -116,7 +116,7 @@ class Profiling {
 
             return $base->rawInsert($insert_sql, $insert_params);
         } catch (Exception $ex) {
-            $base->getLogFile("error")->addEmergency(_LINE_ . ":" . _CLASS_
+            $base->getLogFile("error")->emergency(_LINE_ . ":" . _CLASS_
                     . " | Exception:" . $ex->getMessage());
 
             return false;
@@ -145,7 +145,7 @@ class Profiling {
 
             return $base->rawInsert($insert_sql, $insert_params);
         } catch (Exception $ex) {
-            $base->getLogFile("error")->addEmergency(_LINE_ . ":" . _CLASS_
+            $base->getLogFile("error")->emergency(_LINE_ . ":" . _CLASS_
                     . " | Exception:" . $ex->getMessage());
         }
     }
@@ -477,7 +477,7 @@ class Profiling {
                 return false;
             }
         } catch (Exception $ex) {
-            $base->getLogFile('error')->addError(_LINE_ . ":" . _CLASS_
+            $base->getLogFile('error')->error(_LINE_ . ":" . _CLASS_
                     . " | Exception >>> " . json_encode($ex->getCode()));
 
             return false;

@@ -27,7 +27,7 @@ class UtilitiesController extends ControllerBase {
 
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | Transaction Request:" . json_encode($request->getJsonRawBody()));
 
         $unique_id = isset($data->unique_id) ? $data->unique_id : null;
@@ -193,7 +193,7 @@ class UtilitiesController extends ControllerBase {
             $st = $this->getMicrotime();
             $transactionId = Transactions::Initiate($params);
             $stop = $this->getMicrotime() - $st;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stop Seconds"
                     . " | UniqueId:" . $unique_id
                     . " | Mobile:$msisdn"
@@ -229,7 +229,7 @@ class UtilitiesController extends ControllerBase {
             $sts = $this->getMicrotime();
             $response = $this->sendJsonPostData($this->settings['Mpesa']['CheckOutUrl'], $checkout_payload);
             $stopped = $this->getMicrotime() - $sts;
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Took $stopped Seconds"
                     . " | UniqueId:" . $unique_id
                     . " | Mobile:$msisdn"
@@ -252,7 +252,7 @@ class UtilitiesController extends ControllerBase {
                 $sts = $this->getMicrotime();
                 messaging::LogOutbox($sms);
                 $stopped = $this->getMicrotime() - $sts;
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | Took $stopped Seconds"
                         . " | UniqueId:" . $unique_id
                         . " | Mobile:$msisdn"
@@ -307,7 +307,7 @@ class UtilitiesController extends ControllerBase {
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
 
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | Airtime Callback Request:" . json_encode($data));
         $this->payload['unique_id'] = isset($data->unique_id) ? $data->unique_id : NULL;
         $this->payload['transaction_id'] = isset($data->transaction_id) ? $data->transaction_id : NULL;
@@ -345,7 +345,7 @@ class UtilitiesController extends ControllerBase {
                     ':receipt_number' => $this->payload['transaction_id'],
                     ':transaction_id' => $unique_id];
                 $result = $this->rawSelect($statement, $statement_param);
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Retries:$retries"
                         . " | UniqueId:$unique_id"
                         . " | RecieptNumber:" . $this->payload['transaction_id']
@@ -412,7 +412,7 @@ class UtilitiesController extends ControllerBase {
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
 
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | RetryTransactionAction Request:" . json_encode($data));
 
         $this->payload['service_id'] = isset($data->service_id) ? $data->service_id : NULL;
@@ -469,7 +469,7 @@ class UtilitiesController extends ControllerBase {
                 foreach ($select_results as $select_result) {
                     $select_result['retries']++;
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | Retry Request Request"
                             . " | CallBackId:" . $select_result['id']
                             . " | TrxnId:" . $select_result['transaction_id']
@@ -510,7 +510,7 @@ class UtilitiesController extends ControllerBase {
                                         , $select_result['id']
                                         , $data_back);
 
-                        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                        $this->infologger->info(__LINE__ . ":" . __CLASS__
                                 . " | Retry Request Request"
                                 . " | CallBackId:" . $select_result['id']
                                 . " | TrxnId:" . $select_result['transaction_id']
@@ -535,7 +535,7 @@ class UtilitiesController extends ControllerBase {
                         'bill_reference' => $extra_data->account_number,
                         'callback' => 'http://35.187.164.231/ticket-bay-api/api/utility/v1/callback'];
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | Retry Request Request"
                             . " | CallBackId:" . $select_result['id']
                             . " | TrxnId:" . $select_result['transaction_id']
@@ -544,7 +544,7 @@ class UtilitiesController extends ControllerBase {
                             . " | Eletricity Payload::" . json_encode($postData));
 
                     $result = $this->sendJsonPostData($this->settings['Rewards']['ElectricityUrl'], $postData);
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | Retry Request Request"
                             . " | CallBackId:" . $select_result['id']
                             . " | TrxnId:" . $select_result['transaction_id']
@@ -555,7 +555,7 @@ class UtilitiesController extends ControllerBase {
                     $res = json_decode($result['response']);
 
                     if ($result['statusCode'] != 200) {
-                        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                        $this->infologger->info(__LINE__ . ":" . __CLASS__
                                 . " | Retry Request Request"
                                 . " | CallBackId:" . $select_result['id']
                                 . " | TrxnId:" . $select_result['transaction_id']
@@ -579,7 +579,7 @@ class UtilitiesController extends ControllerBase {
                                     , "accounts" => $extra_data->account_number
                                     , "account_details" => $account_details]);
 
-                        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                        $this->infologger->info(__LINE__ . ":" . __CLASS__
                                 . " | Retry Request Request"
                                 . " | CallBackId:" . $select_result['id']
                                 . " | TrxnId:" . $select_result['transaction_id']
@@ -630,7 +630,7 @@ class UtilitiesController extends ControllerBase {
             }
 
             $failed_count = count($select_results);
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | Retry Request Request"
                     . " | Failed Count::$failed_count");
             if ($failed_count < 1) {
@@ -643,7 +643,7 @@ class UtilitiesController extends ControllerBase {
             foreach ($select_results as $select_result) {
                 $select_result['retries']++;
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Retry Request Request"
                         . " | CallBackId:" . $select_result['id']
                         . " | TrxnId:" . $select_result['transaction_id']
@@ -668,7 +668,7 @@ class UtilitiesController extends ControllerBase {
                                     , $select_result['id']
                                     , $data_back);
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | Retry Request Request"
                             . " | CallBackId:" . $select_result['id']
                             . " | TrxnId:" . $select_result['transaction_id']
@@ -697,7 +697,7 @@ class UtilitiesController extends ControllerBase {
                                     , $select_result['id']
                                     , $data_back);
 
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | Retry Request Request"
                             . " | CallBackId:" . $select_result['id']
                             . " | TrxnId:" . $select_result['transaction_id']
@@ -718,7 +718,7 @@ class UtilitiesController extends ControllerBase {
                                     , 'Request Failed'
                                     , $select_result['id']
                                     , $data_back);
-                    $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | Retry Request Request"
                             . " | CallBackId:" . $select_result['id']
                             . " | TrxnId:" . $select_result['transaction_id']
@@ -749,7 +749,7 @@ class UtilitiesController extends ControllerBase {
 //                }
 
                 $result = $this->sendJsonPostData($this->settings['Rewards']['VasproAirtimeUrl'], $postData);
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | Retry Request Request"
                         . " | CallBackId:" . $select_result['id']
                         . " | TrxnId:" . $select_result['transaction_id']
@@ -819,7 +819,7 @@ class UtilitiesController extends ControllerBase {
 
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
-        $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | Transaction Request:" . json_encode($request->getJsonRawBody()));
 
         $service_id = isset($data->service_id) ? $data->service_id : null;
