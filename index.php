@@ -75,6 +75,7 @@ $main->mapVia('stream/callback', 'callbackStream', ['POST']);
 $main->mapVia('pesapal/ipn', 'IPNPesapal', ['POST']);
 $main->mapVia('queried/linked/ticket', 'queryLinkedTicket', ['POST']);
 $main->mapVia('queried/qrCode/ticket', 'queryQrCodeTicket', ['POST']);
+$main->mapVia('queried/dpo/payment', 'QueryDPOPaymentStatus', ['POST']);
 /**
  * Dashboard
  */
