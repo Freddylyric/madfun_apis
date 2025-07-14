@@ -9,7 +9,7 @@ use Phalcon\Http\Response;
 use Phalcon\Mvc\Dispatcher as MvcDispatcher;
 
 class ControllerBase extends Controller {
-
+    
     /**
      * CalculateTAT
      * @param type $start
@@ -20,15 +20,17 @@ class ControllerBase extends Controller {
 
         return round($tat, 5);
     }
+    
+     function generateUniqueReference($prefix = 'QOR') {
+         $refernceNumber =  $this->ReferenceNumber();
+         $random = mt_rand(1000, 9999);
+         $reference = $prefix ."-". $refernceNumber ."-". $random."-".$this->num2alpha($random);
+    
+         return $reference;
 
-    function generateUniqueReference($prefix = 'QOR') {
-        $refernceNumber = $this->ReferenceNumber();
-        $random = mt_rand(1000, 9999);
-        $reference = $prefix . "-" . $refernceNumber . "-" . $random . "-" . $this->num2alpha($random);
-
-        return $reference;
+         
     }
-
+    
     /**
      * ReferenceNumber
      * @param type $uniqueId
@@ -61,7 +63,7 @@ class ControllerBase extends Controller {
 
         return strtoupper($referenceId);
     }
-
+    
     /**
      * Converts an integer into the alphabet base (A-Z).
      *
@@ -78,7 +80,7 @@ class ControllerBase extends Controller {
         }
         return $r;
     }
-
+    
     function checkForMySQLKeywords($requestData) {
         // Define an array of MySQL-related keywords or patterns to search for.
         $mysqlKeywords = array(
@@ -87,7 +89,7 @@ class ControllerBase extends Controller {
             "mysql_query", "mysqli_query", "PDO::query"
                 // Add more keywords or patterns as needed.
         );
-        // Convert the request data to lowercase for case-insensitive matching.
+         // Convert the request data to lowercase for case-insensitive matching.
         if (is_string($requestData)) {
             $requestData = strtolower($requestData);
         } else {
@@ -114,7 +116,7 @@ class ControllerBase extends Controller {
             throw $ex;
         }
     }
-
+    
     /**
      * AlphaNumericIdGenerator
      * @param type $input
@@ -523,7 +525,7 @@ class ControllerBase extends Controller {
 
         return $response;
     }
-
+    
     /**
      * Formats server error response messages 
      * @param type $function
@@ -894,16 +896,16 @@ class ControllerBase extends Controller {
      */
     public function rawSelect($statement, $params = [], $db = null) {
         try {
-            if (!is_array($params)) {
-                $params = [$params];  // ✅ Fix: auto-cast if it's a string or scalar
-            }
+           
+                $connection = $this->di->getShared("db");
+            
+            $success = $connection->query($statement, $params ?? []);
+            $success->setFetchMode(2);
+            $result = $success->fetchAll();
 
-            $connection = $this->di->getShared($db === null ? "db" : "db2");
 
-            $success = $connection->query($statement, $params);
-            $success->setFetchMode(\PDO::FETCH_ASSOC);  // Optional: clearer than `2`
-            return $success->fetchAll();
-        } catch (\Exception $e) {
+            return $result;
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -925,7 +927,7 @@ class ControllerBase extends Controller {
             throw $e;
         }
     }
-
+    
     /**
      * rawSelectOneRecord
      * @param type $sql
@@ -944,7 +946,7 @@ class ControllerBase extends Controller {
             throw $e;
         }
     }
-
+    
     /**
      * rawInsertBulk
      * @param type $table
@@ -1455,7 +1457,7 @@ class ControllerBase extends Controller {
 
         return ["statusCode" => $status, "response" => $response, 'error' => $curlError];
     }
-
+    
     public function sendJsonPesapalPostData($postUrl, $postData) {
         $httpRequest = curl_init($postUrl);
         curl_setopt($httpRequest, CURLOPT_NOBODY, true);
@@ -1463,7 +1465,7 @@ class ControllerBase extends Controller {
         curl_setopt($httpRequest, CURLOPT_POSTFIELDS, json_encode($postData));
         curl_setopt($httpRequest, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
-            'Accept: application/json',
+            'Accept: application/json', 
             'Content-Length: ' . strlen(json_encode($postData))));
         curl_setopt($httpRequest, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($httpRequest, CURLOPT_TIMEOUT, $this->settings['timeoutDuration']);
@@ -1479,10 +1481,13 @@ class ControllerBase extends Controller {
 
         return ["statusCode" => $status, "response" => $response, 'error' => $curlError];
     }
-
-    public function sendJsonTokenPesapalPostData($postUrl, $postData, $authorisation) {
+    
+   
+    
+     public function sendJsonTokenPesapalPostData($postUrl, $postData, $authorisation) {
 
         $auth = "Bearer";
+
 
         $ch = curl_init($postUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1506,7 +1511,7 @@ class ControllerBase extends Controller {
 
         return ["statusCode" => $status, "response" => $result, 'error' => $curlError];
     }
-
+    
     /**
      * sendGetRequestWithHeaders
      * @param type $Url
@@ -1517,7 +1522,7 @@ class ControllerBase extends Controller {
         $auth = "Bearer";
         $httpRequest = curl_init($Url);
         curl_setopt($httpRequest, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_setopt($httpRequest, CURLOPT_HTTPHEADER, array(
+         curl_setopt($httpRequest, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Authorization: ' . $auth . ' ' . trim($authorisation)));
         curl_setopt($httpRequest, CURLOPT_RETURNTRANSFER, true);
@@ -1613,4 +1618,5 @@ class ControllerBase extends Controller {
 
         return ["statusCode" => $status, "response" => $response, 'error' => $curlError];
     }
+
 }
