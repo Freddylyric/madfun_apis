@@ -902,9 +902,10 @@ class ControllerBase extends Controller {
                 $connection = $this->di->getShared("db2");
             }
 
-            $success = $connection->query($statement, $params);
-             $success->setFetchMode(2);
-             $result = $success->fetchAll();
+             $success = $connection->query($statement, $params ?? []);
+            $success->setFetchMode(2);
+            $result = $success->fetchAll();
+
 
             return $result;
         } catch (Exception $e) {
@@ -920,7 +921,7 @@ class ControllerBase extends Controller {
     public function selectQuery($sql, $params = []) {
         try {
             $connection = $this->di->getShared("db2");
-            $success = $connection->query($sql, $params);
+            $success = $connection->query($sql, $params ?? []);
             $success->setFetchMode(2);
             $result = $success->fetchAll();
 
