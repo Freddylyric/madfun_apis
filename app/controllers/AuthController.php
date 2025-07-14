@@ -322,12 +322,12 @@ class AuthController extends ControllerBase {
                 $queueMessageResponse = $messageSMS->LogOutbox($params);
             }
             $this->infologger->info(__LINE__ . ":" . __CLASS__
-                    . " | email Response::" . $email);
-            if ($email != null) {
+                    . " | email Response::" . $emailAddress);
+            if ($emailAddress != null) {
 
                 $postData = [
                     "api_key" => $this->settings['ServiceApiKey'],
-                    "to" => $email,
+                    "to" => $emailAddress,
                     "from" => "noreply@madfun.com",
                     "cc" => "",
                     "subject" => "Authentication Login",
