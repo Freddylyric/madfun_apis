@@ -27,9 +27,9 @@ if (!in_array($host, $hosts)) {
 else {
     $connection = array(
         'adapter' => 'mysql',
-         'host' => '146.148.27.7', //104.199.25.225',
-        'username' => 'vas_user',
-        'password' => '{l$yCT1nh2Vf/d-2',
+        'host' => '35.187.90.51', //104.199.25.225',
+        'username' => 'madfun_user',
+        'password' => 'POD5e\d9IabkzEsd@IgE&Oh4bqJkOYYHld',
         'dbname' => 'madfun',
         'charset' => 'utf8mb4',
         "options" => [\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true, \PDO::ATTR_PERSISTENT]
@@ -37,9 +37,9 @@ else {
 
     $connection2 = array(
         'adapter' => 'mysql',
-        'host' => '146.148.27.7', //104.199.25.225',
-        'username' => 'vas_user',
-        'password' => '{l$yCT1nh2Vf/d-2',
+       'host' => '35.187.90.51', //104.199.25.225',
+        'username' => 'madfun_user',
+        'password' => 'POD5e\d9IabkzEsd@IgE&Oh4bqJkOYYHld',
         'dbname' => 'madfun',
         'charset' => 'utf8mb4',
         "options" => array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true)
