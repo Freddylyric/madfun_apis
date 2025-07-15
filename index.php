@@ -147,7 +147,7 @@ $event->setPrefix('/v1/api/event/');
 $event->setHandler('EventsController', true);
 $event->mapVia('ticket/type/create', 'addTicketTypeAction', ['POST']);
 $event->mapVia('ticket/type/view', 'viewTicketTypeAction', ['POST']);
-$event->mapVia('ticket/type/dashboard/view', 'viewTicketTypeDashboardAction', ['POST']);
+$event->mapVia('ticket/type/dashboard/view', 'viewTicketTypeDashboardAction', ['POST','GET']);
 $event->mapVia('create', 'addEvents', ['POST']);
 $event->mapVia('updated', 'updateEvents', ['POST']);
 $event->mapVia('app/create', 'createEvent', ['POST']);
