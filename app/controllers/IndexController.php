@@ -2643,6 +2643,12 @@ class IndexController extends ControllerBase {
                     'TransRef'=> $dataJ['TransRef']
                 ]
             ];
+            
+          
+            
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | DPO::Initiate Reponse:" . json_encode($payloadResponse));
+            
 
             $paramsDPOInititated = [
                 'transaction_id' => $transactionId,
