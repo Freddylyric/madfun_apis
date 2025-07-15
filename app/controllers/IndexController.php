@@ -2622,7 +2622,15 @@ class IndexController extends ControllerBase {
 
 
             $DPOReponse = print_r($DPOResult, true);
+            
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | DPO::Initiate Reponse:" . ($DPOReponse));
+            
             $DPOXMLData = new XMLToArrayUtils($DPOReponse, array(), array('story' => 'array'), true, false);
+            
+            
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | DPO::Initiate Reponse:" . ($DPOXMLData));
 
             $DPOArray = $DPOXMLData->getArray();
 
@@ -2631,6 +2639,9 @@ class IndexController extends ControllerBase {
                 'transaction_id' => $transactionId,
                 'TransactionToken' => $TransToken
             ];
+            
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | DPO::Initiate Reponse:" . json_encode($paramsDPOInititated));
             $stDPO = $this->getMicrotime();
             $DPOResultInitiated = Transactions::dpoInititate($paramsDPOInititated);
             $stopDPO = $this->getMicrotime() - $stDPO;

@@ -70,7 +70,8 @@ class DPOCardProcessing extends Controller {
             $response = $result['response'];
 
             $this->infologger->info(__LINE__ . ":" . __CLASS__
-                    . " | Response: " . json_encode($response) . " Date: " . $base->now('Y/m/d H:i') . " Request " . json_encode($xmlRequest));
+                    . " | Response: " . json_encode($response) . " Date: "
+                    . "" . $base->now('Y/m/d H:i') . " Request " . json_encode($xmlRequest));
             return $response;
         } catch (Exception $ex) {
             $this->getLogFile('error')->emergency(__LINE__ . ":" . __CLASS__
