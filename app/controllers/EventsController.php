@@ -487,8 +487,8 @@ class EventsController extends ControllerBase {
             $queryBuilder = $this->tableQueryBuilder($sortField, $orderBy, $currentPage, $perPage, '');
             $selectQuery .= $queryBuilder;
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery,[], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalevent_category'];
@@ -1133,8 +1133,8 @@ class EventsController extends ControllerBase {
             $queryBuilder = $this->tableQueryBuilder($sortField, $orderBy, $currentPage, $perPage, '');
             $selectQuery .= $queryBuilder;
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery, [], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalEvents'];
@@ -3628,8 +3628,8 @@ class EventsController extends ControllerBase {
             $queryBuilder = $this->tableQueryBuilder($sortField, $orderBy, $currentPage, $perPage, '');
             $selectQuery .= $queryBuilder;
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery,[], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalEvents'];
@@ -4142,8 +4142,8 @@ class EventsController extends ControllerBase {
             $queryBuilder = $this->tableQueryBuilder($sortField, $orderBy, $currentPage, $perPage, '');
             $selectQuery .= $queryBuilder;
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery,[], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalEventsTicketType'];
@@ -4334,8 +4334,8 @@ class EventsController extends ControllerBase {
             $queryBuilder = $this->tableQueryBuilder($sortField, $orderBy, $currentPage, $perPage, '');
             $selectQuery .= $queryBuilder;
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery,[], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalMpesa'];
@@ -4901,8 +4901,8 @@ class EventsController extends ControllerBase {
                 $selectQuery .= $queryBuilder;
             }
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery,[], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalEventsTicketType'];
@@ -5110,8 +5110,8 @@ class EventsController extends ControllerBase {
                 $selectQuery .= $queryBuilder;
             }
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery, [], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalEventsTicketType'];

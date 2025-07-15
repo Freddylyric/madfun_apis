@@ -896,9 +896,11 @@ class ControllerBase extends Controller {
      */
     public function rawSelect($statement, $params = [], $db = null) {
         try {
-           
+            if ($db == null) {
                 $connection = $this->di->getShared("db");
-            
+            } else {
+                $connection = $this->di->getShared("db2");
+            }
             $success = $connection->query($statement, $params ?? []);
             $success->setFetchMode(2);
             $result = $success->fetchAll();

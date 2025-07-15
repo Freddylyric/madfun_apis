@@ -112,8 +112,8 @@ class PaymentsController extends ControllerBase {
             $queryBuilder = $this->tableQueryBuilder($sortField, $orderBy, $currentPage, $perPage, '');
             $selectQuery .= $queryBuilder;
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery,[], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalBanks'];
@@ -468,8 +468,8 @@ class PaymentsController extends ControllerBase {
             $queryBuilder = $this->tableQueryBuilder($sortField, $orderBy, $currentPage, $perPage, '');
             $selectQuery .= $queryBuilder;
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery,[], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalInvoiceType'];
@@ -1046,8 +1046,8 @@ class PaymentsController extends ControllerBase {
             $queryBuilder = $this->tableQueryBuilder($sortField, $orderBy, $currentPage, $perPage, '');
             $selectQuery .= $queryBuilder;
 
-            $count = $this->rawSelect($countQuery, 'db2');
-            $matches = $this->rawSelect($selectQuery, 'db2');
+            $count = $this->rawSelect($countQuery,[], 'db2');
+            $matches = $this->rawSelect($selectQuery,[], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalInvoices'];
