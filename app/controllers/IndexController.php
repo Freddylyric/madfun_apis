@@ -2633,6 +2633,16 @@ class IndexController extends ControllerBase {
 
 
            // $DPOArray = $DPOXMLData->getArray();
+            
+            
+            $payloadResponse = [
+                'API3G' => [
+                    'Result'=> $dataJ['Result'],
+                    'ResultExplanation'=> $dataJ['ResultExplanation'],
+                    'TransToken'=> $dataJ['TransToken'],
+                    'TransRef'=> $dataJ['TransRef']
+                ]
+            ];
 
             $paramsDPOInititated = [
                 'transaction_id' => $transactionId,
@@ -2653,11 +2663,11 @@ class IndexController extends ControllerBase {
             if (!$DPOResultInitiated) {
                 return $this->success(__LINE__ . ":" . __CLASS__, "Duplicate DPO Info"
                                 , ['code' => 202, 'message' => 'Transaction is '
-                            . 'a Duplicate', 'data' => $jsonString], true);
+                            . 'a Duplicate', 'data' => $payloadResponse], true);
             }
 
             return $this->success(__LINE__ . ":" . __CLASS__, "Transaction Created"
-                            , ['code' => 200, 'message' => 'Transaction Created', 'data' => $jsonString]);
+                            , ['code' => 200, 'message' => 'Transaction Created', 'data' => $payloadResponse]);
         } catch (Exception $ex) {
             $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
                     . " | Exception::" . $ex->getMessage());
