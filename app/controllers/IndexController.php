@@ -2653,11 +2653,11 @@ class IndexController extends ControllerBase {
             if (!$DPOResultInitiated) {
                 return $this->success(__LINE__ . ":" . __CLASS__, "Duplicate DPO Info"
                                 , ['code' => 202, 'message' => 'Transaction is '
-                            . 'a Duplicate', 'data' => $dataJ], true);
+                            . 'a Duplicate', 'data' => $jsonString], true);
             }
 
             return $this->success(__LINE__ . ":" . __CLASS__, "Transaction Created"
-                            , ['code' => 200, 'message' => 'Transaction Created', 'data' => $dataJ]);
+                            , ['code' => 200, 'message' => 'Transaction Created', 'data' => $jsonString]);
         } catch (Exception $ex) {
             $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
                     . " | Exception::" . $ex->getMessage());
