@@ -206,7 +206,7 @@ $customer->setPrefix('/api/customer/');
 $customer->setHandler('CustomerController', true);
 $customer->mapVia('v1/info', 'customerInfoAction', ['POST']);
 $customer->mapVia('v1/payment', 'depositnAction', ['POST']);
-$customer->mapVia('v1/outbox', 'outboxAction', ['POST']);
+$customer->mapVia('v1/outbox', 'outboxAction', ['GET']);
 
 /**
  * Authentication
