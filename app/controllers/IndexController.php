@@ -446,8 +446,8 @@ class IndexController extends ControllerBase {
 
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
-        $this->infologger-info(__LINE__ . ":" . __CLASS__
-                . " | View Code Request:" . json_encode($request->getJsonRawBody()));
+        $this->infologger - info(__LINE__ . ":" . __CLASS__
+                        . " | View Code Request:" . json_encode($request->getJsonRawBody()));
 
         $code = isset($data->code) ? $data->code : null;
         $eventId = isset($data->eventId) ? $data->eventId : null;
@@ -2622,24 +2622,23 @@ class IndexController extends ControllerBase {
 
 
             $DPOReponse = print_r($DPOResult, true);
-            
+
             $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | DPO::Initiate Reponse:" . ($DPOReponse));
-            
-            $DPOXMLData = new XMLToArrayUtils($DPOReponse, array(), array('story' => 'array'), true, false);
-            
-            
-            $this->infologger->info(__LINE__ . ":" . __CLASS__
-                    . " | DPO::Initiate Reponse:" . ($DPOXMLData));
 
-            $DPOArray = $DPOXMLData->getArray();
+            $xml = simplexml_load_string($DPOReponse, "SimpleXMLElement", LIBXML_NOCDATA);
+            $jsonString = json_encode($xml, JSON_PRETTY_PRINT);
+            
+            $dataJ = json_decode($jsonString, true);
 
-            $TransToken = $DPOArray['API3G']['TransToken'];
+
+           // $DPOArray = $DPOXMLData->getArray();
+
             $paramsDPOInititated = [
                 'transaction_id' => $transactionId,
-                'TransactionToken' => $TransToken
+                'TransactionToken' => $dataJ['TransToken']
             ];
-            
+
             $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | DPO::Initiate Reponse:" . json_encode($paramsDPOInititated));
             $stDPO = $this->getMicrotime();
@@ -2654,7 +2653,7 @@ class IndexController extends ControllerBase {
             if (!$DPOResultInitiated) {
                 return $this->success(__LINE__ . ":" . __CLASS__, "Duplicate DPO Info"
                                 , ['code' => 202, 'message' => 'Transaction is '
-                            . 'a Duplicate', 'data' => $DPOArray], true);
+                            . 'a Duplicate', 'data' => $dataJ], true);
             }
 
             return $this->success(__LINE__ . ":" . __CLASS__, "Transaction Created"
@@ -6926,7 +6925,7 @@ class IndexController extends ControllerBase {
                         , 'success' => "", 'error' => $ex->getMessage()], true);
         }
     }
-    
+
     /**
      * QueryDPOPaymentStatus
      * @return type
@@ -7001,7 +7000,7 @@ class IndexController extends ControllerBase {
             $DPOArray = $DPOXMLData->getArray();
 
             $this->infologger->info(__LINE__ . ":" . __CLASS__ . " :" . __FUNCTION__
-                    . " | Query DPO ".$transaction_id.":" . json_encode($DPOArray));
+                    . " | Query DPO " . $transaction_id . ":" . json_encode($DPOArray));
 
             $ResultCode = $DPOArray['API3G']['Result'];
             $ResultExplanation = $DPOArray['API3G']['ResultExplanation'];
