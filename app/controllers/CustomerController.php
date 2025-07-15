@@ -78,7 +78,7 @@ class CustomerController extends ControllerBase {
                     . "left join user on user.profile_id = profile.profile_id"
                     . "  $searchQuery";
 
-            $result = $this->rawSelect($sql, 'db2');
+            $result = $this->rawSelect($sql,[], 'db2');
             if (empty($result)) {
                 $stop_time = $this->getMicrotime() - $start_time;
                 return $this->success(__LINE__ . ":" . __CLASS__
