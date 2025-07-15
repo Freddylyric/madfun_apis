@@ -3468,7 +3468,7 @@ class EventsController extends ControllerBase {
                     . "from event_tickets_type where eventId =events.eventID ) "
                     . "as totalRedemmed,aboutEvent"
                     . " from events $searchQuery $sorting";
-
+            
             $result = $this->rawSelect($sql);
             if (empty($result)) {
                 $stop_time = $this->getMicrotime() - $start_time;
