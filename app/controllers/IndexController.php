@@ -2657,7 +2657,7 @@ class IndexController extends ControllerBase {
             }
 
             return $this->success(__LINE__ . ":" . __CLASS__, "Transaction Created"
-                            , ['code' => 200, 'message' => 'Transaction Created', 'data' => $DPOArray]);
+                            , ['code' => 200, 'message' => 'Transaction Created', 'data' => $dataJ]);
         } catch (Exception $ex) {
             $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
                     . " | Exception::" . $ex->getMessage());
