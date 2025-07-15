@@ -2640,7 +2640,7 @@ class IndexController extends ControllerBase {
                     'Result'=> $dataJ['Result'],
                     'ResultExplanation'=> $dataJ['ResultExplanation'],
                     'TransToken'=> $dataJ['TransToken'],
-                    'TransRef'=> $dataJ['TransRef']
+                    'TransRef'=> $accNumber
                 ]
             ];
             
