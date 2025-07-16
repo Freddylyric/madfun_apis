@@ -943,7 +943,9 @@ class ControllerBase extends Controller {
             } else {
                 $connection = $this->di->getShared("db2");
             }
-            return $connection->fetchOne($sql, (Phalcon\Db::FETCH_ASSOC), $params);
+            $success = $connection->query($sql, $params ?? []);
+            $success->setFetchMode(2);
+            $result = $success->fetch();
         } catch (Exception $e) {
             throw $e;
         }
