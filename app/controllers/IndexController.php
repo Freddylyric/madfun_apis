@@ -6974,8 +6974,7 @@ class IndexController extends ControllerBase {
                     . " JOIN event_profile_tickets_state on event_profile_tickets.event_profile_ticket_id"
                     . " = event_profile_tickets_state.event_profile_ticket_id "
                     . "WHERE transaction_initiated.transaction_id = :transaction_id"
-                    . " AND event_profile_tickets_state.`status` != 1 and "
-                    . "date(event_profile_tickets.created) = date(now())";
+                    . " AND event_profile_tickets_state.`status` != 1 ";
             $check_trxn = $this->rawSelectOneRecord($select_trxn_initiated,
                     [':transaction_id' => $transaction_id]);
 
