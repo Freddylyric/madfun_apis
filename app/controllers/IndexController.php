@@ -5434,7 +5434,7 @@ class IndexController extends ControllerBase {
                 return $this->unAuthorised(__LINE__ . ":" . __CLASS__
                                 , 'Authentication Failure.');
             }
-            if (!in_array($this->getClientIPAddress(), ['35.187.93.149', '197.248.63.121'])) {
+            if (!in_array($this->getClientIPAddress(), ['35.187.93.149', '197.248.63.121','54.86.50.139'])) {
                 return $this->unAuthorised(__LINE__ . ":" . __CLASS__ . ":" . json_encode($request->getJsonRawBody())
                                 , 'Un-authorised source!' . $this->getClientIPAddress() . '. UA:' . $request->getUserAgent());
             }
