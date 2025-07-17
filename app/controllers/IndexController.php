@@ -5631,6 +5631,7 @@ class IndexController extends ControllerBase {
                 $eventData = $tickets->queryEvent($paramEvent);
 
                 array_push($success, [
+                    'eventId'=>$check_evnt_type[0]['eventId'],
                     'message' => 'Ticket Activated Successsful',
                     'QRCode' => $profileTrans['barcode'],
                     'ticketURL' => $this->settings['TicketBaseURL'] . "?evtk=" . $profileTrans['barcode'],
@@ -5703,7 +5704,7 @@ class IndexController extends ControllerBase {
                         "eventAmount" => $succ['amount'],
                         'eventType' => $succ['ticketType'],
                         'QRcodeURL' => $succ['QRCodeURL'],
-                        'QRcode' => $succ['barcode'],
+                        'QRcode' => $succ['QRCode'],
                         'posterURL' => $succ['posterURL'],
                         'venue' => $succ['venue']
                     ];
