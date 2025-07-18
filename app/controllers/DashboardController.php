@@ -2799,4 +2799,473 @@ class DashboardController extends ControllerBase {
             $this->successVueTable($response);
         }
     }
+    
+    
+     /**
+     * upgradeTicketFunction
+     * @return type
+     * @throws Exception
+     */
+    public function upgradeTicketFunction() {
+        $start_time = $this->getMicrotime();
+        $request = new Request();
+        $data = $request->getJsonRawBody();
+
+        $this->infologger = $this->getLogFile('info');
+        $this->errorlogger = $this->getLogFile('error');
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | Upgrade Ticket Action:" . json_encode($request->getJsonRawBody()));
+
+        $token = isset($data->api_key) ? $data->api_key : null;
+        $isShowTicket = isset($data->isShowTicket) ? $data->isShowTicket : 0;
+        $barcode = isset($data->barcode) ? $data->barcode : null;
+        $mpesa_receipt = isset($data->mpesa_receipt) ? $data->mpesa_receipt : null;
+
+        $event_ticket_id = isset($data->event_ticket_id) ? $data->event_ticket_id : null;
+        if ($this->checkForMySQLKeywords($token) ||
+                $this->checkForMySQLKeywords($barcode) ||
+                $this->checkForMySQLKeywords($event_ticket_id) ||
+                $this->checkForMySQLKeywords($mpesa_receipt)) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+
+        if (!$token || !$barcode || !$event_ticket_id || !$mpesa_receipt) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+
+        try {
+            $auth = new Authenticate();
+            $auth_response = $auth->QuickTokenAuthenticate($token);
+
+            if (!$auth_response) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
+                                , 'Authentication Failure.');
+            }
+            if (!in_array($auth_response['userRole'], [1, 2])) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
+                                , 'User doesn\'t have permissions to perform this action.');
+            }
+
+            $result = $this->rawSelectOneRecord("SELECT event_profile_tickets.event_profile_ticket_id,"
+                    . "event_profile_tickets.profile_id,"
+                    . " event_profile_tickets.event_ticket_id,event_profile_tickets_state.upgrade_status, "
+                    . "event_profile_tickets.profile_id, event_profile_tickets.reference_id,"
+                    . " event_profile_tickets_state.`status` FROM "
+                    . "event_profile_tickets JOIN event_profile_tickets_state "
+                    . "on event_profile_tickets.event_profile_ticket_id = "
+                    . "event_profile_tickets_state.event_profile_ticket_id "
+                    . "WHERE event_profile_tickets.barcode = :barcode",
+                    [':barcode' => $barcode]);
+            if (!$result) {
+                return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                . 'profile ticket not found', [
+                            'code' => 402
+                            , 'message' => "'The event profile ticket not found. "
+                            . "Kindly check the barcode ", 'data' => []
+                            , 'record_count' => 0], true);
+            }
+
+            if ($result['status'] != 1) {
+                return $this->success(__LINE__ . ":" . __CLASS__, 'Failed. No Initial Payment was made', [
+                            'code' => 402
+                            , 'message' => "No Initial Payment was made.", 'data' => []
+                            , 'record_count' => 0], true);
+            }
+
+            if ($result['upgrade_status'] == 1) {
+                return $this->success(__LINE__ . ":" . __CLASS__, 'Ticket has already been upgraded', [
+                            'code' => 402
+                            , 'message' => "Ticket has already been upgraded", 'data' => []
+                            , 'record_count' => 0], true);
+            }
+
+            if ($mpesa_receipt != "DPO") {
+                $checkMpesa = $this->rawSelectOneRecord("SELECT mpesa_code, mpesa_amount "
+                        . "FROM mpesa_transaction WHERE"
+                        . " mpesa_transaction.mpesa_code = :mpesa_code",
+                        [':mpesa_code' => $mpesa_receipt]);
+
+                if (!$checkMpesa) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Payment not found', [
+                                'code' => 402
+                                , 'message' => "Payment not found. Kindly check "
+                                . "payment reference:  $mpesa_receipt", 'data' => []
+                                , 'record_count' => 0], true);
+                }
+                $amountPaid = $checkMpesa['mpesa_amount'];
+            }
+
+
+
+
+            $checProfile = Profile::findFirst([
+                        "profile_id =:profile_id: ",
+                        "bind" => [
+                            "profile_id" => $result['profile_id']],]);
+
+            $msisdn = $checProfile->msisdn;
+
+            $eventID = "";
+            if ($isShowTicket == 1) {
+                $currentTicketType = EventShowTicketsType::findFirst([
+                            "event_ticket_show_id =:event_ticket_show_id: ",
+                            "bind" => [
+                                "event_ticket_show_id" => $result['event_ticket_id']],]);
+                if (!$currentTicketType) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Ticket not configured', [
+                                'code' => 402
+                                , 'message' => "Ticket not configured. Contact "
+                                . "System Admin"], true);
+                }
+
+                $currentShowVenue = EventShowVenue::findFirst([
+                            "event_show_venue_id =:event_show_venue_id: ",
+                            "bind" => [
+                                "event_show_venue_id" =>
+                                $currentTicketType->event_show_venue_id],]);
+
+                if (!$currentShowVenue) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Ticket not configured', [
+                                'code' => 402
+                                , 'message' => "Ticket not configured. Contact "
+                                . "System Admin"], true);
+                }
+
+
+                $currentShow = EventShows::findFirst([
+                            "event_show_id =:event_show_id: ",
+                            "bind" => [
+                                "event_show_id" =>
+                                $currentShowVenue->event_show_id],]);
+
+                if (!$currentShow) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Ticket not configured', [
+                                'code' => 402
+                                , 'message' => "Ticket not configured. Contact "
+                                . "System Admin"], true);
+                }
+
+                $eventID = $currentShow->eventID;
+
+                $upgradeTicketType = EventShowTicketsType::findFirst([
+                            "event_ticket_show_id =:event_ticket_show_id: ",
+                            "bind" => [
+                                "event_ticket_show_id" => $event_ticket_id],]);
+
+                if (!$upgradeTicketType) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Ticket not configured', [
+                                'code' => 402
+                                , 'message' => "Ticket not configured. Contact "
+                                . "System Admin"], true);
+                }
+
+                if ($upgradeTicketType->event_show_venue_id != $currentTicketType->event_show_venue_id) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Ticket has to been on the same event show', [
+                                'code' => 402
+                                , 'message' => "Ticket has to been on "
+                                . "the same event show"], true);
+                }
+            } else {
+                $currentTicketType = EventTicketsType::findFirst([
+                            "event_ticket_id =:event_ticket_id: ",
+                            "bind" => [
+                                "event_ticket_id" => $result['event_ticket_id']],]);
+                if (!$currentTicketType) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Ticket not configured', [
+                                'code' => 402
+                                , 'message' => "Ticket not configured. Contact "
+                                . "System Admin"], true);
+                }
+
+                $upgradeTicketType = EventTicketsType::findFirst([
+                            "event_ticket_id =:event_ticket_id: ",
+                            "bind" => [
+                                "event_ticket_id" => $event_ticket_id],]);
+
+                if (!$upgradeTicketType) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Ticket not configured', [
+                                'code' => 402
+                                , 'message' => "Ticket not configured. Contact "
+                                . "System Admin"], true);
+                }
+
+                if ($upgradeTicketType->eventId != $currentTicketType->eventId) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Failed Ticket has to belong to same Event', [
+                                'code' => 402
+                                , 'message' => "Failed Ticket has to"
+                                . " belong to same Event"], true);
+                }
+
+                $eventID = $currentTicketType->eventId;
+            }
+
+            if ($currentTicketType->amount >= $upgradeTicketType->amount) {
+                return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                . 'Failed', [
+                            'code' => 402
+                            , 'message' => "Kindly select ticket with higher price for upgrade"], true);
+            }
+
+            if ($mpesa_receipt != "DPO") {
+                if ($upgradeTicketType->amount > ($currentTicketType->amount + $amountPaid)) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Failed', [
+                                'code' => 402
+                                , 'message' => "Insufficient Amount"], true);
+                }
+            }
+
+
+
+            $checkEvents = Events::findFirst([
+                        "eventID =:eventID: ",
+                        "bind" => [
+                            "eventID" => $eventID],]);
+
+            if (!$checkEvents) {
+                return $this->success(__LINE__ . ":" . __CLASS__, 'The event does not exist', [
+                            'code' => 404
+                            , 'message' => "The event does not exist ", 'data' => []
+                            , 'record_count' => 0], true);
+            }
+
+            if ($checkEvents->status != 1) {
+                return $this->success(__LINE__ . ":" . __CLASS__, 'The event not active', [
+                            'code' => 403
+                            , 'message' => "The event not active ", 'data' => []
+                            , 'record_count' => 0], true);
+            }
+
+            $transactionManager = new TransactionManager();
+            $dbTrxn = $transactionManager->get();
+            try {
+                $currentTicketType->setTransaction($dbTrxn);
+                $currentTicketType->ticket_purchased = $currentTicketType->ticket_purchased - 1;
+                $currentTicketType->updated = $this->now();
+                if ($currentTicketType->save() === false) {
+                    $errors = [];
+                    $messages = $currentTicketType->getMessages();
+                    foreach ($messages as $message) {
+                        $e["statusDescription"] = $message->getMessage();
+                        $e["field"] = $message->getField();
+                        array_push($errors, $e);
+                    }
+                    $dbTrxn->rollback("Update Tickets Type failed " . json_encode($errors));
+                }
+
+                $upgradeTicketType->setTransaction($dbTrxn);
+                $upgradeTicketType->ticket_purchased = $upgradeTicketType->ticket_purchased + 1;
+                $upgradeTicketType->updated = $this->now();
+                if ($upgradeTicketType->save() === false) {
+                    $errors = [];
+                    $messages = $upgradeTicketType->getMessages();
+                    foreach ($messages as $message) {
+                        $e["statusDescription"] = $message->getMessage();
+                        $e["field"] = $message->getField();
+                        array_push($errors, $e);
+                    }
+                    $dbTrxn->rollback("Update Tickets Type failed " . json_encode($errors));
+                }
+
+
+                $t = time();
+                $QRCode = rand(1000000, 99999999999999) . "" . $t;
+                $barCode = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' . $QRCode . '&choe=UTF-8';
+
+                $sqlUpdate = "UPDATE event_profile_tickets SET "
+                        . "barcode=:barcode,barcodeURL=:barcodeURL, event_ticket_id=:event_ticket_id "
+                        . "WHERE event_profile_ticket_id = :event_profile_ticket_id ";
+                $selectParamsUpdate = [
+                    ':event_profile_ticket_id' => $result['event_profile_ticket_id'],
+                    ':barcode' => $QRCode,
+                    ':event_ticket_id' => $event_ticket_id,
+                    ':barcodeURL' => $barCode
+                ];
+
+                $this->rawUpdateWithParams($sqlUpdate, $selectParamsUpdate);
+
+                $this->rawUpdateWithParams("UPDATE event_profile_tickets_state "
+                        . "set upgrade_status=:upgrade_status WHERE"
+                        . " event_profile_ticket_id = "
+                        . ":event_profile_ticket_id LIMIT 1",
+                        [':upgrade_status' => 1,
+                            ':event_profile_ticket_id' =>
+                            $result['event_profile_ticket_id']]);
+
+                $dbTrxn->commit();
+
+                $sms = "Hello, Your " . $checkEvents->eventName . " ticket "
+                        . "has been upgraded successful.\nCode: " . $QRCode . ".\nView your ticket from "
+                        . $this->settings['TicketBaseURL'] . "?evtk=" . $QRCode . "."
+                        . " Madfun! For Queries call "
+                        . "" . $this->settings['Helpline'];
+
+                $paramsSMS = [
+                    "short_code" => $this->settings['mnoApps']['DefaultSenderId'],
+                    "msisdn" => $msisdn,
+                    "message" => $sms,
+                    "profile_id" => Profiling::Profile($msisdn),
+                    "created_by" => 'UPGRADETICKET_' . $auth_response['user_id'],
+                    "is_bulk" => false,
+                    "link_id" => ""];
+
+                $message = new Messaging();
+                $message->LogOutbox($paramsSMS);
+
+                $responseData = [
+                    "Message" => "Ticket has been upgraded Successful",
+                    "code" => 200
+                ];
+                return $this->success(__LINE__ . ":" . __CLASS__
+                                , "Ticket has been upgraded Successful"
+                                , $responseData);
+            } catch (Exception $ex) {
+                throw $ex;
+            }
+        } catch (Exception $ex) {
+            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
+                    . " | Exception::" . $ex->getMessage());
+
+            return $this->serverError(__LINE__ . ":" . __CLASS__
+                            , 'Internal Server Error.');
+        }
+    }
+
+    public function upgradeListTicketType() {
+
+        $request = new Request();
+        $data = $request->getJsonRawBody();
+
+        $this->infologger = $this->getLogFile('info');
+        $this->errorlogger = $this->getLogFile('error');
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | Upgrade Ticket Action:" . json_encode($request->getJsonRawBody()));
+
+        $token = isset($data->api_key) ? $data->api_key : null;
+        $isShowTicket = isset($data->isShowTicket) ? $data->isShowTicket : 0;
+        $barcode = isset($data->barcode) ? $data->barcode : null;
+
+        if ($this->checkForMySQLKeywords($token) ||
+                $this->checkForMySQLKeywords($isShowTicket) ||
+                $this->checkForMySQLKeywords($barcode)) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+
+        if (!$token || !$barcode) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+        try {
+
+            $auth = new Authenticate();
+            $auth_response = $auth->QuickTokenAuthenticate($token);
+
+            if (!$auth_response) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
+                                , 'Authentication Failure.');
+            }
+            if (!in_array($auth_response['userRole'], [1, 2])) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
+                                , 'User doesn\'t have permissions to perform this action.');
+            }
+
+            $result = $this->rawSelectOneRecord("SELECT event_profile_tickets.event_profile_ticket_id,"
+                    . "event_profile_tickets.profile_id,"
+                    . " event_profile_tickets.event_ticket_id,event_profile_tickets_state.upgrade_status, "
+                    . "event_profile_tickets.profile_id, event_profile_tickets.reference_id,"
+                    . " event_profile_tickets_state.`status` FROM "
+                    . "event_profile_tickets JOIN event_profile_tickets_state "
+                    . "on event_profile_tickets.event_profile_ticket_id = "
+                    . "event_profile_tickets_state.event_profile_ticket_id "
+                    . "WHERE event_profile_tickets.barcode = :barcode",
+                    [':barcode' => $barcode]);
+            if (!$result) {
+                return $this->BadRequest(__LINE__ . ":" . __CLASS__
+                                , 'Validation Error'
+                                , ['code' => 422
+                            , 'message' => 'Tickets not found']);
+            }
+            if ($isShowTicket == 1) {
+                $currentTicketType = EventShowTicketsType::findFirst([
+                            "event_ticket_show_id =:event_ticket_show_id: ",
+                            "bind" => [
+                                "event_ticket_show_id" => $result['event_ticket_id']],]);
+                if (!$currentTicketType) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Ticket not configured', [
+                                'code' => 402
+                                , 'message' => "Ticket not configured. Contact "
+                                . "System Admin"], true);
+                }
+
+                $sql = "SELECT ticket_types.ticket_type, "
+                        . "event_show_tickets_type.event_ticket_show_id as "
+                        . "event_ticket_id, event_show_tickets_type.amount "
+                        . "from event_show_tickets_type JOIN ticket_types ON "
+                        . "event_show_tickets_type.typeId =ticket_types.typeId   "
+                        . "WHERE event_show_tickets_type.`status` = :status and"
+                        . " event_show_venue_id=:Id";
+
+                $paramsSQL = [
+                    ':status' => 1,
+                    ':Id' => $currentTicketType->event_show_venue_id
+                ];
+            } else {
+                $currentTicketType = EventTicketsType::findFirst([
+                            "event_ticket_id =:event_ticket_id: ",
+                            "bind" => [
+                                "event_ticket_id" => $result['event_ticket_id']],]);
+                if (!$currentTicketType) {
+                    return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
+                                    . 'Ticket not configured', [
+                                'code' => 402
+                                , 'message' => "Ticket not configured. Contact "
+                                . "System Admin"], true);
+                }
+
+                $sql = "SELECT ticket_types.ticket_type, event_tickets_type.event_ticket_id,"
+                        . " event_tickets_type.amount FROM event_tickets_type "
+                        . "JOIN ticket_types on event_tickets_type.typeId = ticket_types.typeId "
+                        . "WHERE event_tickets_type.eventId = :Id and "
+                        . "event_tickets_type.`status` = :status";
+
+                $paramsSQL = [
+                    ':status' => 1,
+                    ':Id' => $currentTicketType->eventId
+                ];
+            }
+
+            $resultTickets = $this->rawSelect($sql, $paramsSQL);
+            if (!$resultTickets) {
+                return $this->success(__LINE__ . ":" . __CLASS__, 'No Active '
+                                . 'Tickets Not Found', [
+                            'code' => 404
+                            , 'message' => "No Active Tickets"
+                            . " Avaliable for Upgrade"], true);
+            }
+
+            $responseData = [
+                "code" => 200,
+                "Message" => "Tickets Found",
+                "data" => $resultTickets
+            ];
+            return $this->success(__LINE__ . ":" . __CLASS__
+                            , "Ticket has been upgraded Successful"
+                            , $responseData);
+        } catch (Exception $ex) {
+            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
+                    . " | Exception::" . $ex->getMessage());
+
+            return $this->serverError(__LINE__ . ":" . __CLASS__
+                            , 'Internal Server Error.');
+        }
+    }
 }

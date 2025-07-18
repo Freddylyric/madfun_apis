@@ -97,6 +97,8 @@ $dashboard->mapVia('view/affiliators/events', 'viewAffiliatorSales', ['POST','GE
 $dashboard->mapVia('generate/report', 'generateEventReports', ['GET']);
 $dashboard->mapVia('complimentary/report', 'generateComplimentaryReports', ['POST','GET']);
 $dashboard->mapVia('refunded/report', 'generateRefundReports', ['POST','GET']);
+$dashboard->mapVia('ticket/upgraded/view', 'upgradeTicketFunction', ['POST','GET']);
+$dashboard->mapVia('refunded/report', 'upgradeListTicketType', ['POST','GET']);
 
 /**
  * User
