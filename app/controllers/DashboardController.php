@@ -3177,7 +3177,7 @@ class DashboardController extends ControllerBase {
                                 , 'User doesn\'t have permissions to perform this action.');
             }
 
-            $result = $this->rawSelectOneRecord("SELECT event_profile_tickets.event_profile_ticket_id,"
+            $sql = "SELECT event_profile_tickets.event_profile_ticket_id,"
                     . "event_profile_tickets.profile_id,"
                     . " event_profile_tickets.event_ticket_id,event_profile_tickets_state.upgrade_status, "
                     . "event_profile_tickets.profile_id, event_profile_tickets.reference_id,"
@@ -3185,16 +3185,22 @@ class DashboardController extends ControllerBase {
                     . "event_profile_tickets JOIN event_profile_tickets_state "
                     . "on event_profile_tickets.event_profile_ticket_id = "
                     . "event_profile_tickets_state.event_profile_ticket_id "
-                    . "WHERE event_profile_tickets.barcode = $barcode");
+                    . "WHERE event_profile_tickets.barcode = $barcode";
+            
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | Upgrade Ticket Action:" .$sql);
+
+            $results = $this->rawSelect($sql);
             
             
             
-            if (!$result) {
+            if (!$results) {
                 return $this->BadRequest(__LINE__ . ":" . __CLASS__
                                 , 'Validation Error'
                                 , ['code' => 422
                             , 'message' => 'Tickets not found']);
             }
+            $result = $results[0];
             if ($isShowTicket == 1) {
                 $currentTicketType = EventShowTicketsType::findFirst([
                             "event_ticket_show_id =:event_ticket_show_id: ",
