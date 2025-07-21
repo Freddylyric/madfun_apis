@@ -79,7 +79,7 @@ return new \Phalcon\Config\Config([
         'Helpline' => '0115555000',
         'ContactEmail' => 'info@madfun.com',
         'revenueShare' => 4,
-        'QueueSMS'=>true,
+        'QueueSMS'=>false,
         'VAT' => 0.16,
         'Stream' => [
             'api_key' => 'apc-xwyurGEL0DsK',
