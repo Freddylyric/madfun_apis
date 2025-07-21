@@ -690,6 +690,7 @@ class AuthController extends ControllerBase {
                         "api_key" => $this->settings['ServiceApiKey'],
                         "to" => $result['email'],
                         "cc" => "",
+                        "from"=> "noreply@madfun.com",
                         "subject" => "Authentication Login",
                         "content" => $smsMessage,
                         "extrac" => null
