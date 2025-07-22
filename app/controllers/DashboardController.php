@@ -2846,7 +2846,7 @@ class DashboardController extends ControllerBase {
                                 , 'User doesn\'t have permissions to perform this action.');
             }
 
-            $result = $this->rawSelectOneRecord("SELECT event_profile_tickets.event_profile_ticket_id,"
+            $results = $this->rawSelect("SELECT event_profile_tickets.event_profile_ticket_id,"
                     . "event_profile_tickets.profile_id,"
                     . " event_profile_tickets.event_ticket_id,event_profile_tickets_state.upgrade_status, "
                     . "event_profile_tickets.profile_id, event_profile_tickets.reference_id,"
@@ -2854,8 +2854,9 @@ class DashboardController extends ControllerBase {
                     . "event_profile_tickets JOIN event_profile_tickets_state "
                     . "on event_profile_tickets.event_profile_ticket_id = "
                     . "event_profile_tickets_state.event_profile_ticket_id "
-                    . "WHERE event_profile_tickets.barcode = $barcode");
-            if (!$result) {
+                    . "WHERE event_profile_tickets.barcode = :barcode",
+                    [':barcode' => $barcode]);
+            if (!$results) {
                 return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
                                 . 'profile ticket not found', [
                             'code' => 402
@@ -2863,7 +2864,8 @@ class DashboardController extends ControllerBase {
                             . "Kindly check the barcode ", 'data' => []
                             , 'record_count' => 0], true);
             }
-
+            $result = $results[0];
+            
             if ($result['status'] != 1) {
                 return $this->success(__LINE__ . ":" . __CLASS__, 'Failed. No Initial Payment was made', [
                             'code' => 402
