@@ -6965,7 +6965,7 @@ class IndexController extends ControllerBase {
         }
         try {
 
-            $select_trxn_initiated = "SELECT dpo_transaction_initiated.TransactionToken,"
+            $select_trxn_initiated = "SELECT dpo_transaction_initiated.TransactionToken,transaction_initiated.extra_data->'$.amount' AS amount,"
                     . " event_profile_tickets.isShowTicket, event_profile_tickets.reference_id, "
                     . "event_profile_tickets_state.`status`, event_profile_tickets.profile_id,transaction_initiated.transaction_id "
                     . " FROM dpo_transaction_initiated "
