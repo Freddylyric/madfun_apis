@@ -94,7 +94,7 @@ $dashboard->mapVia('tickets/purchased', 'viewTicketPurchased', ['POST','GET']);
 $dashboard->mapVia('view/mpesa', 'viewMpesaDepo', ['POST','GET']);
 $dashboard->mapVia('tickets/types/edit', 'editTicketTypes', ['POST','GET']);
 $dashboard->mapVia('view/affiliators/events', 'viewAffiliatorSales', ['POST','GET']);
-$dashboard->mapVia('generate/report', 'generateEventReports', ['GET']);
+$dashboard->mapVia('generate/report', 'generateEventReports', ['POST','GET']);
 $dashboard->mapVia('complimentary/report', 'generateComplimentaryReports', ['POST','GET']);
 $dashboard->mapVia('refunded/report', 'generateRefundReports', ['POST','GET']);
 $dashboard->mapVia('ticket/upgraded/view', 'upgradeListTicketType', ['POST','GET']);
