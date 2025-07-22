@@ -2854,8 +2854,7 @@ class DashboardController extends ControllerBase {
                     . "event_profile_tickets JOIN event_profile_tickets_state "
                     . "on event_profile_tickets.event_profile_ticket_id = "
                     . "event_profile_tickets_state.event_profile_ticket_id "
-                    . "WHERE event_profile_tickets.barcode = :barcode",
-                    [':barcode' => $barcode]);
+                    . "WHERE event_profile_tickets.barcode = $barcode");
             if (!$result) {
                 return $this->success(__LINE__ . ":" . __CLASS__, 'The event '
                                 . 'profile ticket not found', [
