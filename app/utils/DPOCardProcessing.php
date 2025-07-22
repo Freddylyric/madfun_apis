@@ -127,6 +127,32 @@ class DPOCardProcessing extends Controller {
         }
         return false;
     }
+    
+     public function verifyToken($transactionToken) {
+        $base = new base();
+        try {
+            $endpoint = $base->settings['DPO']['endpoint'];
+            $companyToken = $base->settings['DPO']['companyToken'];
+            $xmlRequest = '<?xml version="1.0" encoding="utf-8"?>'
+                    . '<API3G>'
+                    . '<CompanyToken>' . $companyToken . '</CompanyToken>'
+                    . '<Request>verifyToken</Request>'
+                    . '<TransactionToken>' . $transactionToken . '</TransactionToken>'
+                    . '</API3G>';
+
+            $result = $base->sendXMLRequestData($endpoint, $xmlRequest);
+            $response = $result['response'];
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | Response: " . json_encode($response) . " Date:"
+                    . " " . $base->now('Y/m/d H:i') . ""
+                    . " Request " . json_encode($xmlRequest));
+            return $response;
+        } catch (Exception $ex) {
+            $this->getLogFile('error')->emergency(__LINE__ . ":" . __CLASS__
+                    . " | createToken Exception::" . $ex->getMessage());
+        }
+        return false;
+    }
 
     public function streamToken($params, $currrency = "KES") {
         $base = new base();
