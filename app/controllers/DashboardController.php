@@ -2881,7 +2881,7 @@ class DashboardController extends ControllerBase {
             }
 
             if ($mpesa_receipt != "DPO") {
-                $checkMpesa = $this->rawSelectOneRecord("SELECT mpesa_code, mpesa_amount "
+                $checkMpesa = $this->rawSelect("SELECT mpesa_code, mpesa_amount "
                         . "FROM mpesa_transaction WHERE"
                         . " mpesa_transaction.mpesa_code = :mpesa_code",
                         [':mpesa_code' => $mpesa_receipt]);
@@ -2894,7 +2894,7 @@ class DashboardController extends ControllerBase {
                                 . "payment reference:  $mpesa_receipt", 'data' => []
                                 , 'record_count' => 0], true);
                 }
-                $amountPaid = $checkMpesa['mpesa_amount'];
+                $amountPaid = $checkMpesa[0]['mpesa_amount'];
             }
 
 
