@@ -6976,14 +6976,15 @@ class IndexController extends ControllerBase {
                     . " = event_profile_tickets_state.event_profile_ticket_id "
                     . "WHERE transaction_initiated.transaction_id = :transaction_id"
                     . " AND event_profile_tickets_state.`status` != 1 ";
-            $check_trxn = $this->rawSelectOneRecord($select_trxn_initiated,
+            $check_trxns = $this->rawSelect($select_trxn_initiated,
                     [':transaction_id' => $transaction_id]);
 
-            if (!$check_trxn) {
+            if (!$check_trxns) {
                 return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                                 , 'No Pending Payments', ['code' => 201
                             , 'message' => "No Pending Payments"], true);
             }
+            $check_trxn = $check_trxns[0];
             $DPOPayments = new DPOCardProcessing();
 
             $DPOResult = $DPOPayments->verifyToken($check_trxn['TransactionToken']);
