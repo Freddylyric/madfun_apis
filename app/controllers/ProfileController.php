@@ -1053,7 +1053,7 @@ class ProfileController extends ControllerBase {
         if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
             return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
         }
-        if (!in_array($status, [1, 2, 3]) && $status != null) {
+        if (!in_array($status, [1, 2, 3, 5]) && $status != null) {
             return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
         }
         if (!$offset) {
