@@ -1097,7 +1097,7 @@ class ProfileController extends ControllerBase {
             }
 
             $sql = "select events.eventID,events.eventName, events.venue,events.hasMultipleShow, "
-                    . "events.posterURL, events.start_date,events.status,event_show_tickets_type.currency, "
+                    . "events.posterURL, events.start_date,events.status,event_tickets_type.currency, "
                     . "count(event_profile_tickets.event_profile_ticket_id) "
                     . "AS totalTickets,  null as eventShows from event_profile_tickets join event_profile_tickets_state"
                     . " on event_profile_tickets.event_profile_ticket_id = "
@@ -1108,7 +1108,7 @@ class ProfileController extends ControllerBase {
                     . " and event_profile_tickets.isShowTicket =0 group by events.eventName"
                     . "  UNION select events.eventID,events.eventName,events.venue,"
                     . "events.hasMultipleShow,events.posterURL,events.start_date,"
-                    . "events.status, count(event_profile_tickets.event_profile_ticket_id)"
+                    . "events.status,event_show_tickets_type.currency, count(event_profile_tickets.event_profile_ticket_id)"
                     . " AS totalTickets,GROUP_CONCAT(event_shows.`show`"
                     . " ORDER BY event_shows.event_show_id SEPARATOR ',') as "
                     . "eventShows from event_profile_tickets join event_profile_tickets_state"
