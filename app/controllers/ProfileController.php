@@ -1101,9 +1101,9 @@ class ProfileController extends ControllerBase {
                 $searchQuery .= " AND events.eventID=$eventId ";
             }
 
-            $sql = "select events.eventID,events.eventName, events.venue,events.hasMultipleShow, "
-                    . "events.posterURL, events.start_date,events.status,event_tickets_type.currency, "
-                    . "count(event_profile_tickets.event_profile_ticket_id) "
+            $sql = "select    CAST(events.eventID AS CHAR) AS eventID,events.eventName, events.venue,CAST(events.hasMultipleShow AS CHAR) AS hasMultipleShow, "
+                    . "events.posterURL, events.start_date,CAST(events.status AS CHAR) AS status,event_tickets_type.currency, "
+                    . "CAST(COUNT(event_profile_tickets.event_profile_ticket_id) AS CHAR) "
                     . "AS totalTickets,  null as eventShows from event_profile_tickets join event_profile_tickets_state"
                     . " on event_profile_tickets.event_profile_ticket_id = "
                     . "event_profile_tickets_state.event_profile_ticket_id  join "
@@ -1111,9 +1111,9 @@ class ProfileController extends ControllerBase {
                     . "event_tickets_type.event_ticket_id join events on "
                     . "events.eventID  = event_tickets_type.eventId $searchQuery"
                     . " and event_profile_tickets.isShowTicket =0 group by events.eventName"
-                    . "  UNION select events.eventID,events.eventName,events.venue,"
-                    . "events.hasMultipleShow,events.posterURL,events.start_date,"
-                    . "events.status,event_show_tickets_type.currency, count(event_profile_tickets.event_profile_ticket_id)"
+                    . "  UNION select    CAST(events.eventID AS CHAR) AS eventID,events.eventName,events.venue,"
+                    . "CAST(events.hasMultipleShow AS CHAR) AS hasMultipleShow,events.posterURL,events.start_date,"
+                    . "CAST(events.status AS CHAR) AS status,event_show_tickets_type.currency, CAST(COUNT(event_profile_tickets.event_profile_ticket_id) AS CHAR)"
                     . " AS totalTickets,GROUP_CONCAT(event_shows.`show`"
                     . " ORDER BY event_shows.event_show_id SEPARATOR ',') as "
                     . "eventShows from event_profile_tickets join event_profile_tickets_state"
