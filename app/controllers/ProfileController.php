@@ -979,7 +979,7 @@ class ProfileController extends ControllerBase {
             }
 
             $sorting = $this->tableQueryBuilder($sort, $order, $offset, $limit);
-            $sql = " SELECT * FROM (transaction.transaction_id,'M-Pesa' COLLATE utf8mb4_bin"
+            $sql = " SELECT * FROM (SELECT transaction.transaction_id,'M-Pesa' COLLATE utf8mb4_bin"
                     . " AS paymentType,CONVERT(transaction.description USING utf8mb4) "
                     . "COLLATE utf8mb4_bin AS unique_reference,CONVERT(mpesa_transaction.mpesa_code"
                     . " USING utf8mb4) COLLATE utf8mb4_bin AS pay_receipt,mpesa_transaction.mpesa_amount"
