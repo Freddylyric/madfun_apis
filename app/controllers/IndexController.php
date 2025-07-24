@@ -7199,7 +7199,7 @@ class IndexController extends ControllerBase {
 
                 $profileAttribute = Profiling::QueryProfileProfileId($check_trxn['profile_id']);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | UniqueId:" . $profileAttribute['msisdn'] . " profileID::" . $check_trxn['profile_id']
                         . " | DPO Transaction Id:" . $transaction_id);
 
@@ -7270,7 +7270,7 @@ class IndexController extends ControllerBase {
                     "is_bulk" => false,
                     "link_id" => ""];
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | UniqueId:" . $profileAttribute['msisdn'] . " profileID::" . $check_trxn['profile_id']
                         . " | DPO Transaction Id:" . $transaction_id);
 
