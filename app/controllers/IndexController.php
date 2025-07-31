@@ -5684,6 +5684,7 @@ class IndexController extends ControllerBase {
             $profileAttribute = Profiling::QueryProfileProfileId($check_trxn[0]['profile_id']);
 
             $sms = "";
+            $ticketsData = [];
             foreach ($success as $succ) {
 
                 $sms .= "Dear " . $profileAttribute['first_name'] . " " . $profileAttribute['last_name'] . ", Your " . $succ['eventName'] . " ticket "
@@ -5694,34 +5695,52 @@ class IndexController extends ControllerBase {
                     // sent email to clients
                     $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | Profile Attribute::" . json_encode($profileAttribute));
-                    $paramsEmail = [
-                        "eventID" => $succ['eventId'],
-                        "type" => "TICKET_PURCHASED",
-                        "name" => $profileAttribute['first_name'] . " "
-                        . "" . $profileAttribute['surname'] . " " . $profileAttribute['last_name'],
-                        "eventDate" => $succ['start_date'],
-                        "eventName" => $succ['eventName'],
-                        "eventAmount" => $succ['amount'],
-                        'eventType' => $succ['ticketType'],
-                        'QRcodeURL' => $succ['QRCodeURL'],
-                        'QRcode' => $succ['QRCode'],
-                        'posterURL' => $succ['posterURL'],
-                        'venue' => $succ['venue']
+
+                    $ticketsIn = [
+                        'ticketName' => $succ['ticketType'],
+                        'currency' => $succ['currency'],
+                        'amount' => $succ['amount'],
+                        'QrCode' => $succ['QRCode']
                     ];
-                    $postData = [
-                        "api_key" => $this->settings['ServiceApiKey'],
-                        "to" => $profileAttribute['email'],
-                        "cc" => "",
-                        "from" => "noreply@madfun.com",
-                        "subject" => "Ticket for Event: " . $succ['eventName'],
-                        "content" => "Ticket information",
-                        "extrac" => $paramsEmail
-                    ];
-                    $mailResponse = $this->SendJsonPostAuthData($this->settings['MailerWebURL'], $postData, $this->settings['ServiceApiKey'], 3);
-                    $this->infologger->info(__LINE__ . ":" . __CLASS__
-                            . " | SendEmailWithoutAttachments Response::" . json_encode($mailResponse));
+
+                    array_push($ticketsData, $ticketsIn);
                 }
             }
+
+            if ($profileAttribute['email'] != null) {
+                $paramsEmail = [
+                    "eventID" => $success[0]['eventId'],
+                    "orderNumber" => $dpo_trxnId,
+                    "paymentMode" => "DPO-PAYMENT",
+                    "name" => $profileAttribute['first_name'] . " "
+                    . "" . $profileAttribute['surname'] . " " . $profileAttribute['last_name'],
+                    "eventDate" => $success[0]['start_date'],
+                    "eventName" => $success[0]['eventName'],
+                    "amountPaid" => $success[0]['amount'],
+                    'msisdn' => $check_trxn[0]['msisdn'],
+                    'ticketsArray' => $ticketsData,
+                    'posterURL' => $success[0]['posterURL'],
+                    'venue' => $success[0]['venue'],
+                    'eventTicketInfo' => $success[0]['event_ticket_info'],
+                ];
+                $postData = [
+                    "api_key" => $this->settings['ServiceApiKey'],
+                    "to" => $profileAttribute['email'],
+                    "from" => "noreply@madfun.com",
+                    "cc" => "",
+                    "subject" => "Ticket for Event: " . $success[0]['eventName'],
+                    "content" => "Ticket information",
+                    "extrac" => $paramsEmail
+                ];
+                $mailResponse = $this->SendJsonPostAuthData($this->settings['MailerWebURL'],
+                        $postData, $this->settings['ServiceApiKey'], 3);
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
+                        . " | SendEmailWithoutAttachments Response::" .
+                        " | UniqueId:" . $profileAttribute['msisdn'] . " profileID::" . $check_trxn[0]['profile_id'] . " " .
+                        json_encode($mailResponse) . " Payload::" .
+                        json_encode($postData));
+            }
+
             $params = [
                 "short_code" => $this->settings['mnoApps']['DefaultSenderId'],
                 "msisdn" => $profileAttribute['msisdn'],
