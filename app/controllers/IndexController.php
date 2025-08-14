@@ -7212,7 +7212,7 @@ class IndexController extends ControllerBase {
                     'receipt_number' => "A" . $transaction_id . '$' . $this->now('YmdHis') . "" . $this->randStrGen(30),];
                 $callback_id = Transactions::CreateTransactionCallback($callback_data);
 
-                $this->infologger->addInfo(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                         . " | DPO Transaction Id:" . $transaction_id
                         . " | CreateTransactionCallback:$callback_id");
 
