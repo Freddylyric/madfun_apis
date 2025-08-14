@@ -91,7 +91,7 @@ return new \Phalcon\Config\Config([
             'servicesType' => '71999',
             'backUrl' => 'https://gigs.madfun.com/event/',
             'paymentHourLimit' => 3,
-            'processingFee' => 0.0406,
+            'processingFee' => 0,
             'redirectURL' => 'https://gigs.madfun.com/event/dpo/payment',
             'redirectStreamURL' => 'https://gigs.madfun.com/streams/dpo/payment'
         ],
