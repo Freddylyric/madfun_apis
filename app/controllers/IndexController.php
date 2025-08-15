@@ -6985,14 +6985,15 @@ class IndexController extends ControllerBase {
         try {
 
             $select_trxn_initiated = "SELECT dpo_transaction_initiated.TransactionToken,transaction_initiated.extra_data->'$.amount' AS amount,"
-                    . " event_profile_tickets.isShowTicket, event_profile_tickets.reference_id, "
+                    . " event_profile_tickets.isShowTicket, event_profile_tickets.reference_id, profile.msisdn,"
                     . "event_profile_tickets_state.`status`, event_profile_tickets.profile_id,transaction_initiated.transaction_id "
                     . " FROM dpo_transaction_initiated "
                     . "join transaction_initiated on dpo_transaction_initiated.transaction_id"
                     . " = transaction_initiated.transaction_id JOIN event_profile_tickets on "
                     . "transaction_initiated.profile_id =event_profile_tickets.profile_id"
                     . " JOIN event_profile_tickets_state on event_profile_tickets.event_profile_ticket_id"
-                    . " = event_profile_tickets_state.event_profile_ticket_id "
+                    . " = event_profile_tickets_state.event_profile_ticket_id  JOIN "
+                    . "profile on event_profile_tickets.profile_id = profile.profile_id "
                     . "WHERE transaction_initiated.transaction_id = :transaction_id"
                     . " AND event_profile_tickets_state.`status` != 1 ";
             $check_trxns = $this->rawSelect($select_trxn_initiated,
@@ -7259,7 +7260,7 @@ class IndexController extends ControllerBase {
                         'ticketsArray' => $ticketsData,
                         'posterURL' => $success[0]['posterURL'],
                         'venue' => $success[0]['venue'],
-                        'eventTicketInfo' => $success[0]['event_ticket_info'],
+                        'eventTicketInfo' => $success[0]['ticketType'],
                     ];
                     $postData = [
                         "api_key" => $this->settings['ServiceApiKey'],
