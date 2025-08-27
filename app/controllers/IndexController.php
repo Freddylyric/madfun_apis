@@ -5428,32 +5428,32 @@ class IndexController extends ControllerBase {
 //        }
 
         $Result = $data['Result'] ?? null;
+        $ResultExplanation = $data['ResultExplanation'] ?? null;
+        $TransactionToken = $data['TransactionToken'] ?? null;
+        $TransID = $data['TransactionRef'] ?? null;
+        $CustomerName = $data['CustomerName'] ?? null;
+        $CustomerCredit = $data['CustomerCredit'] ?? null;
+        $CCDapproval = $data['TransactionApproval'] ?? null;
+        $TransactionCurrency = $data['TransactionCurrency'] ?? null;
+        $TransactionAmount = $data['TransactionAmount'] ?? null;
+        $FraudAlert = $data['FraudAlert'] ?? null;
+        $FraudExplanation = $data['FraudExplnation'] ?? null; // note XML key spelling
+        $TransactionNetAmount = $data['TransactionNetAmount'] ?? null;
+        $TransactionSettlementDate = $data['TransactionSettlementDate'] ?? null;
+        $TransactionRollingReserveAmt = $data['TransactionRollingReserveAmount'] ?? null;
+        $TransactionRollingReserveDate = $data['TransactionRollingReserveDate'] ?? null;
+        $CustomerPhone = $data['CustomerPhone'] ?? null;
+        $CustomerCountry = $data['CustomerCountry'] ?? null;
+        $CustomerAddress = $data['CustomerAddress'] ?? null;
+        $CustomerCity = $data['CustomerCity'] ?? null;
+        $CustomerZip = $data['CustomerZip'] ?? null;
+        $MobilePaymentRequest = $data['MobilePaymentRequest'] ?? null;
+        $CompanyRef = $data['AccRef'] ?? null;
         
-        $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " dpoCallbackAction | Result:" . $Result." IP::".$this->getClientIPAddress());
-        $ResultExplanation = $data->ResultExplanation ?? null;
-        $TransactionToken = $data->TransactionToken ?? null;
-        $TransID = $data->TransactionRef ?? null;
-        $CustomerName = $data->CustomerName ?? null;
-        $CustomerCredit = $data->CustomerCredit ?? null;
-        $CCDapproval = $data->TransactionApproval ?? null;
-        $TransactionCurrency = $data->TransactionCurrency ?? null;
-        $TransactionAmount = $data->TransactionAmount ?? null;
-        $FraudAlert = $data->FraudAlert ?? null;
-        $FraudExplanation = $data->FraudExplnation ?? null; // note XML key spelling
-        $TransactionNetAmount = $data->TransactionNetAmount ?? null;
-        $TransactionSettlementDate = $data->TransactionSettlementDate ?? null;
-        $TransactionRollingReserveAmt = $data->TransactionRollingReserveAmount ?? null;
-        $TransactionRollingReserveDate = $data->TransactionRollingReserveDate ?? null;
-        $CustomerPhone = $data->CustomerPhone ?? null;
-        $CustomerCountry = $data->CustomerCountry ?? null;
-        $CustomerAddress = $data->CustomerAddress ?? null;
-        $CustomerCity = $data->CustomerCity ?? null;
-        $CustomerZip = $data->CustomerZip ?? null;
-        $MobilePaymentRequest = $data->MobilePaymentRequest ?? null;
-        $CompanyRef = $data->AccRef ?? null;
+          $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " dpoCallbackAction | TransID:" . $TransID." CCDapproval::".$CCDapproval." Token::".$TransactionToken);
 
-        if (!$TransID || !$CCDapproval || !$TransactionToken || !$CompanyRef || !$FraudAlert) {
+        if (!$TransID || !$CCDapproval || !$TransactionToken) {
 
             return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
