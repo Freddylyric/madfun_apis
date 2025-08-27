@@ -5427,28 +5427,28 @@ class IndexController extends ControllerBase {
 //            return $this->dpoXMLResponse();
 //        }
 
-        $Result = $data['Result'] ?? null;
-        $ResultExplanation = $data['ResultExplanation'] ?? null;
-        $TransactionToken = $data['TransactionToken'] ?? null;
-        $TransID = $data['TransactionRef'] ?? null;
-        $CustomerName = $data['CustomerName'] ?? null;
-        $CustomerCredit = $data['CustomerCredit'] ?? null;
-        $CCDapproval = $data['TransactionApproval'] ?? null;
-        $TransactionCurrency = $data['TransactionCurrency'] ?? null;
-        $TransactionAmount = $data['TransactionAmount'] ?? null;
-        $FraudAlert = $data['FraudAlert'] ?? null;
-        $FraudExplanation = $data['FraudExplnation'] ?? null; // note XML key spelling
-        $TransactionNetAmount = $data['TransactionNetAmount'] ?? null;
-        $TransactionSettlementDate = $data['TransactionSettlementDate'] ?? null;
-        $TransactionRollingReserveAmt = $data['TransactionRollingReserveAmount'] ?? null;
-        $TransactionRollingReserveDate = $data['TransactionRollingReserveDate'] ?? null;
-        $CustomerPhone = $data['CustomerPhone'] ?? null;
-        $CustomerCountry = $data['CustomerCountry'] ?? null;
-        $CustomerAddress = $data['CustomerAddress'] ?? null;
-        $CustomerCity = $data['CustomerCity'] ?? null;
-        $CustomerZip = $data['CustomerZip'] ?? null;
-        $MobilePaymentRequest = $data['MobilePaymentRequest'] ?? null;
-        $CompanyRef = $data['AccRef'] ?? null;
+        $Result = $data->Result ?? null;
+        $ResultExplanation = $data->ResultExplanation ?? null;
+        $TransactionToken = $data->TransactionToken ?? null;
+        $TransID = $data->TransactionRef ?? null;
+        $CustomerName = $data->CustomerName ?? null;
+        $CustomerCredit = $data->CustomerCredit ?? null;
+        $CCDapproval = $data->TransactionApproval ?? null;
+        $TransactionCurrency = $data->TransactionCurrency ?? null;
+        $TransactionAmount = $data->TransactionAmount ?? null;
+        $FraudAlert = $data->FraudAlert ?? null;
+        $FraudExplanation = $data->FraudExplnation ?? null; // note XML key spelling
+        $TransactionNetAmount = $data->TransactionNetAmount ?? null;
+        $TransactionSettlementDate = $data->TransactionSettlementDate ?? null;
+        $TransactionRollingReserveAmt = $data->TransactionRollingReserveAmount ?? null;
+        $TransactionRollingReserveDate = $data->TransactionRollingReserveDate ?? null;
+        $CustomerPhone = $data->CustomerPhone ?? null;
+        $CustomerCountry = $data->CustomerCountry ?? null;
+        $CustomerAddress = $data->CustomerAddress ?? null;
+        $CustomerCity = $data->CustomerCity ?? null;
+        $CustomerZip = $data->CustomerZip ?? null;
+        $MobilePaymentRequest = $data->MobilePaymentRequest ?? null;
+        $CompanyRef = $data->AccRef ?? null;
 
         if (!$TransID || !$CCDapproval || !$TransactionToken || !$CompanyRef || !$FraudAlert) {
 
