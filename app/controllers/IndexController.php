@@ -5460,6 +5460,9 @@ class IndexController extends ControllerBase {
         $duplicate = "SELECT id FROM dpo_transaction WHERE TransID=:TransID";
 
         $check_duplicate = $this->rawSelect($duplicate, [':TransID' => $TransID]);
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | dpoCallbackAction:" . json_encode($check_duplicate)." IP::".$this->getClientIPAddress());
+        
         if ($check_duplicate) {
             return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
@@ -5813,7 +5816,7 @@ class IndexController extends ControllerBase {
             $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                     . " | Exception Code:" . $ex->getCode()
                     . " | Exception Code:" . $ex->getTraceAsString()
-                    . " | Message:" . $ex->getMessage());
+                    . " | dpoCallbackAction:" . $ex->getMessage());
 
             return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
