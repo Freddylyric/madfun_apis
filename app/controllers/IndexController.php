@@ -5395,23 +5395,32 @@ class IndexController extends ControllerBase {
     }
 
     public function dpoCallbackAction() {
-        // Get raw XML input
-        $rawPostData = file_get_contents("php://input");
-        if (!$rawPostData) {
-            http_response_code(400);
-            echo "No input received.";
-            exit;
+        $rawXml = $this->request->getRawBody();
+
+        if (empty($rawXml)) {
+            // Debug: see what was actually received
+            file_put_contents("/tmp/callback_debug.txt", "No raw body received\n", FILE_APPEND);
+            return $this->response->setStatusCode(400, "Bad Request")->setContent("No XML received");
         }
 
+// Debug log the raw input
+        file_put_contents("/tmp/callback_debug.txt", $rawXml . "\n---\n", FILE_APPEND);
 
-        $xml = simplexml_load_string($rawPostData, "SimpleXMLElement", LIBXML_NOCDATA);
+// Suppress warnings, handle errors gracefully
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($rawXml, "SimpleXMLElement", LIBXML_NOCDATA);
+
         if ($xml === false) {
-            http_response_code(400);
-            echo "Invalid XML.";
-            exit;
+            $errors = libxml_get_errors();
+            libxml_clear_errors();
+
+            // Log parsing errors
+            file_put_contents("/tmp/callback_debug.txt", print_r($errors, true), FILE_APPEND);
+
+            return $this->response->setStatusCode(400, "Bad Request")->setContent("Invalid XML received");
         }
 
-
+// Convert to array
         $data = json_decode(json_encode($xml), true);
 
         $this->infologger->info(__LINE__ . ":" . __CLASS__
@@ -5490,8 +5499,8 @@ class IndexController extends ControllerBase {
                 ':TransactionToken' => $TransactionToken
             ];
             $dpo_trxnId = $this->rawInsert($dpoTransactionQuery, $paramsDPOtrans);
-            
-            if($fraudCode  != "000"){
+
+            if ($fraudCode != "000") {
                 return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
             }
 
