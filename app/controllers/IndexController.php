@@ -5430,7 +5430,7 @@ class IndexController extends ControllerBase {
         $Result = $data->Result ?? null;
         
         $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | Result:" . $Result." IP::".$this->getClientIPAddress());
+                . " dpoCallbackAction | Result:" . $Result." IP::".$this->getClientIPAddress());
         $ResultExplanation = $data->ResultExplanation ?? null;
         $TransactionToken = $data->TransactionToken ?? null;
         $TransID = $data->TransactionRef ?? null;
