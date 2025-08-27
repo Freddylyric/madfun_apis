@@ -5703,6 +5703,7 @@ class IndexController extends ControllerBase {
                     'ticketURL' => $this->settings['TicketBaseURL'] . "?evtk=" . $profileTrans['barcode'],
                     'eventName' => $eventData['eventName'],
                     'venue' => $eventData['venue'],
+                    'currency'=> $eventData['currency'],
                     'start_date' => $eventData['dateStart'],
                     'QRCodeURL' => $profileTrans['barcodeURL'],
                     'posterURL' => $check_evnt_type[0]['posterURL'],
@@ -5783,11 +5784,11 @@ class IndexController extends ControllerBase {
                     "eventDate" => $success[0]['start_date'],
                     "eventName" => $success[0]['eventName'],
                     "amountPaid" => $success[0]['amount'],
-                    'msisdn' => $check_trxn[0]['msisdn'],
+                    'msisdn' => $profileAttribute['msisdn'],
                     'ticketsArray' => $ticketsData,
                     'posterURL' => $success[0]['posterURL'],
                     'venue' => $success[0]['venue'],
-                    'eventTicketInfo' => $success[0]['event_ticket_info'],
+                    'eventTicketInfo' => $success[0]['ticketType'],
                 ];
                 $postData = [
                     "api_key" => $this->settings['ServiceApiKey'],

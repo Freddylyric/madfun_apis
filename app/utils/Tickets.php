@@ -511,7 +511,7 @@ class Tickets {
     public static function queryEvent($param) {
         $base = new base();
         try {
-            $statement = "select eventName, venue , status, "
+            $statement = "select eventName, venue , status, currency,"
                     . "DATE_FORMAT(start_date, '%a %e %M %Y, %h:%i %p')"
                     . " as dateStart,dateInfo,end_date,posterURL  from events "
                     . "WHERE events.eventID = :eventID";
