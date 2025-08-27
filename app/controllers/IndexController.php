@@ -5486,6 +5486,9 @@ class IndexController extends ControllerBase {
                 default: $fraudStatus = "Unknown Code";
                     break;
             }
+            
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | dpoCallbackAction:" . json_encode($data)." IP::".$this->getClientIPAddress());
 
             $dpoTransactionQuery = "INSERT INTO dpo_transaction (TransID,CCDapproval,"
                     . "account,TransactionToken,description,status,created) VALUES (:TransID,:CCDapproval,"
@@ -5500,6 +5503,10 @@ class IndexController extends ControllerBase {
                 ':TransactionToken' => $TransactionToken
             ];
             $dpo_trxnId = $this->rawInsert($dpoTransactionQuery, $paramsDPOtrans);
+            
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | dpoCallbackAction:" . json_encode($data)." IP::"
+                    . "".$this->getClientIPAddress()." dpoTranID::".$dpo_trxnId);
 
             if ($fraudCode != "000") {
                 return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
