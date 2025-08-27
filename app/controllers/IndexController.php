@@ -5422,10 +5422,10 @@ class IndexController extends ControllerBase {
         $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | dpoCallbackAction:" . json_encode($data)." IP::".$this->getClientIPAddress());
         
-        if (!in_array($this->getClientIPAddress(), ['34.250.168.72','197.248.63.121'])) {
-
-            return $this->dpoXMLResponse();
-        }
+//        if (!in_array($this->getClientIPAddress(), ['34.250.168.72','197.248.63.121'])) {
+//
+//            return $this->dpoXMLResponse();
+//        }
 
         $Result = $data['Result'] ?? null;
         $ResultExplanation = $data['ResultExplanation'] ?? null;
