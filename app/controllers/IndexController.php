@@ -5529,7 +5529,7 @@ class IndexController extends ControllerBase {
                 $hasEventShows = 1;
             }
 
-            $accountNumber = substr($CompanyRef, 3);
+            $accountNumber = substr($TransID, 3);
 
             $select_trxn_initiated = "SELECT transaction_initiated.extra_data->>'$.amount' as amount, "
                     . "transaction_id,profile_id,service_id,reference_id,"
