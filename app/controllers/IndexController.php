@@ -5397,7 +5397,8 @@ class IndexController extends ControllerBase {
     public function dpoCallbackAction() {
         $rawXml = $this->request->getRawBody();
 
-        
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | dpoCallbackAction:" . $rawXml." IP::".$this->getClientIPAddress());
 
         if (empty($rawXml)) {
             // Debug: see what was actually received
