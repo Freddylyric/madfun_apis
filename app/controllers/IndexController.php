@@ -5403,10 +5403,8 @@ class IndexController extends ControllerBase {
             return $this->response->setStatusCode(400, "Bad Request")->setContent("No XML received");
         }
 
-// Debug log the raw input
         file_put_contents("/tmp/callback_debug.txt", $rawXml . "\n---\n", FILE_APPEND);
 
-// Suppress warnings, handle errors gracefully
         libxml_use_internal_errors(true);
         $xml = simplexml_load_string($rawXml, "SimpleXMLElement", LIBXML_NOCDATA);
 
@@ -5420,7 +5418,6 @@ class IndexController extends ControllerBase {
             return $this->response->setStatusCode(400, "Bad Request")->setContent("Invalid XML received");
         }
 
-// Convert to array
         $data = json_decode(json_encode($xml), true);
 
         $this->infologger->info(__LINE__ . ":" . __CLASS__
@@ -5717,7 +5714,7 @@ class IndexController extends ControllerBase {
                 'transaction_id' => $dpo_trxnId,
                 'response_code' => 200,
                 'response_description' => 'Processed Successfully',
-                'extra_data' => json_encode($success),
+                'extra_data' => json_encode($data),
                 'narration' => 'Processed Successfully',
                 'receipt_number' => "A" . $accountNumber . '$' . $this->now('YmdHis') . "" . $this->randStrGen(30),];
             $callback_id = Transactions::CreateTransactionCallback($callback_data);
