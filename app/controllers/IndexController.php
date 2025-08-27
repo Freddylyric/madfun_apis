@@ -5462,7 +5462,7 @@ class IndexController extends ControllerBase {
 
         $duplicate = "SELECT id FROM dpo_transaction WHERE TransID=:TransID";
 
-        $check_duplicate = $this->rawSelect($duplicate, [':TransID' => $TransID]);
+        $check_duplicate = $this->rawSelect($duplicate, [':TransID' => $TransactionToken]);
         $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | dpoCallbackAction:" . json_encode($check_duplicate) . " IP::" . $this->getClientIPAddress());
 
@@ -5499,9 +5499,9 @@ class IndexController extends ControllerBase {
             }
             
             $paramsInsert = [
-                'TransID' => $TransID,
+                'TransID' => $TransactionToken,
                 'CCDapproval' => $CCDapproval,
-                'account' => $CompanyRef,
+                'account' => $TransID,
                 'TransactionToken' => $TransactionToken,
                 'description' => $fraudStatus,
                 'status' => $FraudAlert,
