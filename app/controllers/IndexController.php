@@ -5397,6 +5397,12 @@ class IndexController extends ControllerBase {
     public function dpoCallbackAction() {
         $rawXml = $this->request->getRawBody();
 
+        if (!in_array($this->getClientIPAddress(), ['34.250.168.72'])) {
+
+            file_put_contents("/tmp/callback_debug.txt", "No raw body received\n", FILE_APPEND);
+            return $this->response->setStatusCode(403, "Un-authorised source")->setContent("No XML received");
+        }
+
         if (empty($rawXml)) {
             // Debug: see what was actually received
             file_put_contents("/tmp/callback_debug.txt", "No raw body received\n", FILE_APPEND);
