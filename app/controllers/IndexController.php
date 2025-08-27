@@ -5523,7 +5523,7 @@ class IndexController extends ControllerBase {
                 return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
             }
 
-            $ccountType = substr($CompanyRef, 0, 3);
+            $ccountType = substr($TransID, 0, 3);
             $hasEventShows = 0;
             if (strtoupper($ccountType) == 'MOD') {
                 $hasEventShows = 1;
