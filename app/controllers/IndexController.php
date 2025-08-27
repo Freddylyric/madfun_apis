@@ -5401,7 +5401,7 @@ class IndexController extends ControllerBase {
 
         if (empty($rawXml)) {
             // Debug: see what was actually received
-           return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
+           return $this->dpoXMLResponse();
         }
 
         file_put_contents("/tmp/callback_debug.txt", $rawXml . "\n---\n", FILE_APPEND);
@@ -5413,7 +5413,7 @@ class IndexController extends ControllerBase {
             $errors = libxml_get_errors();
             libxml_clear_errors();
 
-           return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
+           return $this->dpoXMLResponse();
         }
 
         $data = json_decode(json_encode($xml), true);
@@ -5423,7 +5423,7 @@ class IndexController extends ControllerBase {
         
         if (!in_array($this->getClientIPAddress(), ['34.250.168.72'])) {
 
-            return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
+            return $this->dpoXMLResponse();
         }
 
         $Result = $data['Result'] ?? null;
