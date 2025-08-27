@@ -5395,7 +5395,7 @@ class IndexController extends ControllerBase {
     }
 
     public function dpoCallbackAction() {
-
+        // Get raw XML input
         $rawPostData = file_get_contents("php://input");
         if (!$rawPostData) {
             http_response_code(400);
@@ -5416,7 +5416,6 @@ class IndexController extends ControllerBase {
 
         $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | dpoCallbackAction:" . json_encode($data));
-
 
         $Result = $data['Result'] ?? null;
         $ResultExplanation = $data['ResultExplanation'] ?? null;
@@ -5441,31 +5440,60 @@ class IndexController extends ControllerBase {
         $MobilePaymentRequest = $data['MobilePaymentRequest'] ?? null;
         $CompanyRef = $data['AccRef'] ?? null;
 
-        if (!$TransID || !$CCDapproval || !$TransactionToken || !$CompanyRef) {
-            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        if (!$TransID || !$CCDapproval || !$TransactionToken || !$CompanyRef || !$FraudAlert) {
+
+            return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
+
+
 
         $duplicate = "SELECT id FROM dpo_transaction WHERE TransID=:TransID";
 
         $check_duplicate = $this->rawSelect($duplicate, [':TransID' => $TransID]);
         if ($check_duplicate) {
-            return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
-                            , 'Duplicate', ['code' => 202, 'message' => 'The Transaction is a duplicate']);
+            return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
-        
+
         try {
-            
+
+            $fraudCode = $data['FraudAlert'] ?? "000";
+
+            switch ($fraudCode) {
+                case "000": $fraudStatus = "Genuine transaction";
+                    break;
+                case "001": $fraudStatus = "Low Risk (Not checked)";
+                    break;
+                case "002": $fraudStatus = "Suspected Fraud Alert";
+                    break;
+                case "003": $fraudStatus = "Fraud alert cleared (Merchant marked as clear)";
+                    break;
+                case "004": $fraudStatus = "Suspect Fraud Alert";
+                    break;
+                case "005": $fraudStatus = "Fraud alert cleared (Genuine transaction)";
+                    break;
+                case "006": $fraudStatus = "Black - Fraudulent transaction";
+                    break;
+                default: $fraudStatus = "Unknown Code";
+                    break;
+            }
+
             $dpoTransactionQuery = "INSERT INTO dpo_transaction (TransID,CCDapproval,"
-                    . "account,TransactionToken,created) VALUES (:TransID,:CCDapproval,"
-                    . ":account,:TransactionToken,NOW())";
+                    . "account,TransactionToken,description,status,created) VALUES (:TransID,:CCDapproval,"
+                    . ":account,:TransactionToken,:description,:status,NOW())";
 
             $paramsDPOtrans = [
                 ':TransID' => $TransID,
                 ':CCDapproval' => $CCDapproval,
+                ':description' => $fraudStatus,
+                ':status' => $fraudCode,
                 ':account' => $CompanyRef,
                 ':TransactionToken' => $TransactionToken
             ];
             $dpo_trxnId = $this->rawInsert($dpoTransactionQuery, $paramsDPOtrans);
+            
+            if($fraudCode  != "000"){
+                return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
+            }
 
             $ccountType = substr($CompanyRef, 0, 3);
             $hasEventShows = 0;
@@ -5489,9 +5517,7 @@ class IndexController extends ControllerBase {
                         . " | DPO Transaction Id:" . $dpo_trxnId
                         . " | DIRECT_DEPOSIT Transactions Empty Account "
                 );
-                return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
-                                , 'Transaction Not Found', ['code' => 404
-                            , 'message' => 'The Transaction not found']);
+                return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
             }
 
             $extra1 = [
@@ -5528,9 +5554,8 @@ class IndexController extends ControllerBase {
                         [':reference_id' => $referenceID]);
 
                 if (!$check_trxn_profile) {
-                    return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
-                                    , 'Streaming Profile Request not Found', ['code' => 404
-                                , 'message' => 'Streaming Profile Request not Found']);
+
+                    return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
                 }
 
                 $update_stream_profile = "update stream_profile_request set status = 1  WHERE"
@@ -5538,10 +5563,8 @@ class IndexController extends ControllerBase {
 
                 $this->rawUpdateWithParams($update_stream_profile,
                         [':id' => $check_trxn_profile[0]['id']]);
-                return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
-                                , 'Payment for Video Successful', ['code' => 200
-                            , 'message' => 'Payment for Video Successful',
-                            'data' => $check_trxn_profile[0]]);
+
+                return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
             }
 
 
@@ -5562,9 +5585,7 @@ class IndexController extends ControllerBase {
                         . " | DPO Transaction Id:" . $dpo_trxnId
                         . " | Event Ticket Profile Empty Account "
                 );
-                return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
-                                , 'Event Ticket Profile Not Found', ['code' => 404
-                            , 'message' => 'The Event Ticket Profile not found']);
+                return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
             }
             $amountPaid = $check_trxn[0]['amount'];
             $error = [];
@@ -5770,18 +5791,14 @@ class IndexController extends ControllerBase {
 
             $message = new Messaging();
             $message->LogOutbox($params);
-            return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
-                            , 'Ticket Sent Successful', ['code' => 200
-                        , 'success' => $success, 'error' => $error]);
+            return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         } catch (Exception $ex) {
             $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                     . " | Exception Code:" . $ex->getCode()
                     . " | Exception Code:" . $ex->getTraceAsString()
                     . " | Message:" . $ex->getMessage());
 
-            return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
-                            , 'Internal Server Error.', ['code' => 500
-                        , 'message' => $ex->getMessage()], true);
+            return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
     }
 
