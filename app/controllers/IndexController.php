@@ -5501,25 +5501,24 @@ class IndexController extends ControllerBase {
             $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | dpoCallbackAction:" . json_encode($data)." IP::".$this->getClientIPAddress());
 
-            $dpoTransactionQuery = "INSERT INTO dpo_transaction (TransID,CCDapproval,"
-                    . "account,TransactionToken,description,status,created) VALUES (:TransID,:CCDapproval,"
-                    . ":account,:TransactionToken,:description,:status,NOW())";
-
-            $paramsDPOtrans = [
-                ':TransID' => $TransID,
-                ':CCDapproval' => $CCDapproval,
-                ':description' => $fraudStatus,
-                ':status' => $fraudCode,
-                ':account' => $CompanyRef,
-                ':TransactionToken' => $TransactionToken
-            ];
-            $dpo_trxnId = $this->rawInsert($dpoTransactionQuery, $paramsDPOtrans);
+           
+            $dpo_trxnId = $this->rawInsertBulk(
+                    'dpo_transaction', [
+                    'TransID' => $TransID,
+                    'CCDapproval' => $CCDapproval,
+                    'account' => $CompanyRef,
+                    'TransactionToken' => $TransactionToken,
+                    'description' => $fraudStatus,
+                    'status' => $FraudAlert,
+                    'created' => $this->now(),
+                ]
+            );
             
             $this->infologger->info(__LINE__ . ":" . __CLASS__
                 . " | dpoCallbackAction:" . json_encode($data)." IP::"
                     . "".$this->getClientIPAddress()." dpoTranID::".$dpo_trxnId);
 
-            if ($fraudCode != "000") {
+            if ($FraudAlert != "000") {
                 return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
             }
 
