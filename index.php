@@ -68,6 +68,9 @@ $main->mapVia('ticket/lpo', 'buyTicketLPO', ['POST']);
 $main->mapVia('payment/b2b', 'paymentsB2BAction', ['POST']);
 $main->mapVia('sms/dlr', 'smsDLRAction', ['POST']);
 $main->mapVia('dpo/ticket/payment', 'dpoPaymentsAction', ['POST','GET']);
+$main->mapVia('dpo/callback/payment', 'dpoCallbackAction', ['POST','GET']);
+
+
 $main->mapVia('ticket/change', 'changeEvents', ['POST']);
 $main->mapVia('stream/purchase', 'streamingPurchaseAction', ['POST']);
 $main->mapVia('stream/payment/check', 'checkStreamPayment', ['POST']);

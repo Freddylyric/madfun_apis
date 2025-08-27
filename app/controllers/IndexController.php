@@ -2628,27 +2628,23 @@ class IndexController extends ControllerBase {
 
             $xml = simplexml_load_string($DPOReponse, "SimpleXMLElement", LIBXML_NOCDATA);
             $jsonString = json_encode($xml, JSON_PRETTY_PRINT);
-            
+
             $dataJ = json_decode($jsonString, true);
 
+            // $DPOArray = $DPOXMLData->getArray();
 
-           // $DPOArray = $DPOXMLData->getArray();
-            
-            
+
             $payloadResponse = [
                 'API3G' => [
-                    'Result'=> $dataJ['Result'],
-                    'ResultExplanation'=> $dataJ['ResultExplanation'],
-                    'TransToken'=> $dataJ['TransToken'],
-                    'TransRef'=> $accNumber
+                    'Result' => $dataJ['Result'],
+                    'ResultExplanation' => $dataJ['ResultExplanation'],
+                    'TransToken' => $dataJ['TransToken'],
+                    'TransRef' => $accNumber
                 ]
             ];
-            
-          
-            
+
             $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | DPO::Initiate Reponse:" . json_encode($payloadResponse));
-            
 
             $paramsDPOInititated = [
                 'transaction_id' => $transactionId,
@@ -5398,6 +5394,397 @@ class IndexController extends ControllerBase {
         }
     }
 
+    public function dpoCallbackAction() {
+
+        $rawPostData = file_get_contents("php://input");
+        if (!$rawPostData) {
+            http_response_code(400);
+            echo "No input received.";
+            exit;
+        }
+
+
+        $xml = simplexml_load_string($rawPostData, "SimpleXMLElement", LIBXML_NOCDATA);
+        if ($xml === false) {
+            http_response_code(400);
+            echo "Invalid XML.";
+            exit;
+        }
+
+
+        $data = json_decode(json_encode($xml), true);
+
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | dpoCallbackAction:" . json_encode($data));
+
+
+        $Result = $data['Result'] ?? null;
+        $ResultExplanation = $data['ResultExplanation'] ?? null;
+        $TransactionToken = $data['TransactionToken'] ?? null;
+        $TransID = $data['TransactionRef'] ?? null;
+        $CustomerName = $data['CustomerName'] ?? null;
+        $CustomerCredit = $data['CustomerCredit'] ?? null;
+        $CCDapproval = $data['TransactionApproval'] ?? null;
+        $TransactionCurrency = $data['TransactionCurrency'] ?? null;
+        $TransactionAmount = $data['TransactionAmount'] ?? null;
+        $FraudAlert = $data['FraudAlert'] ?? null;
+        $FraudExplanation = $data['FraudExplnation'] ?? null; // note XML key spelling
+        $TransactionNetAmount = $data['TransactionNetAmount'] ?? null;
+        $TransactionSettlementDate = $data['TransactionSettlementDate'] ?? null;
+        $TransactionRollingReserveAmt = $data['TransactionRollingReserveAmount'] ?? null;
+        $TransactionRollingReserveDate = $data['TransactionRollingReserveDate'] ?? null;
+        $CustomerPhone = $data['CustomerPhone'] ?? null;
+        $CustomerCountry = $data['CustomerCountry'] ?? null;
+        $CustomerAddress = $data['CustomerAddress'] ?? null;
+        $CustomerCity = $data['CustomerCity'] ?? null;
+        $CustomerZip = $data['CustomerZip'] ?? null;
+        $MobilePaymentRequest = $data['MobilePaymentRequest'] ?? null;
+        $CompanyRef = $data['AccRef'] ?? null;
+
+        if (!$TransID || !$CCDapproval || !$TransactionToken || !$CompanyRef) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+
+        $duplicate = "SELECT id FROM dpo_transaction WHERE TransID=:TransID";
+
+        $check_duplicate = $this->rawSelect($duplicate, [':TransID' => $TransID]);
+        if ($check_duplicate) {
+            return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                            , 'Duplicate', ['code' => 202, 'message' => 'The Transaction is a duplicate']);
+        }
+        
+        try {
+            
+            $dpoTransactionQuery = "INSERT INTO dpo_transaction (TransID,CCDapproval,"
+                    . "account,TransactionToken,created) VALUES (:TransID,:CCDapproval,"
+                    . ":account,:TransactionToken,NOW())";
+
+            $paramsDPOtrans = [
+                ':TransID' => $TransID,
+                ':CCDapproval' => $CCDapproval,
+                ':account' => $CompanyRef,
+                ':TransactionToken' => $TransactionToken
+            ];
+            $dpo_trxnId = $this->rawInsert($dpoTransactionQuery, $paramsDPOtrans);
+
+            $ccountType = substr($CompanyRef, 0, 3);
+            $hasEventShows = 0;
+            if (strtoupper($ccountType) == 'MOD') {
+                $hasEventShows = 1;
+            }
+
+            $accountNumber = substr($CompanyRef, 3);
+
+            $select_trxn_initiated = "SELECT transaction_initiated.extra_data->>'$.amount' as amount, "
+                    . "transaction_id,profile_id,service_id,reference_id,"
+                    . "source,description,created FROM `transaction_initiated` WHERE "
+                    . "`transaction_id`=:transaction_id LIMIT 1";
+            $check_trxn = $this->rawSelect($select_trxn_initiated,
+                    [':transaction_id' => $accountNumber]);
+
+            if (!$check_trxn) {
+
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                        . " | UniqueId:" . $TransID
+                        . " | DPO Transaction Id:" . $dpo_trxnId
+                        . " | DIRECT_DEPOSIT Transactions Empty Account "
+                );
+                return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                                , 'Transaction Not Found', ['code' => 404
+                            , 'message' => 'The Transaction not found']);
+            }
+
+            $extra1 = [
+                'paid_msisdn' => Profiling::QueryMobile($check_trxn[0]['profile_id']),
+                'account_number' => $accountNumber,];
+
+            $trx_params = [
+                'amount' => $check_trxn[0]['amount'],
+                'service_id' => $check_trxn[0]['service_id'],
+                'profile_id' => $check_trxn[0]['profile_id'],
+                'reference_id' => $dpo_trxnId,
+                'source' => $check_trxn[0]['source'],
+                'description' => $check_trxn[0]['description'],
+                'extra_data' => json_encode($extra1),];
+
+            Transactions::CreateTransaction($trx_params);
+
+            $referenceID = $check_trxn[0]['reference_id'];
+
+            if (strtoupper($ccountType) == 'STR') {
+
+                $select_stream_profile = "select stream_profile_request.id, "
+                        . "stream_profile_request.profile_id,stream_profile_request.order_key,"
+                        . "stream_profile_request.currency,stream_profile_request.reference_id,"
+                        . "stream_profile_request.returnURL,stream_profile_request.cancelURL,"
+                        . "stream_profile_request.status,stream_profile_request.created, "
+                        . "profile_attribute.first_name, profile_attribute.last_name, "
+                        . "user.email from stream_profile_request join profile_attribute "
+                        . "on stream_profile_request.profile_id  =profile_attribute.profile_id "
+                        . "join user on stream_profile_request.profile_id  =  user.profile_id WHERE"
+                        . " stream_profile_request.reference_id=:reference_id";
+
+                $check_trxn_profile = $this->rawSelect($select_stream_profile,
+                        [':reference_id' => $referenceID]);
+
+                if (!$check_trxn_profile) {
+                    return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                                    , 'Streaming Profile Request not Found', ['code' => 404
+                                , 'message' => 'Streaming Profile Request not Found']);
+                }
+
+                $update_stream_profile = "update stream_profile_request set status = 1  WHERE"
+                        . " id=:id";
+
+                $this->rawUpdateWithParams($update_stream_profile,
+                        [':id' => $check_trxn_profile[0]['id']]);
+                return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                                , 'Payment for Video Successful', ['code' => 200
+                            , 'message' => 'Payment for Video Successful',
+                            'data' => $check_trxn_profile[0]]);
+            }
+
+
+
+            $select_ticket_profile = "SELECT * FROM event_profile_tickets WHERE"
+                    . " reference_id=:reference_id";
+
+            $check_trxn_profile = $this->rawSelect($select_ticket_profile,
+                    [':reference_id' => $referenceID]);
+
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | dpo Payment Action Tickets Request:" . json_encode($check_trxn_profile));
+
+            if (!$check_trxn_profile) {
+
+                $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                        . " | UniqueId:" . $TransID
+                        . " | DPO Transaction Id:" . $dpo_trxnId
+                        . " | Event Ticket Profile Empty Account "
+                );
+                return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                                , 'Event Ticket Profile Not Found', ['code' => 404
+                            , 'message' => 'The Event Ticket Profile not found']);
+            }
+            $amountPaid = $check_trxn[0]['amount'];
+            $error = [];
+            $success = [];
+            foreach ($check_trxn_profile as $profileTrans) {
+                if ($hasEventShows == 1) {
+                    $check_evnt_type = $this->rawSelect("SELECT event_show_tickets_type.amount,"
+                            . "event_show_tickets_type.discount,events.posterURL,"
+                            . "event_show_tickets_type.group_ticket_quantity, "
+                            . "event_show_tickets_type.status,ticket_types.ticket_type,"
+                            . "event_show_tickets_type.event_show_venue_id,events.eventID AS eventId FROM "
+                            . "event_show_tickets_type join event_show_venue on"
+                            . " event_show_tickets_type.event_show_venue_id =  "
+                            . "event_show_venue.event_show_venue_id join event_shows"
+                            . " on event_show_venue.event_show_id  = "
+                            . "event_shows.event_show_id join events on "
+                            . "event_shows.eventID = events.eventID JOIN "
+                            . "ticket_types ON ticket_types.typeId = event_show_tickets_type.typeId"
+                            . " WHERE "
+                            . "event_show_tickets_type.event_ticket_show_id"
+                            . " = :event_ticket_show_id", [":event_ticket_show_id"
+                        => $profileTrans['event_ticket_id']]);
+                } else {
+                    $check_evnt_type = $this->rawSelect("SELECT event_tickets_type.amount,event_tickets_type.discount,events.posterURL,event_tickets_type.group_ticket_quantity, "
+                            . "event_tickets_type.status,ticket_types.ticket_type,event_tickets_type.eventId FROM"
+                            . " event_tickets_type JOIN ticket_types ON ticket_types.typeId"
+                            . " = event_tickets_type.typeId JOIN events ON "
+                            . "event_tickets_type.eventId = events.eventID WHERE event_tickets_type.event_ticket_id"
+                            . " = :event_ticket_id", [":event_ticket_id" => $profileTrans['event_ticket_id']]);
+                }
+
+                if (!$check_evnt_type) {
+                    array_push($error, ['message' => 'There is no such Event '
+                        . 'Ticket Id', 'eventTicketID' => $profileTrans['event_ticket_id']]);
+                    continue;
+                }
+                if (($check_evnt_type[0]['amount'] - ($check_evnt_type[0]['discount'] + $profileTrans['discount'])) > $amountPaid) {
+                    array_push($error, ['message' => 'Failed to activate ticket, '
+                        . 'Reason: Insufficient Fund', 'eventTicketID' => $profileTrans['event_ticket_id']]);
+                    continue;
+                }
+                if ($check_evnt_type[0]['group_ticket_quantity'] == 1) {
+                    $amountPaid = $amountPaid - ($check_evnt_type[0]['amount'] - ($check_evnt_type[0]['discount'] + $profileTrans['discount']));
+                }
+                $check_trn_profile_state = $this->rawSelect("select * from "
+                        . "event_profile_tickets_state where "
+                        . "event_profile_ticket_id =:event_profile_ticket_id",
+                        [":event_profile_ticket_id" => $profileTrans['event_profile_ticket_id']]);
+
+                if (!$check_trn_profile_state) {
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                            . " | UniqueId:" . $TransID
+                            . " | DPO Transaction Id:" . $dpo_trxnId
+                            . " | event_profile_ticket_id:" . $profileTrans['event_profile_ticket_id']
+                            . " | Record Not Found, Creating new record "
+                            . "for Event Profile Ticket State "
+                    );
+                }
+                $tickets = new Tickets();
+                $paramsState = [
+                    'status' => 1,
+                    'event_profile_ticket_id' => $profileTrans['event_profile_ticket_id'],
+                ];
+
+                $eventState = $tickets->ProfileTicketState($paramsState);
+                if (!$eventState) {
+                    array_push($error, ['message' => 'Failed. The ticket '
+                        . 'has been paid.', 'eventTicketID' => $profileTrans['event_ticket_id']]);
+                    continue;
+                }
+                $paramsUpdate = [
+                    'event_ticket_id' => $profileTrans['event_ticket_id'],
+                    'ticket_purchased' => 1,
+                    'ticket_redeemed' => 0
+                ];
+                $eventUpdateTicket = $tickets->EventTicketTypeUpdate($paramsUpdate, false, false, $profileTrans['event_tickets_option_id'], $hasEventShows);
+                $paramEvent = [
+                    'eventID' => $check_evnt_type[0]['eventId']
+                ];
+
+                $eventData = $tickets->queryEvent($paramEvent);
+
+                array_push($success, [
+                    'eventId' => $check_evnt_type[0]['eventId'],
+                    'message' => 'Ticket Activated Successsful',
+                    'QRCode' => $profileTrans['barcode'],
+                    'ticketURL' => $this->settings['TicketBaseURL'] . "?evtk=" . $profileTrans['barcode'],
+                    'eventName' => $eventData['eventName'],
+                    'venue' => $eventData['venue'],
+                    'start_date' => $eventData['dateStart'],
+                    'QRCodeURL' => $profileTrans['barcodeURL'],
+                    'posterURL' => $check_evnt_type[0]['posterURL'],
+                    'ticketType' => $check_evnt_type[0]['ticket_type'],
+                    'amount' => ($check_evnt_type[0]['amount'] - $check_evnt_type[0]['discount'])]);
+            }
+
+            $purchase_type = 'Beneficiary';
+            if ($check_trxn_profile[0]['profile_id'] != $check_trxn[0]['profile_id']) {
+                $purchase_type = 'Sponsor';
+            }
+            if (!$success) {
+
+                $callback_data = [
+                    'purchase_type' => $purchase_type,
+                    'transaction_id' => $dpo_trxnId,
+                    'response_code' => 402,
+                    'response_description' => 'Processed Failed',
+                    'extra_data' => json_encode($error),
+                    'narration' => 'Failed to update event profile ticket state',
+                    'receipt_number' => "A" . $accountNumber . '$' . $this->now('YmdHis') . "" . $this->randStrGen(30),];
+                $callback_id = Transactions::CreateTransactionCallback($callback_data);
+
+                return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                                , 'Failed to update event profile ticket state', ['code' => 404
+                            , 'message' => $error]);
+            }
+
+            $callback_data = [
+                'purchase_type' => $purchase_type,
+                'transaction_id' => $dpo_trxnId,
+                'response_code' => 200,
+                'response_description' => 'Processed Successfully',
+                'extra_data' => json_encode($success),
+                'narration' => 'Processed Successfully',
+                'receipt_number' => "A" . $accountNumber . '$' . $this->now('YmdHis') . "" . $this->randStrGen(30),];
+            $callback_id = Transactions::CreateTransactionCallback($callback_data);
+
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | UniqueId:" . $TransID
+                    . " | DPO Transaction Id:" . $dpo_trxnId
+                    . " | Account:" . $accountNumber
+                    . " | CreateTransactionCallback:$callback_id");
+
+            $profileAttribute = Profiling::QueryProfileProfileId($check_trxn[0]['profile_id']);
+
+            $sms = "";
+            $ticketsData = [];
+            foreach ($success as $succ) {
+
+                $sms .= "Dear " . $profileAttribute['first_name'] . " " . $profileAttribute['last_name'] . ", Your " . $succ['eventName'] . " ticket "
+                        . "is " . $succ['QRCode'] . ". View your ticket from "
+                        . $succ['ticketURL'] . " \n";
+
+                if ($profileAttribute['email'] != null) {
+                    // sent email to clients
+                    $this->infologger->info(__LINE__ . ":" . __CLASS__
+                            . " | Profile Attribute::" . json_encode($profileAttribute));
+
+                    $ticketsIn = [
+                        'ticketName' => $succ['ticketType'],
+                        'currency' => $succ['currency'],
+                        'amount' => $succ['amount'],
+                        'QrCode' => $succ['QRCode']
+                    ];
+
+                    array_push($ticketsData, $ticketsIn);
+                }
+            }
+
+            if ($profileAttribute['email'] != null) {
+                $paramsEmail = [
+                    "eventID" => $success[0]['eventId'],
+                    "orderNumber" => $dpo_trxnId,
+                    "paymentMode" => "DPO-PAYMENT",
+                    "name" => $profileAttribute['first_name'] . " "
+                    . "" . $profileAttribute['surname'] . " " . $profileAttribute['last_name'],
+                    "eventDate" => $success[0]['start_date'],
+                    "eventName" => $success[0]['eventName'],
+                    "amountPaid" => $success[0]['amount'],
+                    'msisdn' => $check_trxn[0]['msisdn'],
+                    'ticketsArray' => $ticketsData,
+                    'posterURL' => $success[0]['posterURL'],
+                    'venue' => $success[0]['venue'],
+                    'eventTicketInfo' => $success[0]['event_ticket_info'],
+                ];
+                $postData = [
+                    "api_key" => $this->settings['ServiceApiKey'],
+                    "to" => $profileAttribute['email'],
+                    "from" => "noreply@madfun.com",
+                    "cc" => "",
+                    "subject" => "Ticket for Event: " . $success[0]['eventName'],
+                    "content" => "Ticket information",
+                    "extrac" => $paramsEmail
+                ];
+                $mailResponse = $this->SendJsonPostAuthData($this->settings['MailerWebURL'],
+                        $postData, $this->settings['ServiceApiKey'], 3);
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
+                        . " | SendEmailWithoutAttachments Response::" .
+                        " | UniqueId:" . $profileAttribute['msisdn'] . " profileID::" . $check_trxn[0]['profile_id'] . " " .
+                        json_encode($mailResponse) . " Payload::" .
+                        json_encode($postData));
+            }
+
+            $params = [
+                "short_code" => $this->settings['mnoApps']['DefaultSenderId'],
+                "msisdn" => $profileAttribute['msisdn'],
+                "message" => $sms . ". Madfun! For Queries call "
+                . "" . $this->settings['Helpline'],
+                "profile_id" => $check_trxn[0]['profile_id'],
+                "created_by" => 'DPO_PAYMENT',
+                "is_bulk" => false,
+                "link_id" => ""];
+
+            $message = new Messaging();
+            $message->LogOutbox($params);
+            return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                            , 'Ticket Sent Successful', ['code' => 200
+                        , 'success' => $success, 'error' => $error]);
+        } catch (Exception $ex) {
+            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                    . " | Exception Code:" . $ex->getCode()
+                    . " | Exception Code:" . $ex->getTraceAsString()
+                    . " | Message:" . $ex->getMessage());
+
+            return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                            , 'Internal Server Error.', ['code' => 500
+                        , 'message' => $ex->getMessage()], true);
+        }
+    }
+
     /**
      * dpoPaymentsAction
      * @return type
@@ -5434,7 +5821,7 @@ class IndexController extends ControllerBase {
                 return $this->unAuthorised(__LINE__ . ":" . __CLASS__
                                 , 'Authentication Failure.');
             }
-            if (!in_array($this->getClientIPAddress(), ['35.187.93.149', '197.248.63.121','54.86.50.139'])) {
+            if (!in_array($this->getClientIPAddress(), ['35.187.93.149', '197.248.63.121', '54.86.50.139'])) {
                 return $this->unAuthorised(__LINE__ . ":" . __CLASS__ . ":" . json_encode($request->getJsonRawBody())
                                 , 'Un-authorised source!' . $this->getClientIPAddress() . '. UA:' . $request->getUserAgent());
             }
@@ -5631,7 +6018,7 @@ class IndexController extends ControllerBase {
                 $eventData = $tickets->queryEvent($paramEvent);
 
                 array_push($success, [
-                    'eventId'=>$check_evnt_type[0]['eventId'],
+                    'eventId' => $check_evnt_type[0]['eventId'],
                     'message' => 'Ticket Activated Successsful',
                     'QRCode' => $profileTrans['barcode'],
                     'ticketURL' => $this->settings['TicketBaseURL'] . "?evtk=" . $profileTrans['barcode'],
