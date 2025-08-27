@@ -5467,14 +5467,19 @@ class IndexController extends ControllerBase {
                 . " | dpoCallbackAction:" . json_encode($check_duplicate)." IP::".$this->getClientIPAddress());
         
         if ($check_duplicate) {
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | dpoCallbackAction:" . json_encode($check_duplicate)." IP::".$this->getClientIPAddress());
             return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
+        
+        
 
         try {
+            
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | dpoCallbackAction:" . json_encode($check_duplicate)." IP::".$this->getClientIPAddress());
 
-            $fraudCode = $data['FraudAlert'] ?? "000";
-
-            switch ($fraudCode) {
+            switch ($FraudAlert) {
                 case "000": $fraudStatus = "Genuine transaction";
                     break;
                 case "001": $fraudStatus = "Low Risk (Not checked)";
