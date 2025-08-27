@@ -5397,16 +5397,11 @@ class IndexController extends ControllerBase {
     public function dpoCallbackAction() {
         $rawXml = $this->request->getRawBody();
 
-        if (!in_array($this->getClientIPAddress(), ['34.250.168.72'])) {
-
-            file_put_contents("/tmp/callback_debug.txt", "No raw body received\n", FILE_APPEND);
-            return $this->response->setStatusCode(403, "Un-authorised source")->setContent("No XML received");
-        }
+        
 
         if (empty($rawXml)) {
             // Debug: see what was actually received
-            file_put_contents("/tmp/callback_debug.txt", "No raw body received\n", FILE_APPEND);
-            return $this->response->setStatusCode(400, "Bad Request")->setContent("No XML received");
+           return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
 
         file_put_contents("/tmp/callback_debug.txt", $rawXml . "\n---\n", FILE_APPEND);
@@ -5418,16 +5413,18 @@ class IndexController extends ControllerBase {
             $errors = libxml_get_errors();
             libxml_clear_errors();
 
-            // Log parsing errors
-            file_put_contents("/tmp/callback_debug.txt", print_r($errors, true), FILE_APPEND);
-
-            return $this->response->setStatusCode(400, "Bad Request")->setContent("Invalid XML received");
+           return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
 
         $data = json_decode(json_encode($xml), true);
 
         $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | dpoCallbackAction:" . json_encode($data));
+                . " | dpoCallbackAction:" . json_encode($data)." IP::".$this->getClientIPAddress());
+        
+        if (!in_array($this->getClientIPAddress(), ['34.250.168.72'])) {
+
+            return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
+        }
 
         $Result = $data['Result'] ?? null;
         $ResultExplanation = $data['ResultExplanation'] ?? null;
