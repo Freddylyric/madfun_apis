@@ -5427,10 +5427,10 @@ class IndexController extends ControllerBase {
 //            return $this->dpoXMLResponse();
 //        }
 
-        $Result = $data->Result ?? null;
+        $Result = $data['Result'] ?? null;
         
         $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " dpoCallbackAction | Result:" . $data['Result']." IP::".$this->getClientIPAddress());
+                . " dpoCallbackAction | Result:" . $Result." IP::".$this->getClientIPAddress());
         $ResultExplanation = $data->ResultExplanation ?? null;
         $TransactionToken = $data->TransactionToken ?? null;
         $TransID = $data->TransactionRef ?? null;
