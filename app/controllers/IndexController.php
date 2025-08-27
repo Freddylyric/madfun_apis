@@ -5398,11 +5398,11 @@ class IndexController extends ControllerBase {
         $rawXml = $this->request->getRawBody();
 
         $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | dpoCallbackAction:" . $rawXml." IP::".$this->getClientIPAddress());
+                . " | dpoCallbackAction:" . $rawXml . " IP::" . $this->getClientIPAddress());
 
         if (empty($rawXml)) {
             // Debug: see what was actually received
-           return $this->dpoXMLResponse();
+            return $this->dpoXMLResponse();
         }
 
         file_put_contents("/tmp/callback_debug.txt", $rawXml . "\n---\n", FILE_APPEND);
@@ -5414,14 +5414,14 @@ class IndexController extends ControllerBase {
             $errors = libxml_get_errors();
             libxml_clear_errors();
 
-           return $this->dpoXMLResponse();
+            return $this->dpoXMLResponse();
         }
 
         $data = json_decode(json_encode($xml), true);
 
         $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | dpoCallbackAction:" . json_encode($data)." IP::".$this->getClientIPAddress());
-        
+                . " | dpoCallbackAction:" . json_encode($data) . " IP::" . $this->getClientIPAddress());
+
 //        if (!in_array($this->getClientIPAddress(), ['34.250.168.72','197.248.63.121'])) {
 //
 //            return $this->dpoXMLResponse();
@@ -5449,9 +5449,9 @@ class IndexController extends ControllerBase {
         $CustomerZip = $data['CustomerZip'] ?? null;
         $MobilePaymentRequest = $data['MobilePaymentRequest'] ?? null;
         $CompanyRef = $data['AccRef'] ?? null;
-        
-          $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " dpoCallbackAction | TransID:" . $TransID." CCDapproval::".$CCDapproval." Token::".$TransactionToken);
+
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " dpoCallbackAction | TransID:" . $TransID . " CCDapproval::" . $CCDapproval . " Token::" . $TransactionToken);
 
         if (!$TransID || !$CCDapproval || !$TransactionToken) {
 
@@ -5464,20 +5464,20 @@ class IndexController extends ControllerBase {
 
         $check_duplicate = $this->rawSelect($duplicate, [':TransID' => $TransID]);
         $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | dpoCallbackAction:" . json_encode($check_duplicate)." IP::".$this->getClientIPAddress());
-        
+                . " | dpoCallbackAction:" . json_encode($check_duplicate) . " IP::" . $this->getClientIPAddress());
+
         if ($check_duplicate) {
             $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | dpoCallbackAction:" . json_encode($check_duplicate)." IP::".$this->getClientIPAddress());
+                    . " | dpoCallbackAction:" . json_encode($check_duplicate) . " IP::" . $this->getClientIPAddress());
             return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
         }
-        
-        
+
+
 
         try {
-            
+
             $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | dpoCallbackAction:" . json_encode($check_duplicate)." IP::".$this->getClientIPAddress());
+                    . " | dpoCallbackAction:" . json_encode($check_duplicate) . " IP::" . $this->getClientIPAddress());
 
             switch ($FraudAlert) {
                 case "000": $fraudStatus = "Genuine transaction";
@@ -5498,25 +5498,26 @@ class IndexController extends ControllerBase {
                     break;
             }
             
-            $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | dpoCallbackAction:" . json_encode($data)." IP::".$this->getClientIPAddress());
+            $paramsInsert = [
+                'TransID' => $TransID,
+                'CCDapproval' => $CCDapproval,
+                'account' => $CompanyRef,
+                'TransactionToken' => $TransactionToken,
+                'description' => $fraudStatus,
+                'status' => $FraudAlert,
+                'created' => $this->now()
+               ];
 
-           
-            $dpo_trxnId = $this->rawInsertBulk(
-                    'dpo_transaction', [
-                    'TransID' => $TransID,
-                    'CCDapproval' => $CCDapproval,
-                    'account' => $CompanyRef,
-                    'TransactionToken' => $TransactionToken,
-                    'description' => $fraudStatus,
-                    'status' => $FraudAlert,
-                    'created' => $this->now(),
-                ]
-            );
-            
             $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | dpoCallbackAction:" . json_encode($data)." IP::"
-                    . "".$this->getClientIPAddress()." dpoTranID::".$dpo_trxnId);
+                    . " | dpoCallbackAction:" . json_encode($paramsInsert) . " IP::" . $this->getClientIPAddress());
+            
+            
+
+            $dpo_trxnId = $this->rawInsertBulk('dpo_transaction', $paramsInsert);
+
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | dpoCallbackAction:" . json_encode($data) . " IP::"
+                    . "" . $this->getClientIPAddress() . " dpoTranID::" . $dpo_trxnId);
 
             if ($FraudAlert != "000") {
                 return $this->dpoXMLResponse($CompanyRef, $CompanyRef);
