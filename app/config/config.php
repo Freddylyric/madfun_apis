@@ -146,6 +146,7 @@ return new \Phalcon\Config\Config([
             'DefaultSenderIdOTP' => 'MADFUN_OTP',
             'DefaultSenderIdAT'=>'MADFUN',
             'ATToken'=>"atsk_6510998bc127ba8190c189af9dc155fb71f4fb093a1ba388620b741dbeab5c856f4e25a7",
+              'ATURL'=>'https://api.africastalking.com/version1/messaging/bulk',
             'BlastSmsApi' => 'https://sms.vaspro.co/v3/blast/sms/broadcast',
             'BulkSMSAPI' => 'https://sms.vaspro.co/v3/BulkSMS/api/create', //'http://35.195.83.76:8081/v3/BulkSMS/create',
             'BulkNestedSMSAPI' => 'https://sms.vaspro.co/v3/BulkSMS/bulk/nested',
