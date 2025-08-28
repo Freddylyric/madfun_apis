@@ -155,13 +155,13 @@ class Messaging extends Controller {
                 "phoneNumbers" => [$params['msisdn']]
             ];
             
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                                 . " | " . $params['msisdn'] . " Payload " .
                     json_encode($postData));
 
             $result = $this->base->sendJsonATPostData($postUrl, $postData,$this->base->settings['mnoApps']['ATToken']);
             
-            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
                                 . " | " . $params['msisdn'] . " Reponse " .
                     json_encode($result). " Payload SendAfricasTalkingMessage ". json_encode($postData));
 
