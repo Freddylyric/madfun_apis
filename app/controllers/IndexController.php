@@ -6498,13 +6498,13 @@ class IndexController extends ControllerBase {
                         "bind" => [
                             "eventID" => $eventID],]);
 
-            if ($checkQRCode[0]['status'] != 1) {
-
-                return $this->success(__LINE__ . ":" . __CLASS__
-                                , "QRCode Not Active for event: " . $checkEventsDetails->eventName
-                                , ['code' => 402, 'Message' => 'QRCode is not active for event: ' . $checkEventsDetails->eventName . '. Kindly '
-                            . ' make payment for the QRCode:' . $qrCode], true);
-            }
+//            if ($checkQRCode[0]['status'] != 1) {
+//
+//                return $this->success(__LINE__ . ":" . __CLASS__
+//                                , "QRCode Not Active for event: " . $checkEventsDetails->eventName
+//                                , ['code' => 402, 'Message' => 'QRCode is not active for event: ' . $checkEventsDetails->eventName . '. Kindly '
+//                            . ' make payment for the QRCode:' . $qrCode], true);
+//            }
             if ($checkQRCode[0]['isRemmend'] == 1) {
 
 
