@@ -67,49 +67,109 @@ class Messaging extends Controller {
                 ':created_by' => $params['created_by'],];
             $unique_id = $this->base->rawInsert($phql, $insert_params);
 
-           
-
             $params['message'] = $this->base->SMSTemplate($params['message']
                     , ['{helpline}' => $this->base->settings['Helpline'], '{line}' => "\n"]);
             $params['unique_id'] = $unique_id;
 
-            if ($this->base->settings['QueueSMS']) {
-                $this->SendBulkMessageQueue($params);
-                return true;
-            } else {
+            $network = $this->base->getMobileNetwork($params['msisdn']);
+            if ($network == "MTN_UGX") {
+
                 $sms = [
-                    'recipient' => $params['msisdn'],
-                    'enqueue' => 1,
-                    'apiKey' => $this->base->settings['ServiceApiKey'],
-                    'shortCode' => $params['short_code'],
+                    'msisdn' => $params['msisdn'],
                     'message' => $params['message'],
-                    'callbackURL' => $this->base->settings['mnoApps']['OndemandSmsCallback'],
                     'uniqueId' => $unique_id,];
 
-                $result = false;
-                if (isset($params['is_bulk'])) {
-                    $result = $this->SendBulkMessage($sms);
-                    $end = $this->base->getMicrotime() - $start;
-                } else {
-                    $sms['link_id'] = $params['link_id'];
-
-                    $result = $this->SendOndemandMessage($sms);
-                    $end = $this->base->getMicrotime() - $start;
-                    $this->infologger->info(__LINE__ . ":" . __CLASS__
-                            . " | $unique_id - " . $params['link_id']
-                            . " | Execution Time $end Sec SendOndemandMessage::$sms");
-                }
-
-                if (!$result) {
-                    $this->infologger->info(__LINE__ . ":" . __CLASS__
-                            . " | $unique_id - " . $params['msisdn'] . " payload " . json_encode($result)
-                            . " | Failed SMS Submit REQUEUE");
-
-                    return false;
-                }
+                $result = $this->SendAfricasTalkingMessage($sms);
 
                 return $result;
+            } else {
+                if ($this->base->settings['QueueSMS']) {
+                    $this->SendBulkMessageQueue($params);
+                    return true;
+                } else {
+                    $sms = [
+                        'recipient' => $params['msisdn'],
+                        'enqueue' => 1,
+                        'apiKey' => $this->base->settings['ServiceApiKey'],
+                        'shortCode' => $params['short_code'],
+                        'message' => $params['message'],
+                        'callbackURL' => $this->base->settings['mnoApps']['OndemandSmsCallback'],
+                        'uniqueId' => $unique_id,];
+
+                    $result = false;
+                    if (isset($params['is_bulk'])) {
+                        $result = $this->SendBulkMessage($sms);
+                        $end = $this->base->getMicrotime() - $start;
+                    } else {
+                        $sms['link_id'] = $params['link_id'];
+
+                        $result = $this->SendOndemandMessage($sms);
+                        $end = $this->base->getMicrotime() - $start;
+                        $this->infologger->info(__LINE__ . ":" . __CLASS__
+                                . " | $unique_id - " . $params['link_id']
+                                . " | Execution Time $end Sec SendOndemandMessage::$sms");
+                    }
+
+                    if (!$result) {
+                        $this->infologger->info(__LINE__ . ":" . __CLASS__
+                                . " | $unique_id - " . $params['msisdn'] . " payload " . json_encode($result)
+                                . " | Failed SMS Submit REQUEUE");
+
+                        return false;
+                    }
+
+                    return $result;
+                }
             }
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+     /**
+     * SendAfricasTalkingMessage
+     * @param type $postData
+     */
+    public function SendAfricasTalkingMessage($params) {
+        try {
+            $postUrl = $this->base->settings['mnoApps']['ATURL'];
+
+            $postData = [
+                "username" => "MADFUN",
+                "message" => $params['message'],
+                "senderId" => $this->base->settings['mnoApps']['DefaultSenderIdAT'],
+                "phoneNumbers" => [$params['msisdn']]
+            ];
+
+            $result = $this->base->sendJsonATPostData($postUrl, $postData,$this->base->settings['mnoApps']['ATToken']);
+            
+            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                                . " | " . $params['msisdn'] . " Reponse " .
+                    json_encode($result). " Payload". json_encode($postData));
+
+            $respo = json_decode($result['response']);
+            if ($result['statusCode'] == 200) {
+                $MessageID = $respo->SMSMessageData->Recipients[0]->messageId;
+                $reponseMsg = $respo->SMSMessageData->Recipients[0]->status;
+                $dlr = "INSERT INTO `outbox_dlr`(  `outbox_id`, "
+                        . "`correlator`,`campaign_id`"
+                        . ", `status`, `description`,`created`) "
+                        . "VALUES (:outbox_id,:correlator,:campaignId,:status,"
+                        . ":description,:created"
+                        . ")";
+                $insert_params_dlr = [
+                    ':outbox_id' => $postData['uniqueId'],
+                    ':correlator' => $MessageID,
+                    ':campaignId' => "",
+                    ':status' => $respo->SMSMessageData->Recipients[0]->statusCode,
+                    ':description' => $reponseMsg,
+                    ':created' => $this->base->now(),];
+
+                $this->base->rawInsert($dlr, $insert_params_dlr);
+
+                return $MessageID;
+            }
+            return false;
         } catch (Exception $ex) {
             throw $ex;
         }
@@ -166,7 +226,7 @@ class Messaging extends Controller {
             $postUrl = $this->base->settings['mnoApps']['BulkSMSAPI'];
             $result = $this->base->sendJsonPostData($postUrl, $postData);
             $this->infologger->info(__LINE__ . ":" . __CLASS__
-                    . " | sendJsonPostData SendBulkMessage::" . 
+                    . " | sendJsonPostData SendBulkMessage::" .
                     json_encode($result) . " payload " . json_encode($postData));
 
             $respo = json_decode($result['response']);
@@ -198,6 +258,7 @@ class Messaging extends Controller {
             throw $ex;
         }
     }
+
     /**
      * 
      * @param type $postData

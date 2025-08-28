@@ -28,6 +28,31 @@ class ControllerBase extends Controller {
 
         return $reference;
     }
+    
+    public function sendJsonATPostData($postUrl, $postData, $token) {
+        $httpRequest = curl_init($postUrl);
+        curl_setopt($httpRequest, CURLOPT_NOBODY, true);
+        curl_setopt($httpRequest, CURLOPT_POST, true);
+        curl_setopt($httpRequest, CURLOPT_POSTFIELDS, json_encode($postData));
+        curl_setopt($httpRequest, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Accept: application/json', 
+            'apiKey: '.$token,
+            'Content-Length: ' . strlen(json_encode($postData))));
+        curl_setopt($httpRequest, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($httpRequest, CURLOPT_TIMEOUT, $this->settings['timeoutDuration']);
+        curl_setopt($httpRequest, CURLOPT_CONNECTTIMEOUT, $this->settings['timeoutDuration']);
+        //accept SSL settings
+        curl_setopt($httpRequest, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($httpRequest, CURLOPT_USERAGENT, $this->settings['appName'] . "/3.0");
+
+        $response = curl_exec($httpRequest);
+        $status = curl_getinfo($httpRequest, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($httpRequest);
+        curl_close($httpRequest);
+
+        return ["statusCode" => $status, "response" => $response, 'error' => $curlError];
+    }
 
     /**
      * ReferenceNumber
