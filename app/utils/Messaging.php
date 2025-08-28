@@ -145,7 +145,7 @@ class Messaging extends Controller {
             
             $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
                                 . " | " . $params['msisdn'] . " Reponse " .
-                    json_encode($result). " Payload". json_encode($postData));
+                    json_encode($result). " Payload SendAfricasTalkingMessage ". json_encode($postData));
 
             $respo = json_decode($result['response']);
             if ($result['statusCode'] == 200) {
