@@ -56,6 +56,10 @@ class Messaging extends Controller {
      */
     public function LogOutbox($params) {
         try {
+            
+             $this->infologger->info(__LINE__ . ":" . __CLASS__
+                                . " | " . $params['msisdn'] . " payload " . json_encode($params)
+                                );
 
             $start = $this->base->getMicrotime();
             $phql = "INSERT INTO `outbox`( `profile_id`, `message`, `created_by`"
