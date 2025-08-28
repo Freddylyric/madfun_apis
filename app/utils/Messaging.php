@@ -80,6 +80,9 @@ class Messaging extends Controller {
                     'uniqueId' => $unique_id,];
 
                 $result = $this->SendAfricasTalkingMessage($sms);
+                
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
+                                . " | $unique_id - " . $params['msisdn'] . " response " . json_encode($result));
 
                 return $result;
             } else {
