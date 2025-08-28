@@ -3478,7 +3478,7 @@ class EventsController extends ControllerBase {
             }
 
             $stop_time = $this->getMicrotime() - $start_time;
-            return $this->success(__LINE__ . ":" . __CLASS__
+            return $this->successLarge(__LINE__ . ":" . __CLASS__
                             , 'Ok'
                             , ['code' => 200
                         , 'message' => "Successfully Queried Events results ($stop_time Seconds)"
