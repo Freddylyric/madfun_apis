@@ -152,7 +152,7 @@ class Messaging extends Controller {
                 "username" => "MADFUN",
                 "message" => $params['message'],
                 "senderId" => $this->base->settings['mnoApps']['DefaultSenderIdAT'],
-                "phoneNumbers" => [$params['msisdn']]
+                "phoneNumbers" => [(string)$params['msisdn']]
             ];
             
             $this->infologger->info(__LINE__ . ":" . __CLASS__
