@@ -7498,14 +7498,14 @@ class IndexController extends ControllerBase {
             foreach ($check_trxn_profile as $profileTrans) {
 
                 if ($ResultCode != "000") {
-                    if ($ResultCode != "900") {
+                    //if ($ResultCode != "900") {
                         $paramsState = [
                             'status' => -3,
                             'event_profile_ticket_id' => $profileTrans['event_profile_ticket_id'],
                         ];
 
                         $eventState = $tickets->ProfileTicketState($paramsState);
-                    }
+                    //}
 
                     array_push($error, ['message' => $ResultExplanation, 'eventTicketID' => $profileTrans['event_ticket_id']]);
                     continue;
