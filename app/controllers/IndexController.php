@@ -7486,10 +7486,10 @@ class IndexController extends ControllerBase {
 
             $ResultCode = $DPOArray['API3G']['Result'];
             $ResultExplanation = $DPOArray['API3G']['ResultExplanation'];
-            $CustomerName = $DPOArray['API3G']['CustomerName'];
-            $TransactionApproval = $DPOArray['API3G']['TransactionApproval'];
-            $TransactionCurrency = $DPOArray['API3G']['TransactionCurrency'];
-            $TransactionAmount = $DPOArray['API3G']['TransactionAmount'];
+            $CustomerName = isset($DPOArray['API3G']['CustomerName'])? $DPOArray['API3G']['CustomerName'] :"";
+            $TransactionApproval = isset($DPOArray['API3G']['TransactionApproval']) ? $DPOArray['API3G']['TransactionApproval']:"";
+            $TransactionCurrency =  isset($DPOArray['API3G']['TransactionCurrency']) ? $DPOArray['API3G']['TransactionCurrency'] :"";
+            $TransactionAmount =  isset($DPOArray['API3G']['TransactionAmount']) ? $DPOArray['API3G']['TransactionAmount'] : "";
             $TransactionFinalAmount = $DPOArray['API3G']['TransactionFinalAmount'];
             $amountPaid = $check_trxn['amount'];
             $error = [];
