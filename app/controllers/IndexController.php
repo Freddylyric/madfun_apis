@@ -5497,7 +5497,7 @@ class IndexController extends ControllerBase {
                 default: $fraudStatus = "Unknown Code";
                     break;
             }
-            
+
             $paramsInsert = [
                 'TransID' => $TransactionToken,
                 'CCDapproval' => $CCDapproval,
@@ -5506,12 +5506,10 @@ class IndexController extends ControllerBase {
                 'description' => $fraudStatus,
                 'status' => $FraudAlert,
                 'created' => $this->now()
-               ];
+            ];
 
             $this->infologger->info(__LINE__ . ":" . __CLASS__
                     . " | dpoCallbackAction:" . json_encode($paramsInsert) . " IP::" . $this->getClientIPAddress());
-            
-            
 
             $dpo_trxnId = $this->rawInsertBulk('dpo_transaction', $paramsInsert);
 
@@ -5703,7 +5701,7 @@ class IndexController extends ControllerBase {
                     'ticketURL' => $this->settings['TicketBaseURL'] . "?evtk=" . $profileTrans['barcode'],
                     'eventName' => $eventData['eventName'],
                     'venue' => $eventData['venue'],
-                    'currency'=> $eventData['currency'],
+                    'currency' => $eventData['currency'],
                     'start_date' => $eventData['dateStart'],
                     'QRCodeURL' => $profileTrans['barcodeURL'],
                     'posterURL' => $check_evnt_type[0]['posterURL'],
@@ -7418,7 +7416,7 @@ class IndexController extends ControllerBase {
         try {
 
             $select_trxn_initiated = "SELECT dpo_transaction_initiated.TransactionToken,transaction_initiated.extra_data->'$.amount' AS amount,"
-                    . " event_profile_tickets.isShowTicket, event_profile_tickets.reference_id, profile.msisdn,"
+                    . " event_profile_tickets.isShowTicket, event_profile_tickets.reference_id, profile.msisdn,event_profile_tickets.event_profile_ticket_id,"
                     . "event_profile_tickets_state.`status`, event_profile_tickets.profile_id,transaction_initiated.transaction_id "
                     . " FROM dpo_transaction_initiated "
                     . "join transaction_initiated on dpo_transaction_initiated.transaction_id"
@@ -7428,7 +7426,7 @@ class IndexController extends ControllerBase {
                     . " = event_profile_tickets_state.event_profile_ticket_id  JOIN "
                     . "profile on event_profile_tickets.profile_id = profile.profile_id "
                     . "WHERE transaction_initiated.transaction_id = :transaction_id"
-                    . " AND event_profile_tickets_state.`status` != 1 ";
+                    . " AND event_profile_tickets_state.`status` =0 ";
             $check_trxns = $this->rawSelect($select_trxn_initiated,
                     [':transaction_id' => $transaction_id]);
 
@@ -7444,8 +7442,16 @@ class IndexController extends ControllerBase {
 
             $this->infologger->info(__LINE__ . ":" . __CLASS__ . " :" . __FUNCTION__
                     . " | DPOResult" . json_encode($DPOResult));
+            $tickets = new Tickets();
 
             if (!$DPOResult) {
+                $paramsState = [
+                    'status' => -3,
+                    'event_profile_ticket_id' => $check_trxn['event_profile_ticket_id'],
+                ];
+
+                $eventState = $tickets->ProfileTicketState($paramsState);
+
                 return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                                 , 'Failed to Query Payments', ['code' => 402
                             , 'message' => "Failed to Query Payments"], true);
@@ -7458,6 +7464,12 @@ class IndexController extends ControllerBase {
                     [':reference_id' => $check_trxn['reference_id']]);
 
             if (!$check_trxn_profile) {
+                $paramsState = [
+                    'status' => -3,
+                    'event_profile_ticket_id' => $check_trxn['event_profile_ticket_id'],
+                ];
+
+                $eventState = $tickets->ProfileTicketState($paramsState);
                 return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                                 , 'Failed to Query Payments', ['code' => 402
                             , 'message' => "Failed to Query Payments"], true);
@@ -7482,7 +7494,6 @@ class IndexController extends ControllerBase {
             $amountPaid = $check_trxn['amount'];
             $error = [];
             $success = [];
-            $tickets = new Tickets();
 
             foreach ($check_trxn_profile as $profileTrans) {
 
