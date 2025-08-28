@@ -680,7 +680,7 @@ class AuthController extends ControllerBase {
                 $queueMessageResponse = $message->LogOutbox($params);
                 
                   $this->infologger->info(__LINE__ . ":" . __CLASS__
-                            . " | SendEmailTickets Response::" . $queueMessageResponse);
+                            . " | SendEmailTickets Response::" . $queueMessageResponse." ".$result['msisdn']);
                   
                   
 
