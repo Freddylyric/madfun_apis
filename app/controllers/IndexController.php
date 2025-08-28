@@ -7498,14 +7498,14 @@ class IndexController extends ControllerBase {
             foreach ($check_trxn_profile as $profileTrans) {
 
                 if ($ResultCode != "000") {
-                    //if ($ResultCode != "900") {
+                    if ($ResultCode != "900") {
                         $paramsState = [
                             'status' => -3,
                             'event_profile_ticket_id' => $profileTrans['event_profile_ticket_id'],
                         ];
 
                         $eventState = $tickets->ProfileTicketState($paramsState);
-                    //}
+                    }
 
                     array_push($error, ['message' => $ResultExplanation, 'eventTicketID' => $profileTrans['event_ticket_id']]);
                     continue;
@@ -7603,6 +7603,13 @@ class IndexController extends ControllerBase {
             }
 
             if ($ResultCode != "000") {
+                  $paramsState = [
+                            'status' => -2,
+                            'event_profile_ticket_id' => $profileTrans['event_profile_ticket_id'],
+                        ];
+
+                        $eventState = $tickets->ProfileTicketState($paramsState);
+                        
                 return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                                 , 'Failed to Query Payments', ['code' => 402
                             , 'message' => "Failed to Query Payments:::::" . $ResultExplanation], true);
@@ -7620,6 +7627,7 @@ class IndexController extends ControllerBase {
                 $dpoResult = $this->rawInsert($dpoTransactionQuery, $paramsDPOtrans);
 
                 if (!$dpoResult) {
+                    
                     return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                                     , 'Failed to Record Payments', ['code' => 402
                                 , 'message' => "Failed to Record Payments:::::" . $ResultExplanation], true);
