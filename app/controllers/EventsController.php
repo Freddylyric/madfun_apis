@@ -3301,6 +3301,8 @@ class EventsController extends ControllerBase {
                     . "user_event_map.eventID=events.eventID  $searchQuery"
                     . " group by events.eventID  $sorting";
 
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | ViewEventSQL:" . $sql);
 
             $result = $this->rawSelect($sql);
             if (empty($result)) {
@@ -3478,7 +3480,7 @@ class EventsController extends ControllerBase {
             }
 
             $stop_time = $this->getMicrotime() - $start_time;
-            return $this->successLarge(__LINE__ . ":" . __CLASS__
+            return $this->success(__LINE__ . ":" . __CLASS__
                             , 'Ok'
                             , ['code' => 200
                         , 'message' => "Successfully Queried Events results ($stop_time Seconds)"
@@ -4623,7 +4625,8 @@ class EventsController extends ControllerBase {
                             , 'message' => "Query returned no Records for Ticket ( $stop_time Seconds)"
                             , 'data' => []], true);
             }
-           
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " | viewTicketDetailsSQL:" . $sql . " " . $result[0]['eventID']);
 
             $customFields = $this->rawSelect("SELECT event_profile_event_form.element_value"
                     . " FROM event_profile_event_form JOIN event_form_elements"
@@ -4633,7 +4636,8 @@ class EventsController extends ControllerBase {
                     . "event_form_elements.linked_ticket = 1 limit 1",
                     [":profile_id" => $result[0]['profile_id'],
                         ":eventID" => $result[0]['eventID']]);
-            $
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                    . " |viewTicketDetailsSQL:" . json_encode($customFields));
             $customerFieldName = "";
             if ($customFields) {
                 $customerFieldName = $customFields[0]['element_value'];
