@@ -76,12 +76,19 @@ class Messaging extends Controller {
             $params['unique_id'] = $unique_id;
 
             $network = $this->base->getMobileNetwork($params['msisdn']);
+             $this->infologger->info(__LINE__ . ":" . __CLASS__
+                                . " | " . $params['msisdn'] . " payload " . $network
+                                );
             if ($network == "MTN_UGX") {
 
                 $sms = [
                     'msisdn' => $params['msisdn'],
                     'message' => $params['message'],
-                    'uniqueId' => $unique_id,];
+                    'uniqueId' => $unique_id];
+                
+                 $this->infologger->info(__LINE__ . ":" . __CLASS__
+                                . " | " . $params['msisdn'] . " payload " . json_encode($sms)
+                                );
 
                 $result = $this->SendAfricasTalkingMessage($sms);
                 
@@ -147,6 +154,10 @@ class Messaging extends Controller {
                 "senderId" => $this->base->settings['mnoApps']['DefaultSenderIdAT'],
                 "phoneNumbers" => [$params['msisdn']]
             ];
+            
+            $this->infologger->addInfo(__LINE__ . ":" . __CLASS__
+                                . " | " . $params['msisdn'] . " Payload " .
+                    json_encode($postData));
 
             $result = $this->base->sendJsonATPostData($postUrl, $postData,$this->base->settings['mnoApps']['ATToken']);
             
