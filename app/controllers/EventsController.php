@@ -3301,8 +3301,6 @@ class EventsController extends ControllerBase {
                     . "user_event_map.eventID=events.eventID  $searchQuery"
                     . " group by events.eventID  $sorting";
 
-            $this->infologger->info(__LINE__ . ":" . __CLASS__
-                    . " | ViewEventSQL:" . $sql);
 
             $result = $this->rawSelect($sql);
             if (empty($result)) {
