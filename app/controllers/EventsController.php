@@ -4623,8 +4623,7 @@ class EventsController extends ControllerBase {
                             , 'message' => "Query returned no Records for Ticket ( $stop_time Seconds)"
                             , 'data' => []], true);
             }
-            $this->infologger->info(__LINE__ . ":" . __CLASS__
-                    . " | viewTicketDetailsSQL:" . $sql . " " . $result[0]['eventID']);
+           
 
             $customFields = $this->rawSelect("SELECT event_profile_event_form.element_value"
                     . " FROM event_profile_event_form JOIN event_form_elements"
@@ -4634,8 +4633,7 @@ class EventsController extends ControllerBase {
                     . "event_form_elements.linked_ticket = 1 limit 1",
                     [":profile_id" => $result[0]['profile_id'],
                         ":eventID" => $result[0]['eventID']]);
-            $this->infologger->info(__LINE__ . ":" . __CLASS__
-                    . " |viewTicketDetailsSQL:" . json_encode($customFields));
+            $
             $customerFieldName = "";
             if ($customFields) {
                 $customerFieldName = $customFields[0]['element_value'];
