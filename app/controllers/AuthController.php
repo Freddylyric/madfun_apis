@@ -606,6 +606,9 @@ class AuthController extends ControllerBase {
             $auth = new Authenticate();
             $result = $auth
                     ->QueryUserUsingMobileOrEmail($this->payload['user_name']);
+            
+              $this->infologger->info(__LINE__ . ":" . __CLASS__ . " | Password Reset "
+                . "Request::". json_encode($result));
 
             if (!$result) {
                 return $this->unAuthorised(__LINE__ . ":" . __CLASS__
@@ -678,6 +681,8 @@ class AuthController extends ControllerBase {
               
                 $message = new Messaging();
                 $queueMessageResponse = $message->LogOutbox($params);
+                
+                
                 
                   $this->infologger->info(__LINE__ . ":" . __CLASS__
                             . " | SendEmailTickets Response::" . $queueMessageResponse." ".$result['msisdn']);
