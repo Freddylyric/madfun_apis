@@ -7603,17 +7603,38 @@ class IndexController extends ControllerBase {
             }
 
             if ($ResultCode != "000") {
-                  $paramsState = [
-                            'status' => -2,
-                            'event_profile_ticket_id' => $profileTrans['event_profile_ticket_id'],
-                        ];
+                $paramsState = [
+                    'status' => -2,
+                    'event_profile_ticket_id' => $profileTrans['event_profile_ticket_id'],
+                ];
 
-                        $eventState = $tickets->ProfileTicketState($paramsState);
-                        
+                $eventState = $tickets->ProfileTicketState($paramsState);
+
                 return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                                 , 'Failed to Query Payments', ['code' => 402
                             , 'message' => "Failed to Query Payments:::::" . $ResultExplanation], true);
             } else {
+
+                $select_dpo_transaction = "SELECT * FROM dpo_transaction WHERE"
+                        . " TransID=:TransID";
+
+                $check_dpo_transaction = $this->rawSelect($select_dpo_transaction,
+                        [':TransID' => $check_trxn['TransactionToken']]);
+
+                if ($check_dpo_transaction) {
+                    $paramsState = [
+                    'status' => -2,
+                    'event_profile_ticket_id' => $profileTrans['event_profile_ticket_id'],
+                ];
+
+                $eventState = $tickets->ProfileTicketState($paramsState);
+
+                return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
+                                , 'Failed to Query Payments', ['code' => 402
+                            , 'message' => "Failed to Query Payments duplicate:::::" . $ResultExplanation], true);
+                }
+
+
                 $dpoTransactionQuery = "INSERT INTO dpo_transaction (TransID,CCDapproval,"
                         . "account,TransactionToken,created) VALUES (:TransID,:CCDapproval,"
                         . ":account,:TransactionToken,NOW())";
@@ -7627,7 +7648,7 @@ class IndexController extends ControllerBase {
                 $dpoResult = $this->rawInsert($dpoTransactionQuery, $paramsDPOtrans);
 
                 if (!$dpoResult) {
-                    
+
                     return $this->success(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__
                                     , 'Failed to Record Payments', ['code' => 402
                                 , 'message' => "Failed to Record Payments:::::" . $ResultExplanation], true);
