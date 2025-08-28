@@ -667,6 +667,9 @@ class AuthController extends ControllerBase {
 
                 $smsMessage = "Hello $File_Name,\nYour reset code is "
                         . "$verification_code Verify your account to continue.";
+                
+                 $this->infologger->info(__LINE__ . ":" . __CLASS__ . " | Password Reset "
+                . "Request::". json_encode($smsMessage)." ".$result['msisdn']);
 
                 $params = [
                     "short_code" => $this->settings['mnoApps']['DefaultSenderIdOTP'],
