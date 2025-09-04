@@ -2599,7 +2599,7 @@ class IndexController extends ControllerBase {
             $country = Country::findFirst(['currency=:currency:'
                         , 'bind' => ['currency' => $events->currency]]);
 
-            if ($events->accept_mpesa_payment == 1) {
+            if ($events->accept_mpesa_payment == 1 || $events->accept_mpesa_payment == 2) {
                 $DPOResult = $DPOPayments->createToken($paramsDPO, $events->currency, $country->isoCode2);
             } else {
 
