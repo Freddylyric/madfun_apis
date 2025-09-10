@@ -2266,9 +2266,9 @@ class EventsController extends ControllerBase {
         if (!$token || !$source || !$event_show_id) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
-//        if(!is_numeric($event_show_id)){
-//            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
-//        }
+        if(!is_numeric($event_show_id)){
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
 //        if(!$this->validateDate($start) || $this->validateDate($stop)){
 //            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
 //        }
