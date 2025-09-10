@@ -108,7 +108,7 @@ class ControllerBase extends Controller {
         // Define an array of MySQL-related keywords or patterns to search for.
         $mysqlKeywords = array(
             "SELECT", "INSERT", "UPDATE", "DELETE", "FROM",
-            "UNION", "JOIN", "DROP", "ALTER", "CREATE", "DATABASE",
+            "UNION", "JOIN", "DROP", "ALTER", "CREATE", "DATABASE", "SLEEP",
             "mysql_query", "mysqli_query", "PDO::query"
                 // Add more keywords or patterns as needed.
         );

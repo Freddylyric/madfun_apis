@@ -2266,10 +2266,15 @@ class EventsController extends ControllerBase {
         if (!$token || !$source || !$event_show_id) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
+        if(!is_numeric($event_show_id)){
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+        if(!$this->validateDate($start) || $this->validateDate($stop)){
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
         if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
             return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
         }
-
         try {
             $auth = new Authenticate();
             if (!in_array($source, ['USSD', 'WEB', 'MOBILE'])) {
@@ -2376,6 +2381,13 @@ class EventsController extends ControllerBase {
         if (!$token || !$typeId || !$event_show_venue_id || !$amount || !$total_tickets || !$groupTickets) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
+        if(!is_numeric($event_show_venue_id)){
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+        if(!is_numeric($typeId)){
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+       
         if ($amount <= 0) {
             return $this->dataError(
                             __LINE__ . ":" . __CLASS__, 'Validation Error', ['code' => 422, 'message' => 'Invalid Amount']
@@ -2532,6 +2544,10 @@ class EventsController extends ControllerBase {
         if (!$token || !$source || !$event_show_venue_idD) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
+        if(!is_numeric($event_show_venue_idD)){
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+       
         if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
             return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
         }
@@ -2662,6 +2678,10 @@ class EventsController extends ControllerBase {
         if (!$token || !$source || !$phone || !$full_name || !$title || !$preferred_workstreams || !$county || !$email) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
+        if(!$this->validateEmail($email)){
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+        
         if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
             return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
         }
