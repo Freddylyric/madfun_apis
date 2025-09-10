@@ -2269,9 +2269,9 @@ class EventsController extends ControllerBase {
 //        if(!is_numeric($event_show_id)){
 //            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
 //        }
-        if(!$this->validateDate($start) || $this->validateDate($stop)){
-            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
-        }
+//        if(!$this->validateDate($start) || $this->validateDate($stop)){
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+//        }
         if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
             return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
         }
