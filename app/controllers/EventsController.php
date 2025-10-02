@@ -1698,25 +1698,25 @@ class EventsController extends ControllerBase {
         $categoryID = isset($data->categoryID) ? $data->categoryID : 4;
         $hasMultipleShow = isset($data->hasMultipleShow) ? $data->hasMultipleShow : 0;
 
-//        if ($this->checkForMySQLKeywords($token) ||
-//                $this->checkForMySQLKeywords($eventName) ||
-//                $this->checkForMySQLKeywords($company) ||
-//                $this->checkForMySQLKeywords($eventType) ||
-//                $this->checkForMySQLKeywords($venue) ||
-//                $this->checkForMySQLKeywords($ageLimit) ||
-//                $this->checkForMySQLKeywords($start_date_app) ||
-//                $this->checkForMySQLKeywords($end_date_app) ||
-//                $this->checkForMySQLKeywords($posterURL) ||
-//                $this->checkForMySQLKeywords($bannerURL) ||
-//                $this->checkForMySQLKeywords($currency) ||
-//                $this->checkForMySQLKeywords($revenueShare) ||
-//                $this->checkForMySQLKeywords($isPublic) ||
-//                $this->checkForMySQLKeywords($target) ||
-//                $this->checkForMySQLKeywords($categoryID) ||
-//                $this->checkForMySQLKeywords($hasMultipleShow)
-//        ) {
-//            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
-//        }
+        if ($this->checkForMySQLKeywords($token) ||
+                $this->checkForMySQLKeywords($eventName) ||
+                $this->checkForMySQLKeywords($company) ||
+                $this->checkForMySQLKeywords($eventType) ||
+                $this->checkForMySQLKeywords($venue) ||
+                $this->checkForMySQLKeywords($ageLimit) ||
+                $this->checkForMySQLKeywords($start_date_app) ||
+                $this->checkForMySQLKeywords($end_date_app) ||
+                $this->checkForMySQLKeywords($posterURL) ||
+                $this->checkForMySQLKeywords($bannerURL) ||
+                $this->checkForMySQLKeywords($currency) ||
+                $this->checkForMySQLKeywords($revenueShare) ||
+                $this->checkForMySQLKeywords($isPublic) ||
+                $this->checkForMySQLKeywords($target) ||
+                $this->checkForMySQLKeywords($categoryID) ||
+                $this->checkForMySQLKeywords($hasMultipleShow)
+        ) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
 
         if (!$token || !$eventName || !$company || !$start_date_app || !$end_date_app) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
