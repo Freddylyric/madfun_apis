@@ -1616,8 +1616,7 @@ class EventsController extends ControllerBase {
 
         $token = $request->getPost('api_key');
         $eventName = $request->getPost('eventName');
-        if ($this->checkForMySQLKeywords($token) ||
-                $this->checkForMySQLKeywords($eventName)) {
+        if ($this->checkForMySQLKeywords($token)) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
         if (!$token || !$eventName) {
