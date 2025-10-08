@@ -678,21 +678,20 @@ class DashboardController extends ControllerBase {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
 
-        if (!$token) {
-            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
-        }
+
         try {
             $auth = new Authenticate();
-            $auth_response = $auth->QuickTokenAuthenticate($token);
-            if (!$auth_response) {
-                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
-                                , 'Authentication Failure.');
+            if ($token) {
+                $auth_response = $auth->QuickTokenAuthenticate($token);
+                if (!$auth_response) {
+                    return $this->unAuthorised(__LINE__ . ":" . __CLASS__
+                                    , 'Authentication Failure.');
+                }
+                if ((!in_array($auth_response['role_id'], [1, 2, 3, 6, 7]))) {
+                    return $this->unAuthorised(__LINE__ . ":" . __CLASS__
+                                    , 'User doesn\'t have permissions to perform this action.');
+                }
             }
-            if ((!in_array($auth_response['role_id'], [1, 2, 3, 6, 7]))) {
-                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
-                                , 'User doesn\'t have permissions to perform this action.');
-            }
-
 
             $whereArray = [
                 'event_profile_tickets_state.status' => 1];
@@ -2385,8 +2384,8 @@ class DashboardController extends ControllerBase {
                 $selectQuery .= $queryBuilder;
             }
 
-            $count = $this->rawSelect($countQuery,[], 'db2');
-            $matches = $this->rawSelect($selectQuery,[], 'db2');
+            $count = $this->rawSelect($countQuery, [], 'db2');
+            $matches = $this->rawSelect($selectQuery, [], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalProfileComplimentary'];
@@ -2700,8 +2699,8 @@ class DashboardController extends ControllerBase {
                 $selectQuery .= $queryBuilder;
             }
 
-            $count = $this->rawSelect($countQuery,[], 'db2');
-            $matches = $this->rawSelect($selectQuery,[], 'db2');
+            $count = $this->rawSelect($countQuery, [], 'db2');
+            $matches = $this->rawSelect($selectQuery, [], 'db2');
 
             $data = new stdClass();
             $data->totalMatches = $count[0]['totalProfileRefund'];
@@ -2799,9 +2798,8 @@ class DashboardController extends ControllerBase {
             $this->successVueTable($response);
         }
     }
-    
-    
-     /**
+
+    /**
      * upgradeTicketFunction
      * @return type
      * @throws Exception
@@ -2865,7 +2863,7 @@ class DashboardController extends ControllerBase {
                             , 'record_count' => 0], true);
             }
             $result = $results[0];
-            
+
             if ($result['status'] != 1) {
                 return $this->success(__LINE__ . ":" . __CLASS__, 'Failed. No Initial Payment was made', [
                             'code' => 402
@@ -3187,14 +3185,12 @@ class DashboardController extends ControllerBase {
                     . "on event_profile_tickets.event_profile_ticket_id = "
                     . "event_profile_tickets_state.event_profile_ticket_id "
                     . "WHERE event_profile_tickets.barcode = $barcode";
-            
+
             $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | Upgrade Ticket Action:" .$sql);
+                    . " | Upgrade Ticket Action:" . $sql);
 
             $results = $this->rawSelect($sql);
-            
-            
-            
+
             if (!$results) {
                 return $this->BadRequest(__LINE__ . ":" . __CLASS__
                                 , 'Validation Error'
