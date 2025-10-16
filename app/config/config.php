@@ -120,7 +120,7 @@ return new \Phalcon\Config\Config([
         'TicketBaseURL' => 'https://gigs.madfun.com/event/ticket',
         'EventBaseURL' => 'https://gigs.madfun.com/event/',
         'EventFreeBaseURL' => 'https://gigs.madfun.com/launch/',
-        'RecordsLimit' => 60,
+        'RecordsLimit' => 100,
         'TicketPrice' => 100,
         'MaxRedeemptionPointsRequired' => 30,
         'ServiceApiKey' => '49ff5527754f679911a1175851e0b1a7',
