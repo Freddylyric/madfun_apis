@@ -2685,9 +2685,9 @@ class DashboardController extends ControllerBase {
 
             $whereQuery = $whereQuery ? "WHERE $whereQuery AND event_profile_tickets.hasRefunded =1 " : " WHERE event_profile_tickets.hasRefunded =1";
 
-            if ($checkEvents->hasMultipleShow == 0) {
-                $whereQuery .= " AND event_profile_tickets.isShowTicket = 1";
-            }
+//            if ($checkEvents->hasMultipleShow == 0) {
+//                $whereQuery .= " AND event_profile_tickets.isShowTicket = 1";
+//            }
             $countQuery = $countQuery . $baseQuery . $whereQuery;
             $selectQuery = $selectQuery . $baseQuery . $whereQuery;
 
