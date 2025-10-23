@@ -1927,7 +1927,7 @@ class DashboardController extends ControllerBase {
             } else {
                 if ($mode == "CARD") {
                     $selectQuery = "select profile.msisdn,ticket_types.ticket_type,"
-                            . "et.eventName, event_profile_tickets.barcode,"
+                            . "CONCAT(et.eventName,' - ',event_shows.show) as eventName, event_profile_tickets.barcode,"
                             . "py.TransID, count(*) as totalTickets,"
                             . "(event_show_tickets_type.amount * count(*)) AS "
                             . "totalAmount,event_shows.show,py.created ";
@@ -1956,7 +1956,7 @@ class DashboardController extends ControllerBase {
                     $groupByDay = "py.TransID";
                 } elseif ($mode == "B2B") {
                     $selectQuery = "select profile.msisdn,ticket_types.ticket_type,"
-                            . "et.eventName, event_profile_tickets.barcode,"
+                            . "CONCAT(et.eventName,' - ',event_shows.show) as eventName, event_profile_tickets.barcode,"
                             . "py.mpesa_code, count(*) as totalTickets,"
                             . "py.mpesa_amount,event_shows.show,"
                             . "py.created ";
@@ -1982,7 +1982,7 @@ class DashboardController extends ControllerBase {
                     $groupByDay = "py.mpesa_code";
                 } else {
                     $selectQuery = "select profile.msisdn,ticket_types.ticket_type,"
-                            . "et.eventName, event_profile_tickets.barcode,"
+                            . "CONCAT(et.eventName,' - ',event_shows.show) as eventName, event_profile_tickets.barcode,"
                             . "user.email,profile_attribute.first_name,"
                             . "profile_attribute.last_name, py.mpesa_code,"
                             . " count(*) as totalTickets,py.mpesa_amount,"
