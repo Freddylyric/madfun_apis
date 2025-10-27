@@ -3315,13 +3315,12 @@ class EventsController extends ControllerBase {
                     . "event_profile_tickets.event_profile_ticket_id   JOIN "
                     . "event_tickets_type ON event_tickets_type.event_ticket_id=event_profile_tickets.event_ticket_id"
                     . "   WHERE event_tickets_type.eventId=events.eventID))) "
-                    . "AS totalDPO,( SELECT count(events.eventID)   FROM events $searchQueryInner) "
+                    . "AS totalDPO,( SELECT count(events.eventID)   FROM events $searchQueryInner "
+                    . "and date(`events`.created) > '2025-08-01') "
                     . "AS total FROM events JOIN user_event_map ON "
-                    . "user_event_map.eventID=events.eventID  $searchQuery"
+                    . "user_event_map.eventID=events.eventID  $searchQuery and"
+                    . " date(`events`.created) > '2025-08-01' " 
                     . " group by events.eventID  $sorting";
-
-            $this->infologger->info(__LINE__ . ":" . __CLASS__
-                    . " | ViewEventSQL:" . $sql);
 
             $result = $this->rawSelect($sql);
             if (empty($result)) {
