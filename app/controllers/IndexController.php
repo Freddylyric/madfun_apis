@@ -2982,7 +2982,7 @@ class IndexController extends ControllerBase {
                     array_push($error, $errorMessage);
                     continue;
                 }
-                $quantity = $event->quantity * $checkEventTicketID->group_ticket_quantity;
+                $quantity = (INT) $event->quantity * (INT) $checkEventTicketID->group_ticket_quantity;
                 if (($checkEventTicketID->ticket_purchased + $quantity) >= $checkEventTicketID->total_tickets) {
                     $errorMessage = [
                         'error_code' => 422,
@@ -2991,7 +2991,7 @@ class IndexController extends ControllerBase {
                     array_push($error, $errorMessage);
                     continue;
                 }
-                $purchase_amount = $purchase_amount + ($event->quantity * ($checkEventTicketID->amount - ($checkEventTicketID->discount + $discountAffiliator)));
+                $purchase_amount = $purchase_amount + ((INT) $event->quantity * ($checkEventTicketID->amount - ($checkEventTicketID->discount + $discountAffiliator)));
 
                 $error = [];
                 $isFree = 0;
@@ -3091,9 +3091,9 @@ class IndexController extends ControllerBase {
                     $event_profile_ticket_id = $tickets->CreateTicketProfile($paramsTickets, 0, null, $event_tickets_option_id, $hasEventShows);
 
                     if (!$event_profile_ticket_id) {
-                        return $this->unProcessable(__LINE__ . ":" . __CLASS__
-                                        , 'Validation Error'
-                                        , ['code' => 422, 'message' => 'Failed to create ticket']);
+                        array_push($error, ['message' => 'Failed. The ticket',
+                            'eventTicketID' => $eventTicketID]);
+                            continue;
                     }
                     if ($discountAffiliator > 0 && $checkEventTicketID->amount > 0) {
                         $paramsAffiliator = [
@@ -3171,8 +3171,6 @@ class IndexController extends ControllerBase {
                         if ($i == 1) {
                             $smsFree .= $eventData['eventName'] . "\n";
                         }
-
-
                         $smsFree .= " Link:" . $this->settings['TicketBaseURL'] . "?evtk=" . $len . " \n";
                     }
                 }

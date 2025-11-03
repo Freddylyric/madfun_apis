@@ -3001,6 +3001,7 @@ class EventsController extends ControllerBase {
         $target = isset($data->target) ? $data->target : NULL;
         $isFeatured = isset($data->isFeatured) ? $data->isFeatured : 0;
         $showOnSlide = isset($data->showOnSlide) ? $data->showOnSlide : 0;
+        $ussdAccess = isset($data->ussdAccess) ? $data->ussdAccess : NULL;
 
         $hasAffiliator = isset($data->hasAffiliator) ? $data->hasAffiliator : 0;
         $categoryID = isset($data->categoryID) ? $data->categoryID : NULL;
@@ -3040,6 +3041,16 @@ class EventsController extends ControllerBase {
             return $this->unAuthorised(__LINE__ . ":" . __CLASS__
                             , 'User doesn\'t have permissions to perform this action.');
         }
+        if($ussdAccess && !in_array($ussdAccess, ['66','11','55','67','69','70'])){
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__
+                                , 'Validation Error'
+                                , ['code' => 422, 'message' => 'Invalid USSD '
+                                    . 'Access.Avaliable shared:: 66,11,55,67,69,70']);
+        }
+        $acceptMpesa = 1;
+        if($currency && $currency !=  "KES"){
+            $acceptMpesa = 0;
+        }
         $transactionManager = new TransactionManager();
         $dbTrxn = $transactionManager->get();
         try {
@@ -3061,12 +3072,17 @@ class EventsController extends ControllerBase {
             if ($company) {
                 $checkEvents->company = $company;
             }
+            if($ussdAccess) {
+                $checkEvents->ussd_access_point = $ussdAccess;
+            }
             if ($eventType) {
                 $checkEvents->eventType = $eventType;
             }
             if ($eventTag) {
                 $checkEvents->eventTag = $eventTag;
             }
+            
+            
             if ($venue) {
                 $checkEvents->venue = $venue;
             }
@@ -3095,6 +3111,7 @@ class EventsController extends ControllerBase {
 
       
             if ($currency) {
+                $checkEvents->accept_mpesa_payment =$acceptMpesa;
                 $checkEvents->currency = $currency;
             }
             if ($revenueShare && in_array($auth_response['userRole'], [1, 2])) {

@@ -9,6 +9,7 @@ class Events extends Model
     public ?string $company = null;
     public ?string $venue = null;
     public ?string $eventTag = null;
+    public ?string $ussd_access_point = null;
     public ?int $ageLimit = null;
     public ?int $isFeeOnOrganizer = null;
     public ?int $target = null;
