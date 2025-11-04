@@ -682,12 +682,12 @@ class PaymentsController extends ControllerBase {
                                     , ['code' => 422
                                 , 'message' => 'Tickets not set']);
                 }
-                if ($resultAmount['totalAmount'] <= 500) {
+                if ($resultAmount['totalAmount'] <= $this->settings['invoice']['minimumAmount']) {
                     return $this->BadRequest(__LINE__ . ":" . __CLASS__
                                     , 'Validation Error'
                                     , ['code' => 422
                                 , 'message' => 'Failed. Minimum amount to'
-                                . ' withdraw is 500. Currently sales is'
+                                . ' withdraw is '.$this->settings['invoice']['minimumAmount'].'. Currently sales is'
                                 . ' ' . $resultAmount['totalAmount']]);
                 }
 

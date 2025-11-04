@@ -85,6 +85,10 @@ return new \Phalcon\Config\Config([
             'api_key' => 'apc-xwyurGEL0DsK',
             'api_code' => 'apc-vJwuvHvuJtDt'
         ],
+        'invoice' =>[
+            'minimumAmount'=> 500,
+            
+        ],
         'DPO' => [
             'endpoint' => 'https://secure.3gdirectpay.com/API/v6/', //'https://secure.3gdirectpay.com/API/v6/',
             'companyToken' => '70816CF2-E0DA-48FD-BC4A-47C6C53008B5',
