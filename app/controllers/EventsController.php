@@ -3338,6 +3338,9 @@ class EventsController extends ControllerBase {
                     . "user_event_map.eventID=events.eventID  $searchQuery and"
                     . " date(`events`.created) > '2025-08-01' " 
                     . " group by events.eventID  $sorting";
+            
+            $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | Create User Request:" . $sql);
 
             $result = $this->rawSelect($sql);
             if (empty($result)) {
