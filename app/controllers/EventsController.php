@@ -3215,6 +3215,9 @@ class EventsController extends ControllerBase {
 
             $auth = new Authenticate();
             $auth_response = $auth->QuickTokenAuthenticate($token);
+             $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " |  Request:" . json_encode($auth_response));
+             
             if (!$auth_response) {
                 return $this->unAuthorised(__LINE__ . ":" . __CLASS__
                                 , 'Authentication Failure.');
