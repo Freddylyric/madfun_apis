@@ -3510,6 +3510,9 @@ class EventsController extends ControllerBase {
                     . "as totalRedemmed,aboutEvent"
                     . " from events $searchQuery $sorting";
             
+             $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | Create User Request SQL:" .$sql);
+            
             $result = $this->rawSelect($sql);
             if (empty($result)) {
                 $stop_time = $this->getMicrotime() - $start_time;
