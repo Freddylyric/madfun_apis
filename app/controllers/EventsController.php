@@ -3041,7 +3041,7 @@ class EventsController extends ControllerBase {
             return $this->unAuthorised(__LINE__ . ":" . __CLASS__
                             , 'User doesn\'t have permissions to perform this action.');
         }
-        if($ussdAccess && !in_array($ussdAccess, ['66','11','55','67','69','70'])){
+        if($ussdAccess && !in_array($ussdAccess, ['66','11','55','67','69','70','22'])){
             return $this->unProcessable(__LINE__ . ":" . __CLASS__
                                 , 'Validation Error'
                                 , ['code' => 422, 'message' => 'Invalid USSD '
