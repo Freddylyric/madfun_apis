@@ -3611,7 +3611,7 @@ class EventsController extends ControllerBase {
             }
 
             $selectQuery = "Select eventID,showOnSlide,isFeatured,eventTag,hasAffiliator,"
-                    . "eventName,company,posterURL,aboutEvent,revenueShare,"
+                    . "eventName,company,posterURL,aboutEvent,revenueShare,ussd_access_point,"
                     . "category_id, target,hasMultipleShow,isPublic,venue,"
                     . "status,start_date,end_date,created ";
 
