@@ -541,7 +541,7 @@ class IndexController extends ControllerBase {
                                 'EventId Not Found', 'record_count' => 0,
                                 'data' => []], true);
                 }
-                if (!in_array($checkEvents->eventID, [295])) {
+                if (!in_array($checkEvents->eventID, [702])) {
                     $stop_end = $this->getMicrotime() - $start_time;
                     return $this->success(__LINE__ . ":" . __CLASS__
                                     , "Event ID Not Found"
