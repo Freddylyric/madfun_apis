@@ -1160,19 +1160,52 @@ class IndexController extends ControllerBase {
 
                     $checkEvents = Events::findFirst(["eventID=:eventID:",
                                 "bind" => ["eventID" => $checkEventTicketID->eventId],]);
+                    
+                    $ticketsData = [];
+                    
+                     $ticketsIn = [
+                                'ticketName' => $ticketType->ticket_type,
+                                'currency' => 'KES',
+                                'amount' =>$checkEventTicketID->amount,
+                                'QrCode' => $QRCode,
+                            ];
+
+                            array_push($ticketsData, $ticketsIn);
+
+
+
                     $paramsEmail = [
-                        "eventID" => $checkEventTicketID->eventId,
-                        "type" => "TICKET_REDEEMED_CODE",
-                        "name" => $name,
-                        "eventDate" => $checkEvents->start_date,
-                        "eventName" => $checkEvents->eventName,
-                        "eventAmount" => $checkEventTicketID->amount,
-                        'eventType' => $ticketType->ticket_type,
-                        'QRcodeURL' => $barCode,
-                        'QRcode' => $QRCode,
-                        'posterURL' => $checkEvents->posterURL,
-                        'venue' => $checkEvents->venue
-                    ];
+                           "eventID" =>$checkEventTicketID->eventId,
+                           "orderNumber" =>"",
+                           "paymentMode" => "",
+                           "name" =>$name,
+                           "eventDate" => $checkEvents->start_date,
+                           "eventName" =>  $checkEvents->eventName,
+                           "amountPaid" => $checkEventTicketID->amount,
+                           'msisdn' => $msisdn,
+                           'ticketsArray' => $ticketsData,
+                           'posterURL' =>  $checkEvents->posterURL,
+                           'venue' => $checkEvents->venue,
+                           'eventTicketInfo' => $ticketsIn,
+                       ];
+ 
+ 
+ 
+//                    $paramsEmail = [
+//                        "eventID" => $checkEventTicketID->eventId,
+//                        "type" => "TICKET_REDEEMED_CODE",
+//                        "name" => $name,
+//                        "eventDate" => $checkEvents->start_date,
+//                        "eventName" => $checkEvents->eventName,
+//                        "eventAmount" => $checkEventTicketID->amount,
+//                        'eventType' => $ticketType->ticket_type,
+//                        'QRcodeURL' => $barCode,
+//                        'QRcode' => $QRCode,
+//                        'posterURL' => $checkEvents->posterURL,
+//                        'venue' => $checkEvents->venue
+//                    ];
+                    
+                    
                     $postData = [
                         "api_key" => $this->settings['ServiceApiKey'],
                         "to" => $email,
