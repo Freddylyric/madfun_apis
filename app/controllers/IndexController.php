@@ -446,7 +446,7 @@ class IndexController extends ControllerBase {
 
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
-        $this->infologger - info(__LINE__ . ":" . __CLASS__
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
                         . " | View Code Request:" . json_encode($request->getJsonRawBody()));
 
         $code = isset($data->code) ? $data->code : null;
@@ -523,9 +523,13 @@ class IndexController extends ControllerBase {
             } else {
 
                 $checkEvents = Events::findFirst([
-                            "eventID =:eventID: OR eventTag=:eventID: ",
+                            "eventID =:eventID: OR eventTag=:eventID2: ",
                             "bind" => [
-                                "eventID" => $eventId],]);
+                                "eventID" => $eventId, "eventID2" => $eventId],]);
+                $this->infologger->info(__LINE__ . ":" . __CLASS__
+                        . " | View Code Request:" . json_encode($checkEvents)
+);
+                
                 if (!$checkEvents) {
                     $stop_end = $this->getMicrotime() - $start_time;
                     return $this->success(__LINE__ . ":" . __CLASS__
@@ -687,9 +691,10 @@ class IndexController extends ControllerBase {
             if ($eventId != null) {
 
                 $checkEvents = Events::findFirst([
-                            "eventID =:eventID: OR eventTag=:eventID: ",
+                            "eventID =:eventID: OR eventTag=:eventID2: ",
                             "bind" => [
-                                "eventID" => $eventId],]);
+                                "eventID" => $eventId,
+                                "eventID2" => $eventId,],]);
                 if (!$checkEvents) {
                     $stop_end = $this->getMicrotime() - $start_time;
                     return $this->success(__LINE__ . ":" . __CLASS__
@@ -706,7 +711,7 @@ class IndexController extends ControllerBase {
                     );
                 }
 
-                if ($checkEvents->eventID != 295) {
+                if ($checkEvents->eventID != 702) {
                     return $this->success(__LINE__ . ":" . __CLASS__
                                     , "Event ID Not Found"
                                     , ['code' => 404, 'Message' =>
@@ -1130,7 +1135,7 @@ class IndexController extends ControllerBase {
                 $eventData = $tickets->queryEvent($paramEvent);
 
                 $sms = "Dear " . $name . ",\nFind ticket(s) for" . $eventData['eventName'] . ""
-                        . "\n\n1: Link:" . $this->settings['TicketBaseURL'] . "\nCode:" . $QRCode . ""
+                        . "\n\n1: Link:" . $this->settings['TicketBaseURL'] . "?evtk=" . $QRCode . ""
                         . "\nHelpline " . $this->settings['Helpline'];
 
                 $params = [
