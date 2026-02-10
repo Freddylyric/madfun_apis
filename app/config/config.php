@@ -7,13 +7,24 @@ $connection = [];
 $host = gethostname();
 $hosts = ['ke-pr-core-1'];
 if (!in_array($host, $hosts)) {
-    $connection = [
-        'adapter' => 'mysql',
-        'host' => 'localhost',
-        'username' => 'root',
-        'password' => '',
-        'dbname' => 'madfun',
-        'charset' => 'utf8mb4'];
+    
+    
+        $connection = [
+    'adapter' => 'mysql',
+    'host' => 'db',
+    'username' => 'madfun_user', 
+    'password' => 'madfun_pass',
+    'dbname' => 'madfun',
+    'charset' => 'utf8mb4'
+];
+        
+//    $connection = [
+//        'adapter' => 'mysql',
+//        'host' => 'localhost',
+//        'username' => 'root',
+//        'password' => '',
+//        'dbname' => 'madfun',
+//        'charset' => 'utf8mb4'];
     $connection2 = array(
         'adapter' => 'mysql',
         'host' => '35.187.90.51', //35.241.169.32',//35.205.116.205', //104.199.25.225',

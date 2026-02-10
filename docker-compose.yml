@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: phalcon_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: madfun        
+      MYSQL_USER: madfun_user     
+      MYSQL_PASSWORD: madfun_pass 
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./logs:/var/www/logs/madfun
+      - ./db-init:/docker-entrypoint-initdb.d
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: phalcon_app
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:alpine
+    container_name: phalcon_web
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+volumes:
+  db_data:

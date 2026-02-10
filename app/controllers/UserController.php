@@ -711,6 +711,115 @@ class UserController extends ControllerBase {
      * viewMembers
      * @return type
      */
+//    public function viewMembers() {
+//        $start_time = $this->getMicrotime();
+//        $request = new Request();
+//        $data = $request->getJsonRawBody();
+//
+//        $this->infologger = $this->getLogFile('info');
+//        $this->errorlogger = $this->getLogFile('error');
+//        $this->infologger->info(__LINE__ . ":" . __CLASS__
+//                . " | View Members Request:" . json_encode($request->getJsonRawBody()));
+//
+//        $token = isset($data->api_key) ? $data->api_key : null;
+//        $start = isset($data->start) ? $data->start : null;
+//        $stop = isset($data->end) ? $data->end : null;
+//        $limit = isset($data->limit) ? $data->limit : null;
+//        $offset = isset($data->page) ? $data->page : null;
+//        $sort = isset($data->sort) ? $data->sort : null;
+//        $source = isset($data->source) ? $data->source : null;
+//        $eventID = isset($data->eventID) ? $data->eventID : null;
+//        if (!$token || !$source || !$eventID) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+//        }
+//        if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
+//            return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
+//        }
+//        if (!$offset) {
+//            $offset = 1;
+//        }
+//        if (!$limit) {
+//            $limit = $this->settings['RecordsLimit'];
+//        }
+//        $order_arr = explode("|", $sort);
+//        if (count($order_arr) > 1) {
+//            $sort = "user.$order_arr[0]";
+//            $order = isset($order_arr[1]) ? $order_arr[1] : 'DESC';
+//        } else {
+//            $sort = 'user.user_id';
+//            $order = 'DESC';
+//        }
+//        try {
+//            $auth = new Authenticate();
+//            $auth_response = $auth->QuickTokenAuthenticate($token);
+//            if (!$auth_response) {
+//                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
+//                                , 'Authentication Failure.');
+//            }
+//
+//            $userClientMap = UserClientMap::findFirst(['user_id=:user_id:'
+//                        , 'bind' => ['user_id' => $auth_response['user_id']]]);
+//            if (!$userClientMap) {
+//                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
+//                                , 'Authentication Failure.');
+//            }
+//
+//            $whereArray = [
+//                'clients.client_id' => $userClientMap->client_id,
+//                'user_event_map.eventID' => $eventID];
+//
+//            $searchQuery = $this->whereQuery($whereArray, "");
+//
+//            if ($stop != null && $start != null) {
+//                $searchQuery .= " AND date(user.created) BETWEEN '$start' AND '$stop' ";
+//            }
+//            if ($stop != null && $start == null) {
+//                $searchQuery .= " AND date(user.created)<='$stop'";
+//            }
+//            if ($stop == null && $start != null) {
+//                $searchQuery .= " AND date(user.created)>='$start'";
+//            }
+//
+//            $sorting = $this->tableQueryBuilder($sort, $order, $offset, $limit);
+//            $sql = "select profile.msisdn, profile_attribute.first_name,"
+//                    . " profile_attribute.last_name, user.email, "
+//                    . "user_role.role_name, clients.client_name, "
+//                    . "user.created, (select count(DISTINCT user.user_id) from user join user_role on "
+//                    . "user.role_id = user_role.user_role_id join "
+//                    . "user_client_map on user.user_id  = user_client_map.user_id "
+//                    . "join clients on clients.client_id  = user_client_map.client_id "
+//                    . " join profile on profile.profile_id = user.profile_id "
+//                    . "join profile_attribute on profile.profile_id  = profile_attribute.profile_id $searchQuery) as total from user join user_role on "
+//                    . "user.role_id = user_role.user_role_id join "
+//                    . "user_client_map on user.user_id  = user_client_map.user_id "
+//                    . "join user_event_map on user_event_map.user_mapId = user_client_map.user_mapId  "
+//                    . "join clients on clients.client_id  = user_client_map.client_id "
+//                    . " join profile on profile.profile_id = user.profile_id "
+//                    . "join profile_attribute on profile.profile_id  = profile_attribute.profile_id $searchQuery group by user.user_id  $sorting";
+//            $result = $this->rawSelect($sql);
+//            if (empty($result)) {
+//                $stop_end = $this->getMicrotime() - $start_time;
+//                return $this->success(__LINE__ . ":" . __CLASS__, 'No Ticket Types Found', [
+//                            'code' => 404
+//                            , 'message' => "Query returned no results ( $stop_end Seconds)", 'data' => []
+//                            , 'record_count' => 0], true);
+//            }
+//            $stop_end = $this->getMicrotime() - $start_time;
+//            return $this->success(__LINE__ . ":" . __CLASS__
+//                            , 'Ok'
+//                            , ['code' => 200
+//                        , 'message' => "Successfully Queried Ticket Types results ($stop_end Seconds)"
+//                        , 'record_count' => $result[0]['total'], 'data' => $result]);
+//        } catch (Exception $ex) {
+//            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . " | "
+//                    . "Exception::" . $ex->getMessage());
+//            return $this->serverError(__LINE__ . ":" . __CLASS__
+//                            , 'Internal Server Error!');
+//        }
+//    }
+//   
+    
+    
     public function viewMembers() {
         $start_time = $this->getMicrotime();
         $request = new Request();
@@ -719,7 +828,7 @@ class UserController extends ControllerBase {
         $this->infologger = $this->getLogFile('info');
         $this->errorlogger = $this->getLogFile('error');
         $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | View Members Request:" . json_encode($request->getJsonRawBody()));
+                . " | View Members Request:" . json_encode($data));
 
         $token = isset($data->api_key) ? $data->api_key : null;
         $start = isset($data->start) ? $data->start : null;
@@ -729,18 +838,18 @@ class UserController extends ControllerBase {
         $sort = isset($data->sort) ? $data->sort : null;
         $source = isset($data->source) ? $data->source : null;
         $eventID = isset($data->eventID) ? $data->eventID : null;
+
         if (!$token || !$source || !$eventID) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
+
         if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
             return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
         }
-        if (!$offset) {
-            $offset = 1;
-        }
-        if (!$limit) {
-            $limit = $this->settings['RecordsLimit'];
-        }
+
+        $offset = $offset ? $offset : 1;
+        $limit = $limit ? $limit : $this->settings['RecordsLimit'];
+
         $order_arr = explode("|", $sort);
         if (count($order_arr) > 1) {
             $sort = "user.$order_arr[0]";
@@ -749,74 +858,81 @@ class UserController extends ControllerBase {
             $sort = 'user.user_id';
             $order = 'DESC';
         }
+
         try {
             $auth = new Authenticate();
             $auth_response = $auth->QuickTokenAuthenticate($token);
             if (!$auth_response) {
-                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
-                                , 'Authentication Failure.');
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Authentication Failure.');
             }
 
-            $userClientMap = UserClientMap::findFirst(['user_id=:user_id:'
-                        , 'bind' => ['user_id' => $auth_response['user_id']]]);
+            $userClientMap = UserClientMap::findFirst(['user_id=:user_id:', 'bind' => ['user_id' => $auth_response['user_id']]]);
             if (!$userClientMap) {
-                return $this->unAuthorised(__LINE__ . ":" . __CLASS__
-                                , 'Authentication Failure.');
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Authentication Failure.');
             }
 
             $whereArray = [
                 'clients.client_id' => $userClientMap->client_id,
-                'user_event_map.eventID' => $eventID];
+                'user_event_map.eventID' => $eventID
+            ];
 
             $searchQuery = $this->whereQuery($whereArray, "");
 
             if ($stop != null && $start != null) {
                 $searchQuery .= " AND date(user.created) BETWEEN '$start' AND '$stop' ";
-            }
-            if ($stop != null && $start == null) {
+            } elseif ($stop != null) {
                 $searchQuery .= " AND date(user.created)<='$stop'";
-            }
-            if ($stop == null && $start != null) {
+            } elseif ($start != null) {
                 $searchQuery .= " AND date(user.created)>='$start'";
             }
 
             $sorting = $this->tableQueryBuilder($sort, $order, $offset, $limit);
-            $sql = "select profile.msisdn, profile_attribute.first_name,"
-                    . " profile_attribute.last_name, user.email, "
-                    . "user_role.role_name, clients.client_name, "
-                    . "user.created, (select count(DISTINCT user.user_id) from user join user_role on "
-                    . "user.role_id = user_role.user_role_id join "
-                    . "user_client_map on user.user_id  = user_client_map.user_id "
-                    . "join clients on clients.client_id  = user_client_map.client_id "
-                    . " join profile on profile.profile_id = user.profile_id "
-                    . "join profile_attribute on profile.profile_id  = profile_attribute.profile_id $searchQuery) as total from user join user_role on "
-                    . "user.role_id = user_role.user_role_id join "
-                    . "user_client_map on user.user_id  = user_client_map.user_id "
-                    . "join user_event_map on user_event_map.user_mapId = user_client_map.user_mapId  "
-                    . "join clients on clients.client_id  = user_client_map.client_id "
-                    . " join profile on profile.profile_id = user.profile_id "
-                    . "join profile_attribute on profile.profile_id  = profile_attribute.profile_id $searchQuery group by user.user_id  $sorting";
+
+            $sql = "SELECT profile.msisdn, profile_attribute.first_name, profile_attribute.last_name, user.email, "
+                    . "user_role.role_name, clients.client_name, user.created, "
+                    . "(SELECT COUNT(DISTINCT user.user_id) FROM user "
+                    . "JOIN user_role ON user.role_id = user_role.user_role_id "
+                    . "JOIN user_client_map ON user.user_id = user_client_map.user_id "
+                    . "JOIN user_event_map ON user_event_map.user_mapId = user_client_map.user_mapId " 
+                    . "JOIN clients ON clients.client_id = user_client_map.client_id "
+                    . "JOIN profile ON profile.profile_id = user.profile_id "
+                    . "JOIN profile_attribute ON profile.profile_id = profile_attribute.profile_id $searchQuery) AS total "
+                    . "FROM user "
+                    . "JOIN user_role ON user.role_id = user_role.user_role_id "
+                    . "JOIN user_client_map ON user.user_id = user_client_map.user_id "
+                    . "JOIN user_event_map ON user_event_map.user_mapId = user_client_map.user_mapId "
+                    . "JOIN clients ON clients.client_id = user_client_map.client_id "
+                    . "JOIN profile ON profile.profile_id = user.profile_id "
+                    . "JOIN profile_attribute ON profile.profile_id = profile_attribute.profile_id $searchQuery "
+                    . "GROUP BY user.user_id $sorting";
+
             $result = $this->rawSelect($sql);
-            if (empty($result)) {
-                $stop_end = $this->getMicrotime() - $start_time;
-                return $this->success(__LINE__ . ":" . __CLASS__, 'No Ticket Types Found', [
-                            'code' => 404
-                            , 'message' => "Query returned no results ( $stop_end Seconds)", 'data' => []
-                            , 'record_count' => 0], true);
-            }
+
             $stop_end = $this->getMicrotime() - $start_time;
-            return $this->success(__LINE__ . ":" . __CLASS__
-                            , 'Ok'
-                            , ['code' => 200
-                        , 'message' => "Successfully Queried Ticket Types results ($stop_end Seconds)"
-                        , 'record_count' => $result[0]['total'], 'data' => $result]);
+
+            if (empty($result)) {
+                return $this->success(__LINE__ . ":" . __CLASS__, 'No members found', [
+                    'code' => 200, 
+                    'message' => "Query returned no results ($stop_end Seconds)", 
+                    'data' => [], 
+                    'record_count' => 0
+                ], true);
+            }
+
+            return $this->success(__LINE__ . ":" . __CLASS__, 'Ok', [
+                'code' => 200, 
+                'message' => "Successfully Queried results ($stop_end Seconds)", 
+                'record_count' => $result[0]['total'], 
+                'data' => $result
+            ]);
+
         } catch (Exception $ex) {
-            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . " | "
-                    . "Exception::" . $ex->getMessage());
-            return $this->serverError(__LINE__ . ":" . __CLASS__
-                            , 'Internal Server Error!');
+            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . " | Exception::" . $ex->getMessage());
+            return $this->serverError(__LINE__ . ":" . __CLASS__, 'Internal Server Error!');
         }
-    }
+}
+    
+    
     /**
      * viewUsersAction
      * @return type

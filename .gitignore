@@ -49,3 +49,10 @@ Thumbs.db
 *.wmv
 
 /nbproject/private/
+
+
+db-init/
+*.sql
+*.sql.gz
+
+vendor/
