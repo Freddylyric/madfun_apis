@@ -736,6 +736,7 @@ class IndexController extends ControllerBase {
                     );
                 }
             }
+            
 
             $checkProfileAttrinute = ProfileAttribute::findFirst(['profile_id=:profile_id:'
                         , 'bind' => ['profile_id' => Profiling::Profile($msisdn)]]);

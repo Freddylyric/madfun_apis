@@ -55,7 +55,6 @@ db-init/
 *.sql
 *.sql.gz
 
-vendor/
 
 .env
 .env.*

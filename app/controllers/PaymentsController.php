@@ -691,7 +691,23 @@ class PaymentsController extends ControllerBase {
                                 . ' ' . $resultAmount['totalAmount']]);
                 }
 
-                $balanceAmount = $resultAmount['totalAmount'];
+//                $balanceAmount = $resultAmount['totalAmount'];
+
+                $revenue = (float) $resultAmount['totalAmount'];
+                $commissionRate = (float) $checkEvents->revenueShare / 100;
+                $madfunCommission = $revenue * $commissionRate;
+                $netRevenue = $revenue - $madfunCommission;
+
+                if ($checkEvents->status == 1) {
+                    $maxWithdrawalAllowed = $revenue * 0.50; 
+                } else {
+                    $maxWithdrawalAllowed = $netRevenue; 
+                }
+
+                $alreadyPaid = (float) $resultInvoicePayments['amountPaid'];
+                $currentAvailableBalance = $maxWithdrawalAllowed - $alreadyPaid;
+
+                $balanceAmount = max(0, $currentAvailableBalance);
 
                 $checkUserEventMap = UserEventMap::findFirst([
                             "user_mapId =:user_mapId: AND eventID=:eventID: ",
