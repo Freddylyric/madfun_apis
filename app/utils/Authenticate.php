@@ -186,16 +186,34 @@ class Authenticate extends Controller {
         $base = new base();
 
         try {
-            $selectSql = "SELECT user.user_id,user.api_token"
-                    . ",profile.msisdn,user.email,user.role_id,user_role.role_name"
-                    . ",profile_attribute.first_name,profile_attribute.last_name,user_login.successful_attempts,user_login.failed_attempts"
-                    . ",user_login.cumlative_failed_attempts,user_login.last_failed_attempt"
-                    . ",user_login.last_failed_attempt,user.created FROM `user` "
-                    . " join profile on user.profile_id = profile.profile_id JOIN "
-                    . "profile_attribute on profile_attribute.profile_id = profile.profile_id JOIN user_login "
-                    . "ON user.user_id=user_login.user_id JOIN user_role ON "
-                    . "user.role_id=user_role.user_role_id "
-                    . "WHERE user.user_id=:user_id";
+//            $selectSql = "SELECT user.user_id,user.api_token"
+//                    . ",profile.msisdn,user.email,user.role_id,user_role.role_name"
+//                    . ",profile_attribute.first_name,profile_attribute.last_name,user_login.successful_attempts,user_login.failed_attempts"
+//                    . ",user_login.cumlative_failed_attempts,user_login.last_failed_attempt"
+//                    . ",user_login.last_failed_attempt,user.created FROM `user` "
+//                    . " join profile on user.profile_id = profile.profile_id JOIN "
+//                    . "profile_attribute on profile_attribute.profile_id = profile.profile_id JOIN user_login "
+//                    . "ON user.user_id=user_login.user_id JOIN user_role ON "
+//                    . "user.role_id=user_role.user_role_id "
+//                    . "WHERE user.user_id=:user_id";
+//            
+            
+            $selectSql = "SELECT user.user_id, user.api_token, profile.msisdn, user.email, 
+                      user.role_id, user_role.role_name, profile_attribute.first_name, 
+                      profile_attribute.last_name, 
+                      ifnull(clients.client_name, '') as organization,
+                      ifnull(clients.client_id, 0) as client_id,
+                      user_login.successful_attempts, user_login.failed_attempts,
+                      user_login.cumlative_failed_attempts, user_login.last_failed_attempt, 
+                      user.created 
+                      FROM `user` 
+                      JOIN profile ON user.profile_id = profile.profile_id 
+                      JOIN profile_attribute ON profile_attribute.profile_id = profile.profile_id 
+                      JOIN user_login ON user.user_id = user_login.user_id 
+                      JOIN user_role ON user.role_id = user_role.user_role_id 
+                      LEFT JOIN user_client_map ON user_client_map.user_id = user.user_id
+                      LEFT JOIN clients ON clients.client_id = user_client_map.client_id
+                      WHERE user.user_id = :user_id";
 
             $result = $base->rawSelect($selectSql, [':user_id' => $userId]);
             return isset($result[0]) ? $result[0] : false;
