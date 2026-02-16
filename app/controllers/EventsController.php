@@ -2877,22 +2877,22 @@ class EventsController extends ControllerBase {
                             . ' KES' . ($check_keywords[0]['amount_received'] - $check_keywords[0]['amount_redemeed'])]);
             }
             
-            $sms = "";
-            
-            $groupQty = isset($checkEventTicketID->group_ticket_quantity) && $checkEventTicketID->group_ticket_quantity > 0 
-                        ? $checkEventTicketID->group_ticket_quantity 
-                        : 1;
-            
-            $totalTicketsToGenerate = $quantity * $groupQty;
-
-            for ($i = 1; $i <= $totalTicketsToGenerate; $i++) {
-
-                $t = time();
-
 //            $sms = "";
-//            for ($i = 1; $i <= $quantity; $i++) {
+//            
+//            $groupQty = isset($checkEventTicketID->group_ticket_quantity) && $checkEventTicketID->group_ticket_quantity > 0 
+//                        ? $checkEventTicketID->group_ticket_quantity 
+//                        : 1;
+//            
+//            $totalTicketsToGenerate = $quantity * $groupQty;
+//
+//            for ($i = 1; $i <= $totalTicketsToGenerate; $i++) {
 //
 //                $t = time();
+
+            $sms = "";
+            for ($i = 1; $i <= $quantity; $i++) {
+
+                $t = time();
                 $len = rand(1000000, 9999999) . "" . $t;
                 $paramsTickets = [
                     'profile_id' => Profiling::Profile($msisdn),

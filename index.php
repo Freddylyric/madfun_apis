@@ -18,6 +18,7 @@ error_reporting(E_ALL & ~E_DEPRECATED);
  * Read auto-loader
  */
 include APP_PATH . "/vendor/autoload.php";
+//require _DIR_ . '/vendor/autoload.php';
 
 
 /**
@@ -239,6 +240,8 @@ $payments->mapVia('create/invoice', 'viewInvoices', ['GET']);
 $payments->mapVia('view/invoice/info', 'ViewInvoiceDetails', ['POST']);
 $payments->mapVia('view/invoice/summary', 'InvoiceSummary', ['POST']);
 
+
+$payments->mapVia('approve/invoice', 'UpdateInvoiceStatus', ['POST']);
 
 
 /**
