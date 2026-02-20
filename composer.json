@@ -15,7 +15,7 @@
          "phalcon/devtools": "*",
         "swiftmailer/swiftmailer": "^5.4",
          "aws/aws-sdk-php": "^3.212",
-        "nesbot/carbon": "^2.0"
+        "nesbot/carbon": "^1.32"
     },
     "config": {
         "allow-plugins": {
