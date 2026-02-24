@@ -2,75 +2,29 @@
 
 defined('APP_PATH') || define('APP_PATH', realpath('.'));
 
-$connection = [];
 
-$host = gethostname();
-$hosts = ['ke-pr-core-1'];
-if (!in_array($host, $hosts)) {
-    
 
-        
-    $connection = [
-        'adapter' => 'mysql',
-        'host' => 'localhost',
-        'username' => 'root',
-        'password' => '',
-        'dbname' => 'madfun',
-        'charset' => 'utf8mb4'];
-    $connection2 = array(
-        'adapter' => 'mysql',
-        'host' => '35.187.90.51', //35.241.169.32',//35.205.116.205', //104.199.25.225',
-        'username' => 'madfun_user',
-        'password' => 'POD5e\d9IabkzEsd@IgE&Oh4bqJkOYYHld',
-        'dbname' => 'madfun',
-        'charset' => 'utf8mb4',
-        "options" => array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true)
-    );
-        
-    
-        
-//        $connection = [
-//    'adapter' => 'mysql',
-//    'host' => 'db',
-//    'username' => 'madfun_user', 
-//    'password' => 'madfun_pass',
-//    'dbname' => 'madfun',
-//    'charset' => 'utf8mb4'
-//];
-//        
-//        $connection2 = array(
-//        'adapter' => 'mysql',
-//        'host' => 'db', 
-//        'username' => 'madfun_user',
-//        'password' => 'madfun_pass', 
-//        'dbname' => 'madfun',
-//        'charset' => 'utf8mb4',
-//        "options" => array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true)
-//    );
-    
-    
-}
-else {
-    $connection = array(
-        'adapter' => 'mysql',
-        'host' => '35.187.90.51', //104.199.25.225',
-        'username' => 'madfun_user',
-        'password' => 'POD5e\d9IabkzEsd@IgE&Oh4bqJkOYYHld',
-        'dbname' => 'madfun',
-        'charset' => 'utf8mb4',
-        "options" => [\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true, \PDO::ATTR_PERSISTENT]
-    );
+$connection = [
+    'adapter'  => $_ENV['DB_ADAPTER'] ?? 'mysql',
+    'host'     => $_ENV['DB_HOST'] ?? '127.0.0.1',
+    'username' => $_ENV['DB_USER'] ?? 'root',
+    'password' => $_ENV['DB_PASS'] ?? '',
+    'dbname'   => $_ENV['DB_NAME'] ?? 'madfun',
+    'charset'  => 'utf8mb4',
+    "options"  => [\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true, \PDO::ATTR_PERSISTENT => true]
+];
 
-    $connection2 = array(
-        'adapter' => 'mysql',
-       'host' => '35.187.90.51', //104.199.25.225',
-        'username' => 'madfun_user',
-        'password' => 'POD5e\d9IabkzEsd@IgE&Oh4bqJkOYYHld',
-        'dbname' => 'madfun',
-        'charset' => 'utf8mb4',
-        "options" => array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true)
-    );
-}
+$connection2 = [
+    'adapter'  => $_ENV['DB2_ADAPTER'] ?? 'mysql',
+    'host'     => $_ENV['DB2_HOST'] ?? '127.0.0.1',
+    'username' => $_ENV['DB2_USER'] ?? 'root',
+    'password' => $_ENV['DB2_PASS'] ?? '',
+    'dbname'   => $_ENV['DB2_NAME'] ?? 'madfun',
+    'charset'  => 'utf8mb4',
+    "options"  => [\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]
+];
+
+
 $logPath = [
     'location' => "/var/www/logs/madfun/",
     "dateFormat" => "Y-m-d H:i:s",

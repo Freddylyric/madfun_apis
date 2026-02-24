@@ -22,6 +22,16 @@ include APP_PATH . "/vendor/autoload.php";
 
 
 /**
+ * Load .env variables
+ */
+
+if (file_exists(APP_PATH . '/.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(APP_PATH);
+    $dotenv->safeLoad();
+}
+
+
+/**
  * Read the configuration
  */
 $config = include APP_PATH . "/app/config/config.php";
@@ -30,6 +40,8 @@ $config = include APP_PATH . "/app/config/config.php";
  * Read auto-loader
  */
 include APP_PATH . "/app/config/loader.php";
+
+
 
 /**
  * Read services
