@@ -25,10 +25,10 @@ include APP_PATH . "/vendor/autoload.php";
  * Load .env variables
  */
 
-if (file_exists(APP_PATH . '/.env')) {
-    $dotenv = Dotenv\Dotenv::createImmutable(APP_PATH);
-    $dotenv->safeLoad();
-}
+//if (file_exists(APP_PATH . '/.env')) {
+//    $dotenv = Dotenv\Dotenv::createImmutable(APP_PATH);
+//    $dotenv->safeLoad();
+//}
 
 
 /**
