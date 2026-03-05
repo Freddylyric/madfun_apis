@@ -1261,8 +1261,12 @@ class EventsController extends ControllerBase {
         $categoryID = $request->getPost('categoryID');
         $end_date_app = $request->getPost('end_date');
         $hasMultpleShow = $request->getPost('hasMultpleShow');
-        $showData = json_decode($request->getPost('showData'));
-        $ticketTypes = json_decode($request->getPost('ticketTypes'));
+
+        $showDataRaw = $request->getPost('showData');
+        $ticketTypesRaw = $request->getPost('ticketTypes');
+
+        $showData = json_decode($showDataRaw);
+        $ticketTypes = json_decode($ticketTypesRaw);
 
         if ($this->checkForMySQLKeywords($token) ||
                 $this->checkForMySQLKeywords($eventName) ||
@@ -1279,8 +1283,8 @@ class EventsController extends ControllerBase {
                 $this->checkForMySQLKeywords($categoryID) ||
                 $this->checkForMySQLKeywords($end_date_app) ||
                 $this->checkForMySQLKeywords($hasMultpleShow) ||
-                $this->checkForMySQLKeywords($showData) ||
-                $this->checkForMySQLKeywords($ticketTypes)) {
+               $this->checkForMySQLKeywords($showDataRaw) ||     
+                $this->checkForMySQLKeywords($ticketTypesRaw)) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
 
