@@ -1483,5 +1483,73 @@ class UserController extends ControllerBase {
                             , 'Internal Server Error.');
         }
     }
+    
+    
+    /**
+     * removeEventStaff
+     * @return type
+     */
+    public function removeEventStaff() {
+        $request = new Request();
+        $data = $request->getJsonRawBody();
+
+        $this->infologger = $this->getLogFile('info');
+        $this->errorlogger = $this->getLogFile('error');
+        $this->infologger->info(__LINE__ . ":" . __CLASS__ . " | Remove Staff Request:" . json_encode($request->getJsonRawBody()));
+
+        $token = isset($data->api_key) ? $data->api_key : null;
+        $eventID = isset($data->eventID) ? $data->eventID : null;
+        $msisdnNew = isset($data->msisdn) ? $data->msisdn : null;
+        $source = isset($data->source) ? $data->source : null;
+
+        if (!$token || !$source || !$msisdnNew || !$eventID) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+        
+        $msisdn = $this->formatMobileNumber($msisdnNew);
+
+        try {
+            $auth = new Authenticate();
+            $auth_response = $auth->QuickTokenAuthenticate($token);
+            if (!$auth_response) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Authentication Failure.');
+            }
+            if (!in_array($auth_response['userRole'], [1, 2, 6])) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Not authorised to perform this action.');
+            }
+
+            $checkProfile = Profile::findFirst(["msisdn=:msisdn:", "bind" => ["msisdn" => $msisdn]]);
+            if (!$checkProfile) {
+                return $this->unProcessable(__LINE__ . ":" . __CLASS__, 'Validation Error', ['code' => 404, 'message' => 'Staff profile not found']);
+            }
+
+            $checkUser = User::findFirst(['profile_id=:profile_id:', 'bind' => ['profile_id' => $checkProfile->profile_id]]);
+            if (!$checkUser) {
+                return $this->unProcessable(__LINE__ . ":" . __CLASS__, 'Validation Error', ['code' => 404, 'message' => 'Staff user account not found']);
+            }
+
+            $checkUserClientMap = UserClientMap::findFirst(['user_id =:user_id:', 'bind' => ['user_id' => $checkUser->user_id]]);
+            if (!$checkUserClientMap) {
+                 return $this->unProcessable(__LINE__ . ":" . __CLASS__, 'Validation Error', ['code' => 404, 'message' => 'Staff is not mapped to any organization']);
+            }
+
+            $userEventMap = UserEventMap::findFirst(['user_mapId=:user_mapId: AND eventID =:eventID:', 
+                'bind' => ['user_mapId' => $checkUserClientMap->user_mapId, 'eventID' => $eventID]]);
+            
+            if (!$userEventMap) {
+                return $this->success(__LINE__ . ":" . __CLASS__, 'Success', ['code' => 200, 'message' => 'Staff is already not part of this event'], true);
+            }
+
+            if ($userEventMap->delete() === false) {
+                return $this->serverError(__LINE__ . ":" . __CLASS__, 'Failed to remove staff member from event');
+            }
+
+            return $this->success(__LINE__ . ":" . __CLASS__, 'Success', ['code' => 200, 'message' => 'Staff member removed successfully from event']);
+
+        } catch (Exception $ex) {
+            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . " | Exceptions:" . $ex->getMessage());
+            return $this->serverError(__LINE__ . ":" . __CLASS__, 'Internal Server Error.');
+        }
+    }
 
 }

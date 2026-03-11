@@ -4000,8 +4000,12 @@ class EventsController extends ControllerBase {
         $status = isset($data->status) ? $data->status : 0;
         $event_show_venue_id = isset($data->event_show_venue_id) ? $data->event_show_venue_id : null;
         $isFeatured = isset($data->isFeatured) ? $data->isFeatured : null;
+        
+        $description = isset($data->description) ? $data->description : null;
+        
+      
 
-        if ($this->checkForMySQLKeywords($token) || $this->checkForMySQLKeywords($typeId) || $this->checkForMySQLKeywords($event_ticket_id) || $this->checkForMySQLKeywords($color_code) || $this->checkForMySQLKeywords($main_color_code) || $this->checkForMySQLKeywords($amount) || $this->checkForMySQLKeywords($total_tickets) || $this->checkForMySQLKeywords($discount) || $this->checkForMySQLKeywords($groupTickets) || $this->checkForMySQLKeywords($total_complimentary) || $this->checkForMySQLKeywords($event_show_venue_id)) {
+        if ($this->checkForMySQLKeywords($token) || $this->checkForMySQLKeywords($typeId) || $this->checkForMySQLKeywords($event_ticket_id) || $this->checkForMySQLKeywords($color_code) || $this->checkForMySQLKeywords($main_color_code) || $this->checkForMySQLKeywords($amount) || $this->checkForMySQLKeywords($total_tickets) || $this->checkForMySQLKeywords($discount) || $this->checkForMySQLKeywords($groupTickets) || $this->checkForMySQLKeywords($total_complimentary) || $this->checkForMySQLKeywords($event_show_venue_id) || $this->checkForMySQLKeywords($description)) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
         }
         if (!$token || !$event_ticket_id) {
@@ -4078,6 +4082,12 @@ class EventsController extends ControllerBase {
                 if ($isFeatured) {
                     $checkEventType->isFeatured = $isFeatured;
                 }
+                
+                if ($description) {
+                    $checkEventType->description = $description;
+                }
+                
+                
                 $checkEventType->updated = $this->now();
                 if ($checkEventType->save() === false) {
                     $errors = [];
