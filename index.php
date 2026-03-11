@@ -132,6 +132,8 @@ $user->mapVia('v1/profiles/view', 'viewProfilesAction', ['GET']);
 $user->mapVia('v1/view/members', 'viewMembers', ['POST']);
 $user->mapVia('v1/edit', 'editUsers', ['POST']);
 
+$user->mapVia('v1/user/remove', 'removeEventStaff', ['POST']);
+
 /**
  * Profile
  */
