@@ -6745,6 +6745,105 @@ class EventsController extends ControllerBase {
     }
     
     
+    
+    
+    
+    /**
+     * editEventShowAction
+     * @return type
+     */
+    public function editEventShowAction() {
+        $request = new Request();
+        $data = $request->getJsonRawBody();
+
+        $this->infologger = $this->getLogFile('info');
+        $this->errorlogger = $this->getLogFile('error');
+        $this->infologger->info(__LINE__ . ":" . __CLASS__ . " | Edit Event Show Request:" . json_encode($data));
+
+        $token = isset($data->api_key) ? $data->api_key : null;
+        $event_show_id = isset($data->event_show_id) ? $data->event_show_id : null;
+        $show = isset($data->show) ? $data->show : null;
+        $start_date_app = isset($data->start_date) ? $data->start_date : null;
+        $end_date_app = isset($data->end_date) ? $data->end_date : null;
+        $show_status = isset($data->show_status) ? $data->show_status : null;
+        $source = isset($data->source) ? $data->source : null;
+
+        if ($this->checkForMySQLKeywords($token) || $this->checkForMySQLKeywords($event_show_id) || $this->checkForMySQLKeywords($show) || $this->checkForMySQLKeywords($start_date_app) || $this->checkForMySQLKeywords($end_date_app) || $this->checkForMySQLKeywords($show_status) || $this->checkForMySQLKeywords($source)) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+
+        if (!$token || !$event_show_id || !$source) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+
+        if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
+            return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
+        }
+
+        try {
+            $auth = new Authenticate();
+            $auth_response = $auth->QuickTokenAuthenticate($token);
+
+            if (!$auth_response) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Authentication Failure.');
+            }
+            if (!in_array($auth_response['userRole'], [1, 2, 5, 6])) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'User doesn\'t have permissions to perform this action.');
+            }
+
+            $transactionManager = new TransactionManager();
+            $dbTrxn = $transactionManager->get();
+
+            try {
+                $eventShow = EventShows::findFirst([
+                    "event_show_id = :event_show_id:",
+                    "bind" => ["event_show_id" => $event_show_id]
+                ]);
+
+                if (!$eventShow) {
+                    return $this->unProcessable(__LINE__ . ":" . __CLASS__, 'Validation Error', ['code' => 404, 'message' => 'Event Show not found']);
+                }
+
+                $eventShow->setTransaction($dbTrxn);
+
+                if ($show !== null) {
+                    $eventShow->show = $show;
+                }
+                if ($show_status !== null) {
+                    $eventShow->show_status = $show_status;
+                }
+                if ($start_date_app !== null) {
+                    $start_date_app_1 = strtotime($start_date_app);
+                    $eventShow->start_date = date('Y-m-d H:i:s', $start_date_app_1);
+                }
+                if ($end_date_app !== null) {
+                    $end_date_app_1 = strtotime($end_date_app);
+                    $eventShow->end_date = date('Y-m-d H:i:s', $end_date_app_1);
+                }
+
+                if ($eventShow->save() === false) {
+                    $errors = [];
+                    foreach ($eventShow->getMessages() as $message) {
+                        array_push($errors, ["statusDescription" => $message->getMessage(), "field" => $message->getField()]);
+                    }
+                    $dbTrxn->rollback("Update Event Show failed " . json_encode($errors));
+                }
+
+                $dbTrxn->commit();
+
+                return $this->success(__LINE__ . ":" . __CLASS__, "Event Show Updated Successfully", [
+                    'code' => 200,
+                    'message' => 'Event Show Updated successful'
+                ]);
+
+            } catch (Exception $ex) {
+                throw $ex;
+            }
+        } catch (Exception $ex) {
+            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . " | Exceptions:" . $ex->getMessage());
+            return $this->serverError(__LINE__ . ":" . __CLASS__, 'Internal Server Error.');
+        }
+    }
 
     
     

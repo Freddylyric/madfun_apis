@@ -208,6 +208,8 @@ $event->mapVia('map/affiliator/edit', 'editAffiliator', ['POST']);
 $event->mapVia('green/job', 'addGreenJobCustomers', ['POST']);
 $event->mapVia('ticket/refund', 'refundTickets', ['POST']);
 
+$event->mapVia('edit/show', 'editEventShowAction', ['POST']);
+
 
 
 
