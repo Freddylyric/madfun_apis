@@ -1604,7 +1604,326 @@ class EventsController extends ControllerBase {
                             , 'Internal Server Error.');
         }
     }
-
+    
+    
+    
+    
+/**
+     * createEvent
+     * @return type
+     */
+//    public function createEvent() {
+//        $start_time = $this->getMicrotime();
+//        $request = new Request();
+//
+//        $token = $request->getPost('api_key');
+//        $eventName = $request->getPost('eventName');
+//        $company = $request->getPost('company');
+//        $eventType = $request->getPost('eventType');
+//        $venue = $request->getPost('venue');
+//        $ageLimit = $request->getPost('ageLimit');
+//        $start_date_app = $request->getPost('start_date');
+//        $description = $request->getPost('description');
+//        $currency = $request->getPost('currency');
+//        $revenueShare = $request->getPost('revenueShare');
+//        $isPublic = $request->getPost('isPublic');
+//        $target = $request->getPost('target');
+//        $categoryID = $request->getPost('categoryID');
+//        $end_date_app = $request->getPost('end_date');
+//        $hasMultpleShow = $request->getPost('hasMultpleShow');
+//
+//        $showDataRaw = $request->getPost('showData');
+//        $ticketTypesRaw = $request->getPost('ticketTypes');
+//
+//        $showDataString = is_array($showDataRaw) ? json_encode($showDataRaw) : (string)$showDataRaw;
+//        $ticketTypesString = is_array($ticketTypesRaw) ? json_encode($ticketTypesRaw) : (string)$ticketTypesRaw;
+//
+//        // Security checks
+//        if ($this->checkForMySQLKeywords($token) ||
+//                $this->checkForMySQLKeywords($eventName) ||
+//                $this->checkForMySQLKeywords($company) ||
+//                $this->checkForMySQLKeywords($eventType) ||
+//                $this->checkForMySQLKeywords($venue) ||
+//                $this->checkForMySQLKeywords($ageLimit) ||
+//                $this->checkForMySQLKeywords($start_date_app) ||
+//                $this->checkForMySQLKeywords($description) ||
+//                $this->checkForMySQLKeywords($currency) ||
+//                $this->checkForMySQLKeywords($revenueShare) ||
+//                $this->checkForMySQLKeywords($isPublic) ||
+//                $this->checkForMySQLKeywords($target) ||
+//                $this->checkForMySQLKeywords($categoryID) ||
+//                $this->checkForMySQLKeywords($end_date_app) ||
+//                $this->checkForMySQLKeywords($hasMultpleShow) ||
+//                $this->checkForMySQLKeywords($showDataString) ||     
+//                $this->checkForMySQLKeywords($ticketTypesString)) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__, "Validation Error: System Security Check Failed.");
+//        }
+//
+//        if (!$token || !$eventName || !$company || !$start_date_app || !$end_date_app) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__, "Validation Error: Missing basic fields.");
+//        }
+//
+//        $showData = is_string($showDataRaw) ? json_decode($showDataRaw) : json_decode(json_encode($showDataRaw));
+//        $ticketTypes = is_string($ticketTypesRaw) ? json_decode($ticketTypesRaw) : json_decode(json_encode($ticketTypesRaw));
+//        
+//        if ($hasMultpleShow == 1 && empty($showData)) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__, "Validation Error: Multiple show events require show array.");
+//        }
+//        if ($hasMultpleShow != 1 && empty($ticketTypes)) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__, "Validation Error: Single events require ticket array.");
+//        }
+//        
+//        if (!$request->hasFiles()) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__, "Validation Error: Poster image is required.");
+//        }
+//        if (!$revenueShare) {
+//            $revenueShare = $this->settings['revenueShare'];
+//        }
+//        
+//        $start_date_app_1 = strtotime($start_date_app);
+//        $end_date_app_1 = strtotime($end_date_app);
+//        $start_date = date('Y-m-d H:i:s', $start_date_app_1);
+//        $end_date = date('Y-m-d H:i:s', $end_date_app_1);
+//        
+//        $transactionManager = new TransactionManager();
+//        $dbTrxn = $transactionManager->get();
+//        
+//        try {
+//            $auth = new Authenticate();
+//            $auth_response = $auth->QuickTokenAuthenticate($token);
+//
+//            if (!$auth_response) {
+//                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Authentication Failure.');
+//            }
+//            if (!in_array($auth_response['userRole'], [1, 2, 5, 6])) {
+//                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'User doesn\'t have permissions to perform this action.');
+//            }
+//            
+//            $files = $request->getUploadedFiles();
+//            $file = isset($files[0]) ? $files[0] : false;
+//            $maxFileSize = 10 * 1024 * 1024;
+//            
+//            if ($file && $file->getSize() > $maxFileSize) {
+//                return $this->BadRequest(__LINE__ . ":" . __CLASS__ . ":" . __FUNCTION__, 'Service Request Error', ['code' => 400, 'message' => "Upload Request Failed. File has to be less than 10MB"]);
+//            }
+//            
+//            $checkEvents = Events::findFirst([
+//                        "company =:company: AND eventName=:eventName: AND start_date=:start_date: ",
+//                        "bind" => [
+//                            "company" => $company, 'eventName' => $eventName,
+//                            "start_date" => $start_date],]);
+//
+//            if ($checkEvents) {
+//                return $this->success(__LINE__ . ":" . __CLASS__, 'Event already created.', [
+//                            'code' => 402, 'message' => "The event already created", 'data' => [], 'record_count' => 1], true);
+//            }
+//
+//            $tempLocation = $this->settings['aws']['temp_location'];
+//            if (!is_dir($tempLocation)) {
+//                @mkdir($tempLocation, 0777, true);
+//            }
+//
+//            $posterURL = Tickets::uploadFileToAwsFromRequest($tempLocation,
+//                            $request->getUploadedFiles(),
+//                            str_replace(" ", "_", $eventName));
+//
+//            // 1. Create Main Event
+//            $events = new Events();
+//            $events->setTransaction($dbTrxn);
+//            $events->company = $company;
+//            $events->venue = $venue;
+//            $events->ageLimit = $ageLimit;
+//            $events->eventName = $eventName;
+//            $events->category_id = $categoryID;
+//            $events->target = $target;
+//            $events->status = 4;
+//            $events->isPublic = ($isPublic == 1) ? 1 : 0;
+//            $events->posterURL = $posterURL;
+//            $events->aboutEvent = $description;
+//            $events->currency = $currency;
+//            $events->revenueShare = $revenueShare;
+//            $events->eventType = $eventType;
+//            $events->start_date = $start_date;
+//            $events->end_date = $end_date;
+//            $events->hasMultipleShow = $hasMultpleShow;
+//            $events->created = $this->now();
+//            
+//            if ($events->save() === false) {
+//                $errs = []; foreach ($events->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                $this->errorlogger->error("DB SAVE ERROR (Events): " . json_encode($errs));
+//                throw new Exception("Events Save Failed");
+//            }
+//
+//            // 2. Map User Roles
+//            if ($auth_response['userRole'] == 5) {
+//                $checkUser = User::findFirst(['user_id=:user_id:', 'bind' => ['user_id' => $auth_response['user_id']]]);
+//                if ($checkUser) {
+//                    $checkUser->setTransaction($dbTrxn);
+//                    $checkUser->role_id = 6;
+//                    $checkUser->updated = $this->now();
+//                    if ($checkUser->save() === false) {
+//                        $errs = []; foreach ($checkUser->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                        $this->errorlogger->error("DB SAVE ERROR (User Update): " . json_encode($errs));
+//                        throw new Exception("User Update Failed");
+//                    }
+//                }
+//
+//                $checkClients = Clients::findFirst(['client_name=:client_name:', 'bind' => ['client_name' => $company]]);
+//                if (!$checkClients) {
+//                    $clients = new Clients();
+//                    $clients->setTransaction($dbTrxn);
+//                    $clients->client_name = $company;
+//                    $clients->description = "Event Organizer for Client " . $company;
+//                    $clients->created_by = $auth_response['user_id'];
+//                    $clients->created_at = $this->now();
+//                    if ($clients->save() === false) {
+//                        $errs = []; foreach ($clients->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                        $this->errorlogger->error("DB SAVE ERROR (Clients): " . json_encode($errs));
+//                        throw new Exception("Clients Save Failed");
+//                    }
+//
+//                    $userClientMap = new UserClientMap();
+//                    $userClientMap->setTransaction($dbTrxn);
+//                    $userClientMap->client_id = $clients->client_id;
+//                    $userClientMap->user_id = $auth_response['user_id'];
+//                    $userClientMap->created_by = $auth_response['user_id'];
+//                    $userClientMap->created_at = $this->now();
+//                    if ($userClientMap->save() === false) {
+//                        $errs = []; foreach ($userClientMap->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                        $this->errorlogger->error("DB SAVE ERROR (UserClientMap): " . json_encode($errs));
+//                        throw new Exception("UserClientMap Save Failed");
+//                    }
+//                }
+//            }
+//
+//            $userEventMap = new UserEventMap();
+//            $userEventMap->setTransaction($dbTrxn);
+//            $userEventMap->eventID = $events->eventID;
+//            $userEventMap->user_mapId = $auth_response['user_mapId'];
+//            $userEventMap->created = $this->now();
+//            if ($userEventMap->save() === false) {
+//                $errs = []; foreach ($userEventMap->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                $this->errorlogger->error("DB SAVE ERROR (UserEventMap): " . json_encode($errs));
+//                throw new Exception("UserEventMap Save Failed");
+//            }
+//
+//            $totalTicketsSet = 0; 
+//
+//            // 3. MULTIPLE SHOWS LOGIC
+//            if ($hasMultpleShow == 1) {
+//                foreach ($showData as $show) {
+//                    $eventShow = new EventShows();
+//                    $eventShow->setTransaction($dbTrxn);
+//                    $eventShow->eventID = $events->eventID;
+//                    $eventShow->show = $show->show_name;
+//                    $eventShow->show_status = 1;
+//                    $eventShow->start_date = date('Y-m-d H:i:s', strtotime($show->start_date));
+//                    $eventShow->end_date = date('Y-m-d H:i:s', strtotime($show->end_date));
+//                    $eventShow->created = $this->now();
+//                    
+//                    if ($eventShow->save() === false) {
+//                        $errs = []; foreach ($eventShow->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                        $this->errorlogger->error("DB SAVE ERROR (EventShows): " . json_encode($errs));
+//                        throw new Exception("EventShows Save Failed");
+//                    }
+//
+//                    foreach ($show->venue as $venueD) {
+//                        $eventShowVenue = new EventShowVenue();
+//                        $eventShowVenue->setTransaction($dbTrxn);
+//                        $eventShowVenue->venue = $venueD->venue;
+//                        $eventShowVenue->event_show_id = $eventShow->event_show_id;
+//                        $eventShowVenue->created = $this->now();
+//                        
+//                        if ($eventShowVenue->save() === false) {
+//                            $errs = []; foreach ($eventShowVenue->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                            $this->errorlogger->error("DB SAVE ERROR (EventShowVenue): " . json_encode($errs));
+//                            throw new Exception("EventShowVenue Save Failed");
+//                        }
+//
+//                        foreach ($venueD->tickets as $ticket) {
+//                            $eventShowTicketsType = new EventShowTicketsType();
+//                            $eventShowTicketsType->setTransaction($dbTrxn);
+//                            $eventShowTicketsType->typeId = $ticket->typeId;
+//                            $eventShowTicketsType->event_show_venue_id = $eventShowVenue->event_show_venue_id;
+//                            
+//                            $eventShowTicketsType->amount = isset($ticket->amount) ? $ticket->amount : 0;
+//                            $eventShowTicketsType->discount = isset($ticket->discount) ? $ticket->discount : 0;
+//                            $eventShowTicketsType->group_ticket_quantity = isset($ticket->groupTickets) ? $ticket->groupTickets : 1;
+//                            $eventShowTicketsType->total_complimentary = isset($ticket->total_complimentary) ? $ticket->total_complimentary : 0;
+//                            $eventShowTicketsType->total_tickets = isset($ticket->total_tickets) ? $ticket->total_tickets : 0;
+//                            $eventShowTicketsType->description = isset($ticket->description) ? $ticket->description : null;
+//                            $eventShowTicketsType->status = 1;
+//                            $eventShowTicketsType->created = $this->now();
+//                            
+//                            if ($eventShowTicketsType->save() === false) {
+//                                $errs = []; foreach ($eventShowTicketsType->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                                $this->errorlogger->error("DB SAVE ERROR (EventShowTicketsType): " . json_encode($errs));
+//                                throw new Exception("EventShowTicketsType Save Failed");
+//                            }
+//                            
+//                            $totalTicketsSet += $eventShowTicketsType->total_tickets;
+//                        }
+//                    }
+//                }
+//            } else {
+//                // 4. SINGLE EVENT LOGIC
+//                foreach ($ticketTypes as $ticketType) {
+//                    $eventTicketType = new EventTicketsType();
+//                    $eventTicketType->setTransaction($dbTrxn);
+//                    $eventTicketType->typeId = $ticketType->typeId;
+//                    $eventTicketType->eventId = $events->eventID;
+//                    
+//                    $eventTicketType->amount = isset($ticketType->amount) ? $ticketType->amount : 0;
+//                    $eventTicketType->discount = isset($ticketType->discount) ? $ticketType->discount : 0;
+//                    $eventTicketType->group_ticket_quantity = isset($ticketType->groupTickets) ? $ticketType->groupTickets : 1;
+//                    $eventTicketType->total_complimentary = isset($ticketType->total_complimentary) ? $ticketType->total_complimentary : 0;
+//                    $eventTicketType->total_tickets = isset($ticketType->total_tickets) ? $ticketType->total_tickets : 0;
+//                    $eventTicketType->description = isset($ticketType->description) ? $ticketType->description : null;
+//                    $eventTicketType->status = 1;
+//                    $eventTicketType->created = $this->now();
+//                    
+//                    if ($eventTicketType->save() === false) {
+//                        $errs = []; foreach ($eventTicketType->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                        $this->errorlogger->error("DB SAVE ERROR (EventTicketsType): " . json_encode($errs));
+//                        throw new Exception("EventTicketsType Save Failed");
+//                    }
+//
+//                    $totalTicketsSet += $eventTicketType->total_tickets;
+//                }
+//            }
+//
+//            // 5. STATISTICS
+//            $eventStatistics = new EventsStatistics();
+//            $eventStatistics->setTransaction($dbTrxn);
+//            $eventStatistics->eventID = $events->eventID;
+//            $eventStatistics->total_tickets = $totalTicketsSet;
+//            $eventStatistics->created = $this->now();
+//            
+//            if ($eventStatistics->save() === false) {
+//                $errs = []; foreach ($eventStatistics->getMessages() as $m) { $errs[] = $m->getMessage(); }
+//                $this->errorlogger->error("DB SAVE ERROR (EventsStatistics): " . json_encode($errs));
+//                throw new Exception("EventsStatistics Save Failed");
+//            }
+//
+//            $dbTrxn->commit();
+//            
+//            return $this->success(__LINE__ . ":" . __CLASS__, "Event Action Successfully", [
+//                'code' => 200,
+//                'eventID' => $events->eventID,
+//                'message' => 'Event Created successful'
+//            ]);
+//
+//        } catch (Exception $ex) {
+//            if ($dbTrxn->isValid()) {
+//                $dbTrxn->rollback(); // Ensure clean rollback if we threw an exception manually
+//            }
+//            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . " | Exceptions:" . $ex->getMessage());
+//            return $this->serverError(__LINE__ . ":" . __CLASS__, 'Internal Server Error.');
+//        }
+//    }
+//    
+    
+    
     /**
      * uploadImage
      * @return type

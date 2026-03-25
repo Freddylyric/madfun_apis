@@ -841,7 +841,7 @@ class ProfileController extends ControllerBase {
                     . "profile_attribute.profile_id $searchQuery $sorting";
 
             if ($hasShow == 1) {
-                $sql = "select event_shows.show,event_shows.event_show_id,event_show_venue.event_show_venue_id,  profile_attribute.first_name,profile_attribute.last_name,events.eventName,events.start_date,events.posterURL,events.aboutEvent,events.status,"
+                $sql = "select event_shows.show,event_shows.event_show_id,event_show_venue.event_show_venue_id, event_show_tickets_type.event_ticket_show_id, profile_attribute.first_name,profile_attribute.last_name,events.eventName,events.start_date,events.posterURL,events.aboutEvent,events.status,"
                         . "event_profile_tickets.event_profile_ticket_id,events.venue,event_profile_tickets.barcodeURL,event_profile_tickets.hasRefunded,"
                         . "event_profile_tickets.barcode,event_profile_tickets.isComplimentary,"
                         . "ticket_types.ticket_type, event_show_tickets_type.amount, event_profile_tickets.isRemmend,"

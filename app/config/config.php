@@ -33,22 +33,61 @@ defined('APP_PATH') || define('APP_PATH', realpath('.'));
 
         
     $connection = [
-        'adapter' => 'mysql',
-        'host' => 'localhost',
-        'username' => 'root',
-        'password' => '',
-        'dbname' => 'madfun',
-        'charset' => 'utf8mb4'];
+    'adapter' => 'mysql',
+    'host' => 'db',
+    'username' => 'madfun_user', 
+    'password' => 'madfun_pass',
+    'dbname' => 'madfun',
+    'charset' => 'utf8mb4'
+        ];
     $connection2 = array(
-        'adapter' => 'mysql',
-        'host' => '35.187.90.51', //35.241.169.32',//35.205.116.205', //104.199.25.225',
+         'adapter' => 'mysql',
+
+        'host' => 'db', 
+
         'username' => 'madfun_user',
-        'password' => 'POD5e\d9IabkzEsd@IgE&Oh4bqJkOYYHld',
+
+        'password' => 'madfun_pass', 
+
         'dbname' => 'madfun',
+
         'charset' => 'utf8mb4',
         "options" => array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true)
     );
         
+    
+    
+    //        $connection = [
+
+//    'adapter' => 'mysql',
+
+//    'host' => 'db',
+
+//    'username' => 'madfun_user', 
+
+//    'password' => 'madfun_pass',
+
+//    'dbname' => 'madfun',
+
+//    'charset' => 'utf8mb4'
+
+//];
+
+//        
+
+//        $connection2 = array(
+
+//        'adapter' => 'mysql',
+
+//        'host' => 'db', 
+
+//        'username' => 'madfun_user',
+
+//        'password' => 'madfun_pass', 
+
+//        'dbname' => 'madfun',
+
+//        'charset' => 'utf8mb4',
    
     
  }
