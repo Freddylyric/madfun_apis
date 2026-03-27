@@ -7816,4 +7816,126 @@ class IndexController extends ControllerBase {
                         , 'success' => "", 'error' => $ex->getMessage()], true);
         }
     }
+    
+    
+    
+    
+    /**
+     * retryFailedTransaction
+     * Manually triggers ticket generation for a successful payment that timed out.
+     */
+    public function retryFailedTransaction() {
+        $request = new Request();
+        $data = $request->getJsonRawBody();
+
+        $this->infologger = $this->getLogFile('info');
+        $this->errorlogger = $this->getLogFile('error');
+
+        $token = isset($data->api_key) ? $data->api_key : null;
+        $transactionCode = isset($data->transaction_code) ? $data->transaction_code : null;
+
+        if (!$token || !$transactionCode) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__, "Missing parameters");
+        }
+
+        try {
+            $auth = new Authenticate();
+            $auth_response = $auth->QuickTokenAuthenticate($token);
+            if (!$auth_response || !in_array($auth_response['userRole'], [1, 2, 6])) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Not authorized.');
+            }
+
+            $sql = "SELECT transaction_id, amount, msisdn, extra_data, reference_id, status 
+                    FROM transaction_initiated 
+                    WHERE checkout_request_id = :code OR transaction_code = :code LIMIT 1";
+            $transaction = $this->rawSelect($sql, [':code' => $transactionCode]);
+
+            if (empty($transaction)) {
+                return $this->unProcessable(__LINE__ . ":" . __CLASS__, 'Validation Error', ['code' => 404, 'message' => 'Transaction not found in the database.']);
+            }
+
+            $txn = $transaction[0];
+            $referenceId = $txn['reference_id'];
+            
+            $extraDataRaw = $txn['extra_data'];
+            $extraData = is_string($extraDataRaw) ? json_decode($extraDataRaw) : $extraDataRaw;
+            
+            if (!$extraData) {
+                 return $this->unProcessable(__LINE__ . ":" . __CLASS__, 'Validation Error', ['code' => 422, 'message' => 'Transaction has no cart payload attached. Cannot regenerate tickets.']);
+            }
+
+            $checkTicketsSql = "SELECT count(*) as total FROM event_profile_tickets WHERE reference_id = :ref_id";
+            $existingTickets = $this->rawSelect($checkTicketsSql, [':ref_id' => $referenceId]);
+
+            if (!empty($existingTickets) && $existingTickets[0]['total'] > 0) {
+                return $this->unProcessable(__LINE__ . ":" . __CLASS__, 'Validation Error', ['code' => 409, 'message' => 'Tickets have already been generated for this transaction! No action taken.']);
+            }
+
+            $transactionManager = new TransactionManager();
+            $dbTrxn = $transactionManager->get();
+            $tickets = new Tickets(); 
+
+           
+            
+            $cartItems = isset($extraData->payload) ? $extraData->payload : (isset($extraData->eventData) ? $extraData->eventData : (is_array($extraData) ? $extraData : []));
+            $hasEventShows = isset($extraData->hasEventShows) ? $extraData->hasEventShows : 0;
+            $event_tickets_option_id = isset($extraData->event_tickets_option_id) ? $extraData->event_tickets_option_id : 1;
+
+            if (is_array($cartItems) || is_object($cartItems)) {
+                foreach ($cartItems as $event) {
+                    // Extract exact ticket ID
+                    $ticketIdRaw = isset($event->id) ? $event->id : (isset($event->event_ticket_id) ? $event->event_ticket_id : null);
+                    if (!$ticketIdRaw) continue;
+
+                    $eventTicketID = $ticketIdRaw;
+
+                    if ($hasEventShows == 1) {
+                        $checkEventTicketID = EventShowTicketsType::findFirst([
+                            'conditions' => 'event_ticket_show_id = :id:',
+                            'bind' => ['id' => $ticketIdRaw]
+                        ]);
+                        if (!$checkEventTicketID) {
+                            continue;
+                        }
+                    } else {
+                        $checkEventTicketID = EventTicketsType::findFirst([
+                            'conditions' => 'event_ticket_id = :id:',
+                            'bind' => ['id' => $ticketIdRaw]
+                        ]);
+                        if (!$checkEventTicketID) {
+                            continue; 
+                        }
+                    }
+
+                    $paramsTickets = [
+                        'first_name' => isset($event->fname) ? $event->fname : (isset($event->first_name) ? $event->first_name : (isset($extraData->fname) ? $extraData->fname : 'Guest')),
+                        'last_name'  => isset($event->lname) ? $event->lname : (isset($event->last_name) ? $event->last_name : (isset($extraData->lname) ? $extraData->lname : '')),
+                        'email'      => isset($event->email) ? $event->email : (isset($extraData->email) ? $extraData->email : ''),
+                        'msisdn'     => isset($event->msisdn) ? $event->msisdn : (isset($extraData->msisdn) ? $extraData->msisdn : $txn['msisdn']),
+                        'amount'     => isset($event->amount) ? $event->amount : 0,
+                        'currency'   => isset($event->currency) ? $event->currency : 'KES',
+                        'event_ticket_id' => $eventTicketID,
+                        'reference_id'    => $referenceId,
+                        'payment_status'  => 1 // Mark as Paid
+                    ];
+
+                    $tickets->CreateTicketProfile(
+                        $paramsTickets, 
+                        0, 
+                        null, 
+                        $event_tickets_option_id, 
+                        $hasEventShows
+                    );
+                }
+            }
+
+            $dbTrxn->commit();
+
+            return $this->success(__LINE__ . ":" . __CLASS__, 'Success', ['code' => 200, 'message' => 'Tickets successfully recovered and minted! SMS/Email sent to client.']);
+
+        } catch (Exception $ex) {
+            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . " | Retry Exceptions:" . $ex->getMessage());
+            return $this->serverError(__LINE__ . ":" . __CLASS__, 'Internal Server Error.');
+        }
+    }
 }
