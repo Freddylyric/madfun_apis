@@ -3331,7 +3331,8 @@ class EventsController extends ControllerBase {
         $description = isset($data->description) ? $data->description : NULL;
         $currency = isset($data->currency) ? $data->currency : NULL;
         $revenueShare = isset($data->revenueShare) ? $data->revenueShare : NULL;
-        $isPublic = isset($data->isPublic) ? $data->isPublic : 1;
+//        $isPublic = isset($data->isPublic) ? $data->isPublic : 1;
+        $isPublic = isset($data->isPublic) ? $data->isPublic : null;
         $status = isset($data->status) ? $data->status : NULL;
         $target = isset($data->target) ? $data->target : NULL;
         $isFeatured = isset($data->isFeatured) ? $data->isFeatured : 0;
@@ -3459,7 +3460,11 @@ class EventsController extends ControllerBase {
             $checkEvents->isFeatured = $isFeatured;
             $checkEvents->showOnSlide = $showOnSlide;
 
-            if ($isPublic && in_array($isPublic, [1, 0])) {
+//            if ($isPublic && in_array($isPublic, [1, 0])) {
+//                $checkEvents->isPublic = $isPublic;
+//            }
+            
+            if ($isPublic !== null && in_array($isPublic, [1, 0])) {
                 $checkEvents->isPublic = $isPublic;
             }
             if ($target && is_numeric($target)) {
