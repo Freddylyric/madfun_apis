@@ -8,6 +8,7 @@ class EventTicketsType extends Model
     public ?int $typeId = null;
     public ?string $color_code = null;
     public ?int $maxCap = null;
+    public ?int $perUserCap = null;
     public ?string $main_color_code = null;
     public ?string $description = null;
     public ?int $eventId = null;
@@ -27,6 +28,8 @@ class EventTicketsType extends Model
     public ?int $status = null;
     public ?string $created = null;
     public ?string $updated = null;
+    
+    
 
     /**
      * Initialize model: define table name and relationships

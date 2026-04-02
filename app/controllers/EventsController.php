@@ -4237,6 +4237,9 @@ class EventsController extends ControllerBase {
                     $eventTicketType->isPublic = $isPublic;
                     $eventTicketType->total_complimentary = $total_complimentary;
                     $eventTicketType->total_tickets = $total_tickets;
+                    
+                    
+                    
                     if ($typeId == 11) {
                         $eventTicketType->status = 5;
                     } else {
@@ -4327,6 +4330,10 @@ class EventsController extends ControllerBase {
         
         $description = isset($data->description) ? $data->description : null;
         
+        $perUserCap = isset($data->perUserCap) ? (int)$data->perUserCap : 0;
+
+        
+        
       
 
         if ($this->checkForMySQLKeywords($token) || $this->checkForMySQLKeywords($typeId) || $this->checkForMySQLKeywords($event_ticket_id) || $this->checkForMySQLKeywords($color_code) || $this->checkForMySQLKeywords($main_color_code) || $this->checkForMySQLKeywords($amount) || $this->checkForMySQLKeywords($total_tickets) || $this->checkForMySQLKeywords($discount) || $this->checkForMySQLKeywords($groupTickets) || $this->checkForMySQLKeywords($total_complimentary) || $this->checkForMySQLKeywords($event_show_venue_id) || $this->checkForMySQLKeywords($description)) {
@@ -4409,6 +4416,11 @@ class EventsController extends ControllerBase {
                 
                 if ($description) {
                     $checkEventType->description = $description;
+                }
+                
+                if ($perUserCap) {
+                    $checkEventType->perUserCap = $perUserCap;
+
                 }
                 
                 

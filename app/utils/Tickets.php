@@ -31,8 +31,8 @@ class Tickets {
      * @throws Exception
      */
     public static function CreateTicketProfile($params, $isComplimentary = 0, 
-            $company = null, $optionId = null, $hasEventShow = 0,
-            $ticketInfo = null, $ticketCap = 50, $quantity = 1, $name= null) {
+        $company = null, $optionId = null, $hasEventShow = 0,
+        $ticketInfo = null, $ticketCap = 50, $quantity = 1, $name = null, $perUserCap = 0) {
         $base = new base();
         try {
 
@@ -64,11 +64,41 @@ class Tickets {
                 ':isShowTicket' => $hasEventShow];
             
             $resultCount = $base->rawSelect($countTickets, $statement_param_tickets);
-            $base->getLogFile('info')->emergency(__LINE__ . ":" . __CLASS__
-                                . " | TicketCount URL: " .$resultCount[0]['totalProfile']. " quantity ".$quantity );
-            if($resultCount && $params['event_ticket_id'] == 632){
-                if(((INT)$resultCount[0]['totalProfile'] + (INT) $quantity) > $ticketCap){
-                    
+            $base->getLogFile('info')->info(__LINE__ . ":" . __CLASS__
+                . " | TicketCount: " . $resultCount[0]['totalProfile']
+                . " quantity: " . $quantity
+                . " ticketCap(maxCap): " . $ticketCap
+                . " perUserCap: " . $perUserCap);
+
+        
+            if ($ticketCap > 0 && (INT)$resultCount[0]['totalProfile'] === 0) {
+                if ((INT)$quantity > $ticketCap) {
+                    $base->getLogFile('info')->info(__LINE__ . ":" . __CLASS__
+                        . " | maxCap block: quantity " . $quantity . " exceeds maxCap " . $ticketCap);
+                    return false;
+                }
+            }
+
+     
+            if ($perUserCap > 0) {
+                $countPaidTickets = "SELECT count(ept.event_profile_ticket_id) as paidTotal"
+                    . " FROM event_profile_tickets ept"
+                    . " JOIN event_profile_tickets_state epts"
+                    . "   ON ept.event_profile_ticket_id = epts.event_profile_ticket_id"
+                    . " WHERE ept.profile_id = :profile_id"
+                    . " AND ept.event_ticket_id = :event_ticket_id"
+                    . " AND ept.isShowTicket = :isShowTicket"
+                    . " AND epts.status = 1";
+
+                $paidResult = $base->rawSelect($countPaidTickets, $statement_param_tickets);
+                $paidCount = isset($paidResult[0]['paidTotal']) ? (INT)$paidResult[0]['paidTotal'] : 0;
+
+                $base->getLogFile('info')->info(__LINE__ . ":" . __CLASS__
+                    . " | perUserCap check: paidCount=" . $paidCount . " cap=" . $perUserCap);
+
+                if (($paidCount + 1) > $perUserCap) {
+                    $base->getLogFile('info')->info(__LINE__ . ":" . __CLASS__
+                        . " | perUserCap block: user has " . $paidCount . " paid tickets, cap=" . $perUserCap);
                     return false;
                 }
             }

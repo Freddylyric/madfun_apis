@@ -18,6 +18,7 @@ class EventShowTicketsType extends Model
     public ?int $total_ticket_code = null;
     public ?int $ticket_purchased = null;
     public ?int $maxCap = null;
+    public ?int $perUserCap = null;
     public ?int $issued_complimentary = null;
     public ?int $issued_ticket_code = null;
     public ?int $ticket_redeemed = null;

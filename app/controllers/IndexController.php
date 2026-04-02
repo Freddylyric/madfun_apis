@@ -2128,7 +2128,7 @@ class IndexController extends ControllerBase {
             $eventID = 0;
             foreach ($eventData as $event) {
 
-                $ticketCap = 50;
+                $ticketCap = 0;
 
                 if ($hasEventShows == 1) {
                     $checkEventTicketID = EventShowTicketsType::findFirst(["event_ticket_show_id=:event_ticket_show_id:",
@@ -2143,6 +2143,11 @@ class IndexController extends ControllerBase {
                         continue;
                     }
                     $ticketCap = $checkEventTicketID->maxCap;
+                    
+                    $perUserCap = (int)($checkEventTicketID->perUserCap ?? 0);
+
+                    
+
                     $eventShowVenue = EventShowVenue::findFirst(["event_show_venue_id=:event_show_venue_id:",
                                 "bind" => ["event_show_venue_id" => $checkEventTicketID->event_show_venue_id],]);
                     if (!$eventShowVenue) {
@@ -2182,6 +2187,9 @@ class IndexController extends ControllerBase {
                     $eventID = $checkEventTicketID->eventId;
                     $eventTicketID = $checkEventTicketID->event_ticket_id;
                     $ticketCap = $checkEventTicketID->maxCap;
+                    
+                    
+                    $perUserCap = (int)($checkEventTicketID->perUserCap ?? 0);
                 }
 
                 $checkEvent = Events::findFirst(["eventID=:eventID: AND status=:status:",
@@ -2286,8 +2294,21 @@ class IndexController extends ControllerBase {
                             . " | ticketPurchaseMultiAction:" . $profile_id);
 
                     $tickets = new Tickets();
-                    $event_profile_ticket_id = $tickets->CreateTicketProfile($paramsTickets, 0, null, $event_tickets_option_id, $hasEventShows, $ticketCap, $quantity);
+//                    $event_profile_ticket_id = $tickets->CreateTicketProfile($paramsTickets, 0, null, $event_tickets_option_id, $hasEventShows, $ticketCap, $quantity);
 
+                    
+                    $event_profile_ticket_id = $tickets->CreateTicketProfile(
+                        $paramsTickets,           // $params
+                        0,                        // $isComplimentary
+                        null,                     // $company
+                        $event_tickets_option_id, // $optionId
+                        $hasEventShows,           // $hasEventShow
+                        null,                     // $ticketInfo
+                        $ticketCap,               // $ticketCap  (maxCap)
+                        $quantity,                // $quantity
+                        null,                     // $name
+                        $perUserCap               // $perUserCap
+                    );
                     if (!$event_profile_ticket_id) {
                         return $this->unProcessable(__LINE__ . ":" . __CLASS__
                                         , 'Validation Error'
@@ -2908,6 +2929,9 @@ class IndexController extends ControllerBase {
             $purchase_amount = 0;
             $eventID = 0;
             foreach ($eventData as $event) {
+                
+                 $ticketCap  = 0;  
+                 $perUserCap = 0;
 
                 if ($hasEventShows == 1) {
                     $checkEventTicketID = EventShowTicketsType::findFirst(["event_ticket_show_id=:event_ticket_show_id:",
@@ -2947,11 +2971,16 @@ class IndexController extends ControllerBase {
                     $eventTicketID = $checkEventTicketID->event_ticket_show_id;
                     
                     
+                    $ticketCap    = (int)($checkEventTicketID->maxCap    ?? 0);
+
+                    $perUserCap = (int)($checkEventTicketID->perUserCap ?? 0);
+
+                    
+                    
                     
                 } else {
                     $checkEventTicketID = EventTicketsType::findFirst(["event_ticket_id=:event_ticket_id:",
                                 "bind" => ["event_ticket_id" => $event->id],]);
-                    
                     
                     if (!$checkEventTicketID) {
                         $errorMessage = [
@@ -2964,6 +2993,11 @@ class IndexController extends ControllerBase {
                     }
                     $eventID = $checkEventTicketID->eventId;
                     $eventTicketID = $checkEventTicketID->event_ticket_id;
+                    
+                    
+                    $ticketCap    = (int)($checkEventTicketID->maxCap    ?? 0);
+                    $perUserCap = (int)($checkEventTicketID->perUserCap ?? 0);
+
                 }
                 $checkEventStatus = Events::findFirst(["eventID=:eventID: AND status =:status:",
                             "bind" => ["eventID" => $eventID, "status" => 1],]);
@@ -3132,12 +3166,27 @@ class IndexController extends ControllerBase {
                     ];
 
                     $tickets = new Tickets();
-                    $event_profile_ticket_id = $tickets->CreateTicketProfile($paramsTickets, 0, null, $event_tickets_option_id, $hasEventShows);
+//                    $event_profile_ticket_id = $tickets->CreateTicketProfile($paramsTickets, 0, null, $event_tickets_option_id, $hasEventShows);
 
+                    
+                    $event_profile_ticket_id = $tickets->CreateTicketProfile(
+                        $paramsTickets,           // $params
+                        0,                        // $isComplimentary
+                        null,                     // $company
+                        $event_tickets_option_id, // $optionId
+                        $hasEventShows,           // $hasEventShow
+                        null,                     // $ticketInfo
+                        $ticketCap,               // $ticketCap  (maxCap)
+                        (INT)$event->quantity,    // $quantity
+                        null,                     // $name
+                        $perUserCap               // $perUserCap
+                    );
                     if (!$event_profile_ticket_id) {
-                        array_push($error, ['message' => 'Failed. The ticket',
-                            'eventTicketID' => $eventTicketID]);
-                            continue;
+                        array_push($error, [
+                            'message' => 'You have reached the maximum number of tickets allowed for this ticket type.',
+                            'eventTicketID' => $eventTicketID
+                        ]);
+                        continue;
                     }
                     if ($discountAffiliator > 0 && $checkEventTicketID->amount > 0) {
                         $paramsAffiliator = [
