@@ -2945,9 +2945,14 @@ class IndexController extends ControllerBase {
                     }
                     $eventID = $eventShow->eventID;
                     $eventTicketID = $checkEventTicketID->event_ticket_show_id;
+                    
+                    
+                    
                 } else {
                     $checkEventTicketID = EventTicketsType::findFirst(["event_ticket_id=:event_ticket_id:",
                                 "bind" => ["event_ticket_id" => $event->id],]);
+                    
+                    
                     if (!$checkEventTicketID) {
                         $errorMessage = [
                             'error_code' => 422,
@@ -3111,7 +3116,7 @@ class IndexController extends ControllerBase {
                         }
                         $dbTrxn->commit();
                     } catch (Exception $ex) {
-                        throw ex;
+                        throw $ex;
                     }
 
                     $t = time();
@@ -3214,9 +3219,8 @@ class IndexController extends ControllerBase {
                     }
                 }
             }
-            if (!$quantity > 5 && $isFree == 1) {
-                $smsFree = "Hello Friend, we have sent you " . $quantity . " to your account. "
-                        . "Kindly login on madfun.com to view tickets";
+            if ($quantity <= 5 && $isFree == 1) {
+                $smsFree = "Hello Friend, we have sent you " . $quantity . " to your account... ";
             }
             if ($isFree == 1) {
                 $params = [
