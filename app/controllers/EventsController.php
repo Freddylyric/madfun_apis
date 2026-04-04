@@ -4324,10 +4324,12 @@ class EventsController extends ControllerBase {
         $discount = isset($data->discount) ? $data->discount : 0;
         $groupTickets = isset($data->groupTickets) ? $data->groupTickets : 1;
         $total_complimentary = isset($data->total_complimentary) ? $data->total_complimentary : 0;
-        $status = isset($data->status) ? $data->status : 0;
+//        $status = isset($data->status) ? $data->status : 0;
+        $status = isset($data->status) ? $data->status : null;
         $event_show_venue_id = isset($data->event_show_venue_id) ? $data->event_show_venue_id : null;
         $isFeatured = isset($data->isFeatured) ? $data->isFeatured : null;
         
+        $isPublic = isset($data->isPublic) ? $data->isPublic : null;
         $description = isset($data->description) ? $data->description : null;
         
         $perUserCap = isset($data->perUserCap) ? (int)$data->perUserCap : 0;
@@ -4423,6 +4425,12 @@ class EventsController extends ControllerBase {
 
                 }
                 
+                if ($status !== null) {
+                    $checkEventType->status = $status;
+                }
+                if ($isPublic !== null) {
+                    $checkEventType->isPublic = $isPublic;
+                }
                 
                 $checkEventType->updated = $this->now();
                 if ($checkEventType->save() === false) {
