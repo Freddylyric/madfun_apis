@@ -24,7 +24,7 @@ class AuthController extends ControllerBase {
      * loginAction
      * @return type
      */
-    public function loginAction() {
+ public function loginAction() {
         $request = new Request();
         $data = $request->getJsonRawBody();
 
@@ -122,242 +122,428 @@ class AuthController extends ControllerBase {
                             , 'Internal Server Error.');
         }
     }
+    
+    
 
     /**
      * signUpAction
      * @return type
      */
-    public function signUpAction() {
+//    public function signUpAction() {
+//        $request = new Request();
+//        $data = $request->getJsonRawBody();
+//
+//        $this->infologger = $this->getLogFile('info');
+//        $this->errorlogger = $this->getLogFile('error');
+//        $this->infologger->info(__LINE__ . ":" . __CLASS__
+//                . " | Create User Request:" . json_encode($request->getJsonRawBody()));
+//
+//        $msisdnN = isset($data->msisdn) ? $data->msisdn : NULL;
+//        $first_name = isset($data->first_name) ? $data->first_name : NULL;
+//        $last_name = isset($data->last_name) ? $data->last_name : NULL;
+//        $emailAddress = isset($data->email) ? $data->email : NULL;
+//        $role_id = isset($data->role_id) ? $data->role_id : 5;
+//        $source = isset($data->source) ? $data->source : NULL;
+//        $age_bracket = isset($data->age_bracket) ? $data->age_bracket : NULL;
+//        $gender = isset($data->gender) ? $data->gender : NULL;
+//        $passwordNew = isset($data->password) ? $data->password : NULL;
+//
+//        $secretKey = "55abe029fdebae5e1d417e2ffb2a003klkhka0cd8b54763051cef08bc55abe029";
+//        $len = rand(1000, 999999);
+//        $payloadToken = ['data' => $len . "" . $this->now()];
+//        $newToken = md5($this->createNewAuthToken($payloadToken, $secretKey));
+//        $verification_code = $passwordNew;
+//        if ($this->checkForMySQLKeywords($msisdnN) || $this->checkForMySQLKeywords($first_name) || $this->checkForMySQLKeywords($last_name) || $this->checkForMySQLKeywords($emailAddress) || $this->checkForMySQLKeywords($role_id) || $this->checkForMySQLKeywords($source) || $this->checkForMySQLKeywords($age_bracket) || $this->checkForMySQLKeywords($passwordNew) || $this->checkForMySQLKeywords($gender)) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+//        }
+//        if (!$passwordNew) {
+//            $verification_code = rand(1000, 9999);
+//        }
+//        $password = $this->security->hash(md5($verification_code));
+//
+//        if (!$msisdnN || !$source || !$emailAddress) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+//        }
+//        if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
+//            return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
+//        }
+//        if (!in_array($role_id, ['6', '5'])) {
+//            return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Role Unverified!!');
+//        }
+//        if ($gender != null) {
+//            if (!in_array(strtoupper($gender), ["FEMALE", "MALE", "OTHER"])) {
+//                return $this->unProcessable(__LINE__ . ":" . __CLASS__
+//                                , 'Validation Error'
+//                                , ['code' => 422, 'message' => 'Invalid Gender Type']);
+//            }
+//        }
+//        $msisdn = $this->formatMobileNumber($msisdnN);
+//        if (!$this->validateMobile($msisdn)) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__
+//                            , 'Validation Error'
+//                            , ['code' => 422, 'message' => 'Invalid Mobile Number']);
+//        }
+//        if (!$this->validateEmail($emailAddress)) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__
+//                            , 'Validation Error'
+//                            , ['code' => 422, 'message' => 'Invalid Mobile Number']);
+//        }
+//        $transactionManager = new TransactionManager();
+//        $dbTrxn = $transactionManager->get();
+//        try {
+//            $checkProfile = Profile::findFirst(["msisdn=:msisdn:",
+//                        "bind" => ["msisdn" => $msisdn],]);
+//            $profile_id = isset($checkProfile->profile_id) ?
+//                    $checkProfile->profile_id : false;
+//            if (!$profile_id) {
+//                $profile = new Profile();
+//                $profile->setTransaction($dbTrxn);
+//                $profile->msisdn = $msisdn;
+//                $profile->created = $this->now();
+//                if ($profile->save() === false) {
+//                    $errors = [];
+//                    $messages = $profile->getMessages();
+//                    foreach ($messages as $message) {
+//                        $e["statusDescription"] = $message->getMessage();
+//                        $e["field"] = $message->getField();
+//                        array_push($errors, $e);
+//                    }
+//                    $dbTrxn->rollback("Create Profile failed " . json_encode($errors));
+//                }
+//                $profile_id = $profile->profile_id;
+//            }
+//            $checkProfileAttrinute = ProfileAttribute::findFirst(['profile_id=:profile_id:'
+//                        , 'bind' => ['profile_id' => $profile_id]]);
+//            if (!$checkProfileAttrinute) {
+//                $profileAttribute = new ProfileAttribute();
+//                $profileAttribute->network = $this->getMobileNetwork($msisdn);
+//                $profileAttribute->pin = md5($verification_code);
+//                $profileAttribute->profile_id = $profile_id;
+//                $profileAttribute->first_name = $first_name;
+//                $profileAttribute->last_name = $last_name;
+//                $profileAttribute->gender = $gender;
+//                $profileAttribute->age_bracket = $age_bracket;
+//                $profileAttribute->token = $newToken;
+//                $profileAttribute->created = $this->now();
+//                $profileAttribute->created_by = 1; //$auth_response['user_id'];
+//                if ($profileAttribute->save() === false) {
+//                    $errors = [];
+//                    $messages = $profileAttribute->getMessages();
+//                    foreach ($messages as $message) {
+//                        $e["statusDescription"] = $message->getMessage();
+//                        $e["field"] = $message->getField();
+//                        array_push($errors, $e);
+//                    }
+//                    $dbTrxn->rollback("Create Profile Attribute failed " . json_encode($errors));
+//                }
+//            }
+//
+//            $checkUser = User::findFirst(['profile_id=:profile_id: OR email =:email:'
+//                        , 'bind' => ['profile_id' => $profile_id, 'email'=> $emailAddress]]);
+//            if ($checkUser) {
+//
+//                return $this->unProcessable(__LINE__ . ":" . __CLASS__
+//                                , 'Validation Error'
+//                                , ['code' => 422, 'message' => 'You already have an account. Kindly user forgot password option.']);
+//            }
+//
+//            $user = new User();
+//            $user->setTransaction($dbTrxn);
+//            $user->profile_id = $profile_id;
+//            $user->role_id = $role_id;
+//            $user->api_token = $newToken;
+//            $user->password = $password;
+//            $user->email = $emailAddress;
+//            $user->status = 2;
+//            $user->created = $this->now();
+//            if ($user->save() === false) {
+//                $errors = [];
+//                $messages = $user->getMessages();
+//                foreach ($messages as $message) {
+//                    $e["statusDescription"] = $message->getMessage();
+//                    $e["field"] = $message->getField();
+//                    array_push($errors, $e);
+//                }
+//                $dbTrxn->rollback("Create User failed " . json_encode($errors));
+//            }
+//            $user_id = $user->user_id;
+//
+//            $checkUserLogin = UserLogin::findFirst(['user_id=:user_id:'
+//                        , 'bind' => ['user_id' => $user_id]]);
+//
+//            if (!$checkUserLogin) {
+//                $UserLogin = new UserLogin();
+//                $UserLogin->setTransaction($dbTrxn);
+//                $UserLogin->created = $this->now();
+//                $UserLogin->user_id = $user_id;
+//                $UserLogin->login_code = md5($verification_code);
+//                if ($UserLogin->save() === false) {
+//                    $errors = [];
+//                    $messages = $UserLogin->getMessages();
+//                    foreach ($messages as $message) {
+//                        $e["statusDescription"] = $message->getMessage();
+//                        $e["field"] = $message->getField();
+//                        array_push($errors, $e);
+//                    }
+//
+//                    $dbTrxn->rollback("Create User Login failed. Reason" . json_encode($errors));
+//                }
+//            } else {
+//                $checkUserLogin->setTransaction($dbTrxn);
+//                $checkUserLogin->login_code = md5($verification_code);
+//                if ($checkUserLogin->save() === false) {
+//                    $errors = [];
+//                    $messages = $checkUserLogin->getMessages();
+//                    foreach ($messages as $message) {
+//                        $e["statusDescription"] = $message->getMessage();
+//                        $e["field"] = $message->getField();
+//                        array_push($errors, $e);
+//                    }
+//
+//                    $dbTrxn->rollback("Create User Login failed. Reason" . json_encode($errors));
+//                }
+//            }
+//
+//            /**
+//             * Send Email as well
+//             */
+//            $message = "Hello, Your verification code is: $verification_code";
+//            $dbTrxn->commit();
+//            $params = [
+//                "short_code" => $this->settings['mnoApps']['DefaultSenderIdOTP'],
+//                "msisdn" => $msisdn,
+//                "message" => $message,
+//                "profile_id" => $profile_id,
+//                "created_by" => 'USER_CREATE',
+//                "is_bulk" => true,
+//                "link_id" => ""];
+//
+//            $messageSMS = new Messaging();
+//            $queueMessageResponse = false;
+//            if ($source != 'USSD') {
+//                $queueMessageResponse = $messageSMS->LogOutbox($params);
+//            }
+//            $this->infologger->info(__LINE__ . ":" . __CLASS__
+//                    . " | email Response::" . $emailAddress);
+//            if ($emailAddress != null) {
+//
+//                $postData = [
+//                    "api_key" => $this->settings['ServiceApiKey'],
+//                    "to" => $emailAddress,
+//                    "from" => "noreply@madfun.com",
+//                    "cc" => "",
+//                    "subject" => "Authentication Login",
+//                    "content" => $message,
+//                    "extrac" => null
+//                ];
+//                $mailResponse = $this->SendJsonPostAuthData($this->settings['MailerWebURL'],
+//                        $postData, $this->settings['ServiceApiKey'], 3);
+//
+//                $this->infologger->info(__LINE__ . ":" . __CLASS__
+//                        . " | SendEmailTickets Response::" . json_encode($mailResponse));
+//            }
+//            if (!$queueMessageResponse) {
+//
+//                return $this->success(__LINE__ . ":" . __CLASS__
+//                                , "User OTP Failed sent"
+//                                , []);
+//            }
+//
+//            return $this->success(__LINE__ . ":" . __CLASS__
+//                            , "User OTP Successfully sent"
+//                            , []);
+//        } catch (Exception $ex) {
+//            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
+//                    . " | Exceptions:" . $ex->getMessage());
+//
+//            return $this->serverError(__LINE__ . ":" . __CLASS__
+//                            , 'Internal Server Error.');
+//        }
+//    }
+//    
+    
+    
+    
+    
+        public function signUpAction()
+    {
         $request = new Request();
-        $data = $request->getJsonRawBody();
-
-        $this->infologger = $this->getLogFile('info');
-        $this->errorlogger = $this->getLogFile('error');
-        $this->infologger->info(__LINE__ . ":" . __CLASS__
-                . " | Create User Request:" . json_encode($request->getJsonRawBody()));
-
-        $msisdnN = isset($data->msisdn) ? $data->msisdn : NULL;
-        $first_name = isset($data->first_name) ? $data->first_name : NULL;
-        $last_name = isset($data->last_name) ? $data->last_name : NULL;
-        $emailAddress = isset($data->email) ? $data->email : NULL;
-        $role_id = isset($data->role_id) ? $data->role_id : 5;
-        $source = isset($data->source) ? $data->source : NULL;
-        $age_bracket = isset($data->age_bracket) ? $data->age_bracket : NULL;
-        $gender = isset($data->gender) ? $data->gender : NULL;
-        $passwordNew = isset($data->password) ? $data->password : NULL;
-
-        $secretKey = "55abe029fdebae5e1d417e2ffb2a003klkhka0cd8b54763051cef08bc55abe029";
-        $len = rand(1000, 999999);
-        $payloadToken = ['data' => $len . "" . $this->now()];
-        $newToken = md5($this->createNewAuthToken($payloadToken, $secretKey));
-        $verification_code = $passwordNew;
-        if ($this->checkForMySQLKeywords($msisdnN) || $this->checkForMySQLKeywords($first_name) || $this->checkForMySQLKeywords($last_name) || $this->checkForMySQLKeywords($emailAddress) || $this->checkForMySQLKeywords($role_id) || $this->checkForMySQLKeywords($source) || $this->checkForMySQLKeywords($age_bracket) || $this->checkForMySQLKeywords($passwordNew) || $this->checkForMySQLKeywords($gender)) {
-            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
-        }
-        if (!$passwordNew) {
-            $verification_code = rand(1000, 9999);
-        }
-        $password = $this->security->hash(md5($verification_code));
-
-        if (!$msisdnN || !$source || !$emailAddress) {
-            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        $data    = $request->getJsonRawBody();
+ 
+        $this->infologger->info(__METHOD__ . ' | signup | msisdn=' .
+            ($data->msisdn ?? 'n/a') . ' source=' . ($data->source ?? 'n/a'));
+ 
+        $msisdnRaw    = isset($data->msisdn)       ? trim($data->msisdn)       : null;
+        $first_name   = isset($data->first_name)   ? trim($data->first_name)   : null;
+        $last_name    = isset($data->last_name)     ? trim($data->last_name)    : null;
+        $emailAddress = isset($data->email)         ? trim($data->email)        : null;
+        $role_id      = isset($data->role_id)       ? (int)$data->role_id       : 5;
+        $source       = isset($data->source)        ? trim($data->source)       : null;
+        $age_bracket  = isset($data->age_bracket)   ? $data->age_bracket        : null;
+        $gender       = isset($data->gender)        ? strtoupper(trim($data->gender)) : null;
+        $passwordNew  = isset($data->password)      ? $data->password           : null;
+ 
+        // ── Validation ──────────────────────────────────────────
+        if (!$msisdnRaw || !$source || !$emailAddress) {
+            return $this->unProcessable(__METHOD__);
         }
         if (!in_array($source, $this->settings['AuthenticatedChannels'])) {
-            return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Request Sources Unverified!!');
+            return $this->unAuthorised(__METHOD__, 'Request source unverified.');
         }
-        if (!in_array($role_id, ['6', '5'])) {
-            return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Role Unverified!!');
+        if (!in_array((string)$role_id, ['5', '6'])) {
+            return $this->unAuthorised(__METHOD__, 'Role unverified.');
         }
-        if ($gender != null) {
-            if (!in_array(strtoupper($gender), ["FEMALE", "MALE", "OTHER"])) {
-                return $this->unProcessable(__LINE__ . ":" . __CLASS__
-                                , 'Validation Error'
-                                , ['code' => 422, 'message' => 'Invalid Gender Type']);
-            }
+        if ($gender !== null && !in_array($gender, ['FEMALE', 'MALE', 'OTHER'])) {
+            return $this->unProcessable(__METHOD__, 'Validation Error',
+                ['code' => 422, 'message' => 'Invalid gender. Accepted: FEMALE, MALE, OTHER.']);
         }
-        $msisdn = $this->formatMobileNumber($msisdnN);
+ 
+        $msisdn = $this->formatMobileNumber($msisdnRaw);
         if (!$this->validateMobile($msisdn)) {
-            return $this->unProcessable(__LINE__ . ":" . __CLASS__
-                            , 'Validation Error'
-                            , ['code' => 422, 'message' => 'Invalid Mobile Number']);
+            return $this->unProcessable(__METHOD__, 'Validation Error',
+                ['code' => 422, 'message' => 'Invalid mobile number.']);
         }
         if (!$this->validateEmail($emailAddress)) {
-            return $this->unProcessable(__LINE__ . ":" . __CLASS__
-                            , 'Validation Error'
-                            , ['code' => 422, 'message' => 'Invalid Mobile Number']);
+            return $this->unProcessable(__METHOD__, 'Validation Error',
+                ['code' => 422, 'message' => 'Invalid email address.']); // was: "Invalid Mobile Number" – bug fixed
         }
+ 
+        // OTP: use supplied password or auto-generate a 4-digit code.
+        $verification_code = $passwordNew ?: rand(1000, 9999);
+        $hashedPassword    = $this->security->hash(md5($verification_code));
+ 
+        
+        $secretKey = "55abe029fdebae5e1d417e2ffb2a003klkhka0cd8b54763051cef08bc55abe029";
+
+                
+        // Token for api_token and profile_attribute.token
+        $tokenPayload = ['data' => rand(1000, 999999) . $this->now()];
+        $newToken     = md5($this->createNewAuthToken(
+            $tokenPayload,
+            $secretKey
+        ));
+ 
         $transactionManager = new TransactionManager();
         $dbTrxn = $transactionManager->get();
+ 
         try {
-            $checkProfile = Profile::findFirst(["msisdn=:msisdn:",
-                        "bind" => ["msisdn" => $msisdn],]);
-            $profile_id = isset($checkProfile->profile_id) ?
-                    $checkProfile->profile_id : false;
+            // ── Duplicate-account guard FIRST (before writing anything) ──────
+            // Bug fix: original checked for duplicate user AFTER creating profile/
+            // profile_attribute, leaving orphan rows when the account already existed.
+            $existingUser = User::findFirst([
+                'profile_id IN (SELECT profile_id FROM profile WHERE msisdn=:msisdn:) OR email=:email:',
+                'bind' => ['msisdn' => $msisdn, 'email' => $emailAddress],
+            ]);
+            if ($existingUser) {
+                return $this->unProcessable(__METHOD__, 'Validation Error',
+                    ['code' => 422, 'message' => 'Account already exists. Use the forgot password option.']);
+            }
+ 
+            $checkProfile = Profile::findFirst(['msisdn=:msisdn:', 'bind' => ['msisdn' => $msisdn]]);
+            $profile_id   = $checkProfile ? (int)$checkProfile->profile_id : false;
+ 
             if (!$profile_id) {
-                $profile = new Profile();
+                $profile          = new Profile();
                 $profile->setTransaction($dbTrxn);
-                $profile->msisdn = $msisdn;
+                $profile->msisdn  = $msisdn;
                 $profile->created = $this->now();
+ 
                 if ($profile->save() === false) {
-                    $errors = [];
-                    $messages = $profile->getMessages();
-                    foreach ($messages as $message) {
-                        $e["statusDescription"] = $message->getMessage();
-                        $e["field"] = $message->getField();
-                        array_push($errors, $e);
-                    }
-                    $dbTrxn->rollback("Create Profile failed " . json_encode($errors));
+                    $dbTrxn->rollback('Create Profile failed: ' . $this->collectOrmErrors($profile));
                 }
-                $profile_id = $profile->profile_id;
+                $profile_id = (int)$profile->profile_id;
             }
-            $checkProfileAttrinute = ProfileAttribute::findFirst(['profile_id=:profile_id:'
-                        , 'bind' => ['profile_id' => $profile_id]]);
-            if (!$checkProfileAttrinute) {
-                $profileAttribute = new ProfileAttribute();
-                $profileAttribute->network = $this->getMobileNetwork($msisdn);
-                $profileAttribute->pin = md5($verification_code);
-                $profileAttribute->profile_id = $profile_id;
-                $profileAttribute->first_name = $first_name;
-                $profileAttribute->last_name = $last_name;
-                $profileAttribute->gender = $gender;
-                $profileAttribute->age_bracket = $age_bracket;
-                $profileAttribute->token = $newToken;
-                $profileAttribute->created = $this->now();
-                $profileAttribute->created_by = 1; //$auth_response['user_id'];
-                if ($profileAttribute->save() === false) {
-                    $errors = [];
-                    $messages = $profileAttribute->getMessages();
-                    foreach ($messages as $message) {
-                        $e["statusDescription"] = $message->getMessage();
-                        $e["field"] = $message->getField();
-                        array_push($errors, $e);
-                    }
-                    $dbTrxn->rollback("Create Profile Attribute failed " . json_encode($errors));
+ 
+            $existingAttr = ProfileAttribute::findFirst([
+                'profile_id=:profile_id:', 'bind' => ['profile_id' => $profile_id]
+            ]);
+            if (!$existingAttr) {
+                $attr               = new ProfileAttribute();
+                $attr->setTransaction($dbTrxn);
+                $attr->profile_id   = $profile_id;
+                $attr->network      = $this->getMobileNetwork($msisdn);
+                $attr->pin          = md5($verification_code);
+                $attr->first_name   = $first_name;
+                $attr->last_name    = $last_name;
+                $attr->gender       = $gender;
+                $attr->age_bracket  = $age_bracket;
+                $attr->token        = $newToken;
+                $attr->created_by   = 1;
+                $attr->created      = $this->now();
+ 
+                if ($attr->save() === false) {
+                    $dbTrxn->rollback('Create ProfileAttribute failed: ' . $this->collectOrmErrors($attr));
                 }
             }
-
-            $checkUser = User::findFirst(['profile_id=:profile_id: OR email =:email:'
-                        , 'bind' => ['profile_id' => $profile_id, 'email'=> $emailAddress]]);
-            if ($checkUser) {
-
-                return $this->unProcessable(__LINE__ . ":" . __CLASS__
-                                , 'Validation Error'
-                                , ['code' => 422, 'message' => 'You already have an account. Kindly user forgot password option.']);
-            }
-
-            $user = new User();
+ 
+            $user             = new User();
             $user->setTransaction($dbTrxn);
             $user->profile_id = $profile_id;
-            $user->role_id = $role_id;
-            $user->api_token = $newToken;
-            $user->password = $password;
-            $user->email = $emailAddress;
-            $user->status = 2;
-            $user->created = $this->now();
+            $user->role_id    = $role_id;
+            $user->api_token  = $newToken;
+            $user->password   = $hashedPassword;
+            $user->email      = $emailAddress;
+            $user->status     = 2; // pending verification
+            $user->created    = $this->now();
+ 
             if ($user->save() === false) {
-                $errors = [];
-                $messages = $user->getMessages();
-                foreach ($messages as $message) {
-                    $e["statusDescription"] = $message->getMessage();
-                    $e["field"] = $message->getField();
-                    array_push($errors, $e);
-                }
-                $dbTrxn->rollback("Create User failed " . json_encode($errors));
+                $dbTrxn->rollback('Create User failed: ' . $this->collectOrmErrors($user));
             }
-            $user_id = $user->user_id;
-
-            $checkUserLogin = UserLogin::findFirst(['user_id=:user_id:'
-                        , 'bind' => ['user_id' => $user_id]]);
-
-            if (!$checkUserLogin) {
-                $UserLogin = new UserLogin();
-                $UserLogin->setTransaction($dbTrxn);
-                $UserLogin->created = $this->now();
-                $UserLogin->user_id = $user_id;
-                $UserLogin->login_code = md5($verification_code);
-                if ($UserLogin->save() === false) {
-                    $errors = [];
-                    $messages = $UserLogin->getMessages();
-                    foreach ($messages as $message) {
-                        $e["statusDescription"] = $message->getMessage();
-                        $e["field"] = $message->getField();
-                        array_push($errors, $e);
-                    }
-
-                    $dbTrxn->rollback("Create User Login failed. Reason" . json_encode($errors));
+            $user_id = (int)$user->user_id;
+ 
+            $checkLogin = UserLogin::findFirst(['user_id=:user_id:', 'bind' => ['user_id' => $user_id]]);
+            if (!$checkLogin) {
+                $loginRecord             = new UserLogin();
+                $loginRecord->setTransaction($dbTrxn);
+                $loginRecord->user_id    = $user_id;
+                $loginRecord->login_code = md5($verification_code);
+                $loginRecord->created    = $this->now();
+ 
+                if ($loginRecord->save() === false) {
+                    $dbTrxn->rollback('Create UserLogin failed: ' . $this->collectOrmErrors($loginRecord));
                 }
             } else {
-                $checkUserLogin->setTransaction($dbTrxn);
-                $checkUserLogin->login_code = md5($verification_code);
-                if ($checkUserLogin->save() === false) {
-                    $errors = [];
-                    $messages = $checkUserLogin->getMessages();
-                    foreach ($messages as $message) {
-                        $e["statusDescription"] = $message->getMessage();
-                        $e["field"] = $message->getField();
-                        array_push($errors, $e);
-                    }
-
-                    $dbTrxn->rollback("Create User Login failed. Reason" . json_encode($errors));
+                $checkLogin->setTransaction($dbTrxn);
+                $checkLogin->login_code = md5($verification_code);
+ 
+                if ($checkLogin->save() === false) {
+                    $dbTrxn->rollback('Update UserLogin failed: ' . $this->collectOrmErrors($checkLogin));
                 }
             }
-
-            /**
-             * Send Email as well
-             */
-            $message = "Hello, Your verification code is: $verification_code";
+ 
             $dbTrxn->commit();
-            $params = [
-                "short_code" => $this->settings['mnoApps']['DefaultSenderIdOTP'],
-                "msisdn" => $msisdn,
-                "message" => $message,
-                "profile_id" => $profile_id,
-                "created_by" => 'USER_CREATE',
-                "is_bulk" => true,
-                "link_id" => ""];
-
-            $messageSMS = new Messaging();
-            $queueMessageResponse = false;
-            if ($source != 'USSD') {
-                $queueMessageResponse = $messageSMS->LogOutbox($params);
-            }
-            $this->infologger->info(__LINE__ . ":" . __CLASS__
-                    . " | email Response::" . $emailAddress);
-            if ($emailAddress != null) {
-
-                $postData = [
-                    "api_key" => $this->settings['ServiceApiKey'],
-                    "to" => $emailAddress,
-                    "from" => "noreply@madfun.com",
-                    "cc" => "",
-                    "subject" => "Authentication Login",
-                    "content" => $message,
-                    "extrac" => null
+ 
+            // ── Notifications (after commit – do not let send failures roll back) ──
+            $otpMessage = "Hello, your verification code is: {$verification_code}";
+ 
+            $smsSent = false;
+            if ($source !== 'USSD') {
+                $smsParams = [
+                    'short_code' => $this->settings['mnoApps']['DefaultSenderIdOTP'],
+                    'msisdn'     => $msisdn,
+                    'message'    => $otpMessage,
+                    'profile_id' => $profile_id,
+                    'created_by' => 'USER_CREATE',
+                    'is_bulk'    => true,
+                    'link_id'    => '',
                 ];
-                $mailResponse = $this->SendJsonPostAuthData($this->settings['MailerWebURL'],
-                        $postData, $this->settings['ServiceApiKey'], 3);
-
-                $this->infologger->info(__LINE__ . ":" . __CLASS__
-                        . " | SendEmailTickets Response::" . json_encode($mailResponse));
+                $messaging = new Messaging();
+                $smsSent   = (bool)$messaging->LogOutbox($smsParams);
             }
-            if (!$queueMessageResponse) {
-
-                return $this->success(__LINE__ . ":" . __CLASS__
-                                , "User OTP Failed sent"
-                                , []);
+ 
+            if ($emailAddress) {
+                $this->sendOtpEmail($emailAddress, $otpMessage);
             }
-
-            return $this->success(__LINE__ . ":" . __CLASS__
-                            , "User OTP Successfully sent"
-                            , []);
-        } catch (Exception $ex) {
-            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
-                    . " | Exceptions:" . $ex->getMessage());
-
-            return $this->serverError(__LINE__ . ":" . __CLASS__
-                            , 'Internal Server Error.');
+ 
+            $message = $smsSent ? 'OTP sent successfully.' : 'OTP dispatch queued.';
+            return $this->success(__METHOD__, $message, []);
+ 
+        } catch (\Exception $ex) {
+            $this->errorlogger->emergency(__METHOD__ . ' | ' . $ex->getMessage());
+            return $this->serverError(__METHOD__, 'Internal server error.');
         }
     }
+ 
 
     /**
      * updateAccount

@@ -4335,6 +4335,8 @@ class EventsController extends ControllerBase {
         $perUserCap = isset($data->perUserCap) ? (int)$data->perUserCap : 0;
 
         
+        $maxCap = isset($data->maxCap) ? $data->maxCap : null;
+        
         
       
 
@@ -4424,6 +4426,10 @@ class EventsController extends ControllerBase {
                     $checkEventType->perUserCap = $perUserCap;
 
                 }
+                
+                if ($maxCap !== null) {
+                $checkEventType->maxCap = (int)$maxCap;
+            }
                 
                 if ($status !== null) {
                     $checkEventType->status = $status;
