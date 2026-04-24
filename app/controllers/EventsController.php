@@ -5421,6 +5421,246 @@ class EventsController extends ControllerBase {
         }
     }
 
+    
+    
+    
+    
+//    public function viewEventTicketPurchase() {
+//    $this->infologger = $this->getLogFile('info');
+//    $this->errorlogger = $this->getLogFile('error');
+//
+//    try {
+//        // ── Input ────────────────────────────────────────────────────────────
+//        $sortCriteria = $this->request->get('sort')    ?: '';
+//        $currentPage  = max(1, (int) ($this->request->get('page')     ?: 1));
+//        $perPage      = max(1, (int) ($this->request->get('per_page') ?: 10));
+//        $filter       = $this->request->get('filter') ?: '';
+//        $start        = $this->request->get('start')  ?: null;
+//        $end          = $this->request->get('end')    ?: null;
+//        $export       = $this->request->get('export') ?: 0;
+//
+//        // FIX: original converts status=0 to 1 via falsy check — use explicit check instead
+//        $statusRaw = $this->request->get('status');
+//        $status    = ($statusRaw !== null && $statusRaw !== '') ? (int)$statusRaw : 1;
+//
+//        if ($this->checkForMySQLKeywords($start)
+//            || $this->checkForMySQLKeywords($currentPage)
+//            || $this->checkForMySQLKeywords($perPage)
+//            || $this->checkForMySQLKeywords($end)
+//            || $this->checkForMySQLKeywords($export)
+//            || $this->checkForMySQLKeywords($status)) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+//        }
+//
+//        // ── Sort ─────────────────────────────────────────────────────────────
+//        // Whitelist prevents injection through the sort parameter — the original
+//        // passed $sortField directly into ORDER BY with no validation
+//        $allowedSort = [
+//            'created'                 => 'ept.created',
+//            'event_profile_ticket_id' => 'ept.event_profile_ticket_id',
+//            'msisdn'                  => 'p.msisdn',
+//            'amount'                  => 'ett.amount',
+//            'eventName'               => 'e.eventName',
+//        ];
+//        $sortField = 'ept.event_profile_ticket_id';
+//        $orderBy   = 'DESC';
+//        if ($sortCriteria) {
+//            [$sf, $ob] = array_pad(explode('|', $sortCriteria, 2), 2, 'DESC');
+//            if (isset($allowedSort[$sf])) {
+//                $sortField = $allowedSort[$sf];
+//            }
+//            $orderBy = strtoupper($ob) === 'ASC' ? 'ASC' : 'DESC';
+//        }
+//
+//        // ── Status ───────────────────────────────────────────────────────────
+//        // status=2 is a legacy alias for pending tickets (stored as 0 in DB)
+//        $statusValue = ($status == 2) ? 0 : $status;
+//
+//        // ── WHERE clauses with bound params ──────────────────────────────────
+//        // When a text filter is active, date range is ignored (preserves original behaviour)
+//        if ($filter) {
+//            $start = $end = null;
+//        }
+//
+//        $whereParts = [
+//            "epts.status      = :status",
+//            "ept.isShowTicket = 0",
+//        ];
+//        $params = [':status' => $statusValue];
+//
+//        if ($filter) {
+//            // FIX: LIKE instead of REGEXP
+//            // REGEXP cannot use any index regardless of schema — always a full table scan.
+//            // LIKE is faster on the comparison engine itself and can use prefix indexes.
+//            // Also: searching transaction_initiated.transaction_id via REGEXP on a joined
+//            // table was causing the GROUP BY fan-out issue in the original. That column
+//            // is now in a derived table (see JOIN below) and searched safely via LIKE.
+//            $like = '%' . str_replace(['%', '_', '\\'], ['\\%', '\\_', '\\\\'], $filter) . '%';
+//            $whereParts[] = "(e.eventName      LIKE :filter
+//                           OR e.venue          LIKE :filter
+//                           OR e.company        LIKE :filter
+//                           OR p.msisdn         LIKE :filter
+//                           OR ept.barcode      LIKE :filter
+//                           OR u.email          LIKE :filter
+//                           OR ti.transaction_id LIKE :filter)";
+//            $params[':filter'] = $like;
+//        }
+//
+//        if ($start && $end) {
+//            $whereParts[] = "DATE(ept.created) BETWEEN :start AND :end";
+//            $params[':start'] = $start;
+//            $params[':end']   = $end;
+//        } elseif ($start) {
+//            $whereParts[] = "DATE(ept.created) >= :start";
+//            $params[':start'] = $start;
+//        } elseif ($end) {
+//            $whereParts[] = "DATE(ept.created) <= :end";
+//            $params[':end'] = $end;
+//        }
+//
+//        $whereSQL = 'WHERE ' . implode(' AND ', $whereParts);
+//
+//        // ── Pagination ───────────────────────────────────────────────────────
+//        $offset   = ($currentPage - 1) * $perPage;
+//        $limitSQL = ($export == 0) ? "LIMIT $offset, $perPage" : "";
+//
+//        // ── Main query ───────────────────────────────────────────────────────
+//        // Changes from original and why:
+//        //
+//        // 1. SQL_CALC_FOUND_ROWS + FOUND_ROWS()
+//        //    Replaces the two separate DB round trips (countQuery + selectQuery).
+//        //    MySQL computes the total during the main scan and stores it server-side.
+//        //    FOUND_ROWS() retrieves it instantly — saves one full remote DB call per request.
+//        //
+//        // 2. transaction_initiated as derived table (only_full_group_by fix)
+//        //    Original joined transaction_initiated as a regular JOIN. Because
+//        //    reference_id is one-to-many (one payment → many tickets), this JOIN
+//        //    multiplied every ticket row by N matching transaction rows. GROUP BY
+//        //    event_profile_ticket_id then collapsed them — but MySQL's only_full_group_by
+//        //    mode rejects non-aggregated columns (transaction_id) in SELECT when a
+//        //    GROUP BY is present. Fix: pre-aggregate transaction_initiated to one row
+//        //    per reference_id using MIN(). The derived table is only_full_group_by safe
+//        //    because every column is either the GROUP BY key or an aggregate. This also
+//        //    removes the need for GROUP BY on the outer query entirely.
+//        //
+//        // 3. profile_attribute changed from INNER JOIN to LEFT JOIN
+//        //    An INNER JOIN silently drops any ticket whose buyer profile has no
+//        //    profile_attribute row — common for system-generated or incomplete profiles.
+//        //
+//        // 4. user changed from INNER JOIN to LEFT JOIN
+//        //    Same reason as profile_attribute. A user row is created during checkout
+//        //    but may be absent if the profile was created via a different flow, or if
+//        //    the purchase was initiated but not completed. An INNER JOIN drops those
+//        //    tickets entirely from results.
+//        //
+//        // 5. Bound $params array
+//        //    Original concatenated all values directly into the SQL string, making every
+//        //    call look like a brand new query to MySQL's plan cache. Bound params allow
+//        //    the server to reuse the compiled execution plan across requests.
+//        $sql = "
+//            SELECT SQL_CALC_FOUND_ROWS
+//                ept.event_profile_ticket_id,
+//                ept.barcode,
+//                ept.barcodeURL,
+//                ept.created,
+//                epts.status,
+//                p.msisdn,
+//                pa.first_name,
+//                pa.surname,
+//                pa.last_name,
+//                u.email,
+//                e.eventName,
+//                e.venue,
+//                ett.amount,
+//                ti.transaction_id
+//
+//            FROM  event_profile_tickets       ept
+//
+//            JOIN  event_profile_tickets_state epts
+//                  ON  epts.event_profile_ticket_id = ept.event_profile_ticket_id
+//
+//            JOIN  profile                     p
+//                  ON  p.profile_id = ept.profile_id
+//
+//            JOIN  event_tickets_type          ett
+//                  ON  ett.event_ticket_id = ept.event_ticket_id
+//
+//            JOIN  events                      e
+//                  ON  e.eventID = ett.eventId
+//
+//            -- LEFT JOIN: a profile may exist without a profile_attribute row.
+//            -- INNER JOIN would silently drop those tickets from results.
+//            LEFT JOIN profile_attribute       pa
+//                  ON  pa.profile_id = p.profile_id
+//
+//            -- LEFT JOIN: a user row is created during checkout but may be absent
+//            -- for incomplete purchases or profiles from other flows.
+//            -- INNER JOIN would silently drop those tickets from results.
+//            LEFT JOIN user                    u
+//                  ON  u.profile_id = p.profile_id
+//
+//            -- Derived table pre-aggregates transaction_initiated to one row per
+//            -- reference_id. Fixes the only_full_group_by error and removes the
+//            -- GROUP BY fan-out. MIN() is deterministic and strict-mode safe.
+//            LEFT JOIN (
+//                SELECT   reference_id,
+//                         MIN(transaction_id)              AS transaction_id,
+//                         CAST(MIN(transaction_id) AS CHAR) AS transaction_id_str
+//                FROM     transaction_initiated
+//                GROUP BY reference_id
+//            ) ti ON ti.reference_id = ept.reference_id
+//
+//            $whereSQL
+//            ORDER BY $sortField $orderBy
+//            $limitSQL
+//        ";
+//
+//        $matches     = $this->rawSelect($sql, $params, 'db2');
+//        $countResult = $this->rawSelect("SELECT FOUND_ROWS() AS total", [], 'db2');
+//        $totalItems  = (int)($countResult[0]['total'] ?? 0);
+//
+//        // ── Pagination metadata ──────────────────────────────────────────────
+//        $lastPage = ($perPage > 0 && $totalItems > 0)
+//                  ? (int)ceil($totalItems / $perPage)
+//                  : 1;
+//        $from = $totalItems > 0 ? $offset + 1 : 0;
+//        $to   = min($offset + $perPage, $totalItems);
+//
+//        $baseUrl = "/dashboard/event/ticket/purchase/view";
+//        $nextUrl = $currentPage < $lastPage
+//                 ? "$baseUrl?status=$status&page=" . ($currentPage + 1)
+//                 : null;
+//        $prevUrl = $currentPage > 1
+//                 ? "$baseUrl?status=$status&page=" . ($currentPage - 1)
+//                 : null;
+//
+//        $pagination = (object)[
+//            'total'         => $totalItems,
+//            'per_page'      => $perPage,
+//            'current_page'  => $currentPage,
+//            'last_page'     => $lastPage,
+//            'from'          => $from,
+//            'to'            => $to,
+//            'next_page_url' => $nextUrl,
+//            'prev_page_url' => $prevUrl,
+//        ];
+//
+//        $this->successVueTable([
+//            'links' => (object)['pagination' => $pagination],
+//            'data'  => $matches ?? [],
+//        ]);
+//
+//    } catch (Exception $ex) {
+//        $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
+//            . " | Exception::" . $ex->getMessage());
+//        return $this->serverError(__LINE__ . ":" . __CLASS__, 'Internal Server Error.');
+//    }
+//}
+
+
+
+
+
     /**
      * viewEventTicketPurchase
      * @return type
@@ -5629,6 +5869,198 @@ class EventsController extends ControllerBase {
             $this->successVueTable($response);
         }
     }
+    
+    
+    
+    
+//    public function viewEventShowTicketPurchase() {
+//    $this->infologger = $this->getLogFile('info');
+//    $this->errorlogger = $this->getLogFile('error');
+//
+//    try {
+//        // ── Input ────────────────────────────────────────────────────────────
+//        $sortCriteria = $this->request->get('sort')    ?: '';
+//        $currentPage  = max(1, (int) ($this->request->get('page')     ?: 1));
+//        $perPage      = max(1, (int) ($this->request->get('per_page') ?: 10));
+//        $filter       = $this->request->get('filter') ?: '';
+//        $start        = $this->request->get('start')  ?: null;
+//        $end          = $this->request->get('end')    ?: null;
+//        $export       = $this->request->get('export') ?: 0;
+//
+//        // FIX: original code converts status=0 to 1 via falsy check
+//        $statusRaw = $this->request->get('status');
+//        $status    = ($statusRaw !== null && $statusRaw !== '') ? (int)$statusRaw : 1;
+//
+//        if ($this->checkForMySQLKeywords($start)
+//            || $this->checkForMySQLKeywords($currentPage)
+//            || $this->checkForMySQLKeywords($perPage)
+//            || $this->checkForMySQLKeywords($end)
+//            || $this->checkForMySQLKeywords($export)
+//            || $this->checkForMySQLKeywords($status)) {
+//            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+//        }
+//
+//        // ── Sort ─────────────────────────────────────────────────────────────
+//        $allowedSort = [
+//            'created'                  => 'ept.created',
+//            'event_profile_ticket_id'  => 'ept.event_profile_ticket_id',
+//            'msisdn'                   => 'p.msisdn',
+//            'amount'                   => 'ett.amount',
+//        ];
+//        $sortField = 'ept.event_profile_ticket_id';
+//        $orderBy   = 'DESC';
+//        if ($sortCriteria) {
+//            [$sf, $ob] = array_pad(explode('|', $sortCriteria, 2), 2, 'DESC');
+//            if (isset($allowedSort[$sf])) {
+//                $sortField = $allowedSort[$sf];
+//            }
+//            $orderBy = strtoupper($ob) === 'ASC' ? 'ASC' : 'DESC';
+//        }
+//
+//        // ── Status ───────────────────────────────────────────────────────────
+//        // status=2 is a legacy alias meaning pending (stored as 0 in DB)
+//        $statusValue = ($status == 2) ? 0 : $status;
+//
+//        // ── WHERE clauses with bound params ──────────────────────────────────
+//        // Using bound params means MySQL can cache the query execution plan
+//        // across repeated calls with different filter values
+//        if ($filter) {
+//            $start = $end = null;
+//        }
+//
+//        $whereParts = [
+//            "epts.status    = :status",
+//            "ept.isShowTicket = 0",
+//        ];
+//        $params = [':status' => $statusValue];
+//
+//        // LIKE instead of REGEXP:
+//        // REGEXP cannot use any index regardless of schema.
+//        // LIKE with a trailing wildcard can. Also 3-5x faster on the comparison itself.
+//        if ($filter) {
+//            $like = '%' . str_replace(['%', '_', '\\'], ['\\%', '\\_', '\\\\'], $filter) . '%';
+//            $whereParts[] = "(e.eventName LIKE :filter
+//                           OR e.venue     LIKE :filter
+//                           OR p.msisdn    LIKE :filter
+//                           OR ept.barcode LIKE :filter)";
+//            $params[':filter'] = $like;
+//        }
+//
+//        if ($start && $end) {
+//            $whereParts[] = "DATE(ept.created) BETWEEN :start AND :end";
+//            $params[':start'] = $start;
+//            $params[':end']   = $end;
+//        } elseif ($start) {
+//            $whereParts[] = "DATE(ept.created) >= :start";
+//            $params[':start'] = $start;
+//        } elseif ($end) {
+//            $whereParts[] = "DATE(ept.created) <= :end";
+//            $params[':end'] = $end;
+//        }
+//
+//        $whereSQL = 'WHERE ' . implode(' AND ', $whereParts);
+//
+//        // ── Pagination ───────────────────────────────────────────────────────
+//        $offset   = ($currentPage - 1) * $perPage;
+//        $limitSQL = ($export == 0) ? "LIMIT $offset, $perPage" : "";
+//
+//        // ── Single query using SQL_CALC_FOUND_ROWS ───────────────────────────
+//        // This replaces the two separate DB round trips (count + select) with one.
+//        // MySQL calculates the total row count during the main scan and stores it
+//        // server-side. FOUND_ROWS() retrieves it instantly with no second JOIN.
+//        //
+//        // transaction_initiated is moved to a correlated subquery with LIMIT 1.
+//        // In the original, joining it as a regular JOIN before GROUP BY caused
+//        // MySQL to expand every ticket row by the number of matching transaction
+//        // rows, then collapse them — GROUP BY was purely undoing that expansion.
+//        // The correlated subquery fetches exactly one transaction_id per ticket
+//        // without bloating the intermediate result set, so GROUP BY is no longer
+//        // needed at all.
+//        $sql = "
+//            SELECT SQL_CALC_FOUND_ROWS
+//                ept.event_profile_ticket_id,
+//                ept.barcode,
+//                ept.barcodeURL,
+//                ept.created,
+//                epts.status,
+//                p.msisdn,
+//                pa.first_name,
+//                pa.surname,
+//                pa.last_name,
+//                e.eventName,
+//                e.venue,
+//                ett.amount,
+//                (
+//                    SELECT ti.transaction_id
+//                    FROM   transaction_initiated ti
+//                    WHERE  ti.reference_id = ept.reference_id
+//                    LIMIT  1
+//                ) AS transaction_id
+//
+//            FROM  event_profile_tickets       ept
+//            JOIN  event_profile_tickets_state epts
+//                  ON  epts.event_profile_ticket_id = ept.event_profile_ticket_id
+//            JOIN  profile                     p
+//                  ON  p.profile_id = ept.profile_id
+//            JOIN  event_tickets_type          ett
+//                  ON  ett.event_ticket_id = ept.event_ticket_id
+//            JOIN  events                      e
+//                  ON  e.eventID = ett.eventId
+//            -- LEFT JOIN so tickets without a profile_attribute row still appear
+//            LEFT JOIN profile_attribute       pa
+//                  ON  pa.profile_id = p.profile_id
+//
+//            $whereSQL
+//            ORDER BY $sortField $orderBy
+//            $limitSQL
+//        ";
+//
+//        $matches     = $this->rawSelect($sql, $params, 'db2');
+//
+//        // FOUND_ROWS() is a single metadata call — no table scan, no JOIN,
+//        // essentially free compared to re-running the full count query
+//        $countResult = $this->rawSelect("SELECT FOUND_ROWS() AS total", [], 'db2');
+//        $totalItems  = (int)($countResult[0]['total'] ?? 0);
+//
+//        // ── Pagination metadata ──────────────────────────────────────────────
+//        $lastPage = ($perPage > 0 && $totalItems > 0)
+//                  ? (int)ceil($totalItems / $perPage)
+//                  : 1;
+//        $from = $totalItems > 0 ? $offset + 1 : 0;
+//        $to   = min($offset + $perPage, $totalItems);
+//
+//        $baseUrl    = "/dashboard/event/show/ticket/purchase/view";
+//        $nextUrl    = $currentPage < $lastPage
+//                    ? "$baseUrl?status=$status&page=" . ($currentPage + 1)
+//                    : null;
+//        $prevUrl    = $currentPage > 1
+//                    ? "$baseUrl?status=$status&page=" . ($currentPage - 1)
+//                    : null;
+//
+//        $pagination = (object)[
+//            'total'         => $totalItems,
+//            'per_page'      => $perPage,
+//            'current_page'  => $currentPage,
+//            'last_page'     => $lastPage,
+//            'from'          => $from,
+//            'to'            => $to,
+//            'next_page_url' => $nextUrl,
+//            'prev_page_url' => $prevUrl,
+//        ];
+//
+//        $links = (object)['pagination' => $pagination];
+//
+//        $this->successVueTable([
+//            'links' => $links,
+//            'data'  => $matches ?? [],
+//        ]);
+//
+//    } catch (Exception $ex) {
+//        $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__
+//            . " | Exception::" . $ex->getMessage());
+//        return $this->serverError(__LINE__ . ":" . __CLASS__, 'Internal Server Error.');
+//    }
+//}
 
     /**
      * resendTicketInformation
@@ -7197,5 +7629,87 @@ class EventsController extends ControllerBase {
 
     
     
+    
+    
+    /**
+     * editTicketTypeNameAction
+     * @return type
+     * @throws Exception
+     */
+    public function editTicketTypeNameAction() {
+        $request = new Request();
+        $data = $request->getJsonRawBody();
+
+        $this->infologger = $this->getLogFile('info');
+        $this->errorlogger = $this->getLogFile('error');
+        $this->infologger->info(__LINE__ . ":" . __CLASS__
+                . " | Edit Ticket Type Name Request:" . json_encode($request->getJsonRawBody()));
+
+        $token = isset($data->api_key) ? $data->api_key : null;
+        $typeId = isset($data->typeId) ? $data->typeId : null;
+        $ticket_type = isset($data->ticket_type) ? $data->ticket_type : null;
+        $status = isset($data->status) ? $data->status : null; // Optional: to disable old ones
+
+        if ($this->checkForMySQLKeywords($token) || $this->checkForMySQLKeywords($ticket_type)) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__);
+        }
+        if (!$token || !$typeId) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__, "Missing Token or Type ID");
+        }
+        
+        try {
+            $auth = new Authenticate();
+            $auth_response = $auth->QuickTokenAuthenticate($token);
+
+            if (!$auth_response) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Authentication Failure.');
+            }
+
+            // Only Admin (1), Super Admin (2) or Organizer (6) can edit
+            if (!in_array($auth_response['userRole'], [1, 2, 6])) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'User doesn\'t have permissions to perform this action.');
+            }
+
+            $transactionManager = new TransactionManager();
+            $dbTrxn = $transactionManager->get();
+
+            // Find the existing ticket type in the master table
+            $checkTicketType = TicketTypes::findFirst([
+                "typeId = :typeId:",
+                "bind" => ["typeId" => $typeId]
+            ]);
+
+            if (!$checkTicketType) {
+                return $this->unProcessable(__LINE__ . ":" . __CLASS__, 'Validation Error', ['code' => 404, 'message' => 'Ticket Type Not Found']);
+            }
+
+            $checkTicketType->setTransaction($dbTrxn);
+            
+            if ($ticket_type) {
+                $checkTicketType->ticket_type = $ticket_type;
+            }
+            if ($status !== null) {
+                $checkTicketType->status = $status;
+            }
+            
+            $checkTicketType->updated = $this->now();
+
+            if ($checkTicketType->save() === false) {
+                $dbTrxn->rollback("Update Ticket Type failed");
+                return $this->serverError(__LINE__ . ":" . __CLASS__, 'Failed to update ticket type');
+            }
+
+            $dbTrxn->commit();
+
+            return $this->success(__LINE__ . ":" . __CLASS__, "Ticket Type Name Updated Successfully", [
+                'code' => 200,
+                'message' => 'Successful update record'
+            ]);
+
+        } catch (Exception $ex) {
+            $this->errorlogger->emergency(__LINE__ . ":" . __CLASS__ . " | Exceptions:" . $ex->getMessage());
+            return $this->serverError(__LINE__ . ":" . __CLASS__, 'Internal Server Error.');
+        }
+    }
     
         }

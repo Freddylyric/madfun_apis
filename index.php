@@ -214,6 +214,8 @@ $event->mapVia('ticket/refund', 'refundTickets', ['POST']);
 
 $event->mapVia('edit/show', 'editEventShowAction', ['POST']);
 
+$event->mapVia('ticket/type/name/edit', 'editTicketTypeNameAction', ['POST']);
+
 
 
 
