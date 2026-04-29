@@ -7481,4 +7481,148 @@ class EventsController extends ControllerBase {
         }
     }
     
+    
+    
+    
+    /**
+     * bulkRevokeFreeTicketsAction
+     * Instantly revokes all tickets for a specific user and restores inventory using Email or Phone.
+     */
+    public function bulkRevokeFreeTicketsAction() {
+        $request = new Request();
+        $data = $request->getJsonRawBody();
+
+        $token = isset($data->api_key) ? $data->api_key : null;
+        $email = isset($data->email) ? $data->email : null;
+        $phone = isset($data->msisdn) ? $data->msisdn : null;
+        $eventID = isset($data->eventID) ? $data->eventID : null;
+
+        // Require token, eventID, and AT LEAST an email or a phone number
+        if (!$token || (!$email && !$phone) || !$eventID) {
+            return $this->unProcessable(__LINE__ . ":" . __CLASS__, "Missing Event ID, Admin Token, or target User (Email/Phone)");
+        }
+
+        try {
+            $auth = new Authenticate();
+            $auth_response = $auth->QuickTokenAuthenticate($token);
+
+            // Restrict to Admins (1, 2) and Organizers (6)
+            if (!$auth_response || !in_array($auth_response['userRole'], [1, 2, 6])) {
+                return $this->unAuthorised(__LINE__ . ":" . __CLASS__, 'Authentication Failure or No Permission.');
+            }
+
+            $profile_id = null;
+            $foundVia = "";
+
+            // 1. Try searching by Email first
+            if ($email) {
+                $user = User::findFirst(["email = :email:", "bind" => ["email" => $email]]);
+                if ($user) {
+                    $profile_id = $user->profile_id;
+                    $foundVia = "email ($email)";
+                }
+            }
+
+            // 2. Fallback to Phone Number if Email wasn't found (or wasn't provided)
+            if (!$profile_id && $phone) {
+                $msisdn = $this->formatMobileNumber($phone, "254");
+                $profile = Profile::findFirst(["msisdn = :msisdn:", "bind" => ["msisdn" => $msisdn]]);
+                if ($profile) {
+                    $profile_id = $profile->profile_id;
+                    $foundVia = "phone ($msisdn)";
+                }
+            }
+
+            // 3. Reject if the user absolutely cannot be found
+            if (!$profile_id) {
+                return $this->dataError(__LINE__ . ":" . __CLASS__, 'Not Found', [
+                    'code' => 404, 
+                    'message' => 'No user account found with the provided email or phone number.'
+                ]);
+            }
+
+            $transactionManager = new TransactionManager();
+            $dbTrxn = $transactionManager->get();
+
+            // 4. Find all active tickets for this user and event (Checking Standard Events)
+            $sqlStandard = "SELECT ept.event_profile_ticket_id, ept.event_ticket_id, ept.isShowTicket 
+                    FROM event_profile_tickets ept 
+                    JOIN event_profile_tickets_state epts ON ept.event_profile_ticket_id = epts.event_profile_ticket_id 
+                    JOIN event_tickets_type ett ON ept.event_ticket_id = ett.event_ticket_id 
+                    WHERE ept.profile_id = :profile_id AND ett.eventId = :eventID AND epts.status = 1 AND ept.isShowTicket = 0";
+            
+            $standardTickets = $this->rawSelect($sqlStandard, [':profile_id' => $profile_id, ':eventID' => $eventID]);
+
+            // 4.5 Find all active tickets (Checking Multi-Show Events)
+            $sqlShows = "SELECT ept.event_profile_ticket_id, ept.event_ticket_id, ept.isShowTicket 
+                    FROM event_profile_tickets ept 
+                    JOIN event_profile_tickets_state epts ON ept.event_profile_ticket_id = epts.event_profile_ticket_id 
+                    JOIN event_show_tickets_type estt ON ept.event_ticket_id = estt.event_ticket_show_id 
+                    JOIN event_show_venue esv ON estt.event_show_venue_id = esv.event_show_venue_id
+                    JOIN event_shows es ON esv.event_show_id = es.event_show_id
+                    WHERE ept.profile_id = :profile_id AND es.eventID = :eventID AND epts.status = 1 AND ept.isShowTicket = 1";
+            
+            $showTickets = $this->rawSelect($sqlShows, [':profile_id' => $profile_id, ':eventID' => $eventID]);
+
+            // Merge any found tickets
+            $tickets = array_merge($standardTickets ?: [], $showTickets ?: []);
+
+            if (empty($tickets)) {
+                return $this->success(__LINE__ . ":" . __CLASS__, "No active tickets found", [
+                    'code' => 404, 
+                    'message' => "User found via $foundVia, but they have no active tickets for this event."
+                ]);
+            }
+
+            $count = 0;
+            $standardInventoryToRestore = [];
+            $showInventoryToRestore = [];
+
+            foreach ($tickets as $ticket) {
+                // 5. Revoke the ticket state (Set to 2 for Cancelled/Revoked)
+                $this->rawUpdateWithParams(
+                    "UPDATE event_profile_tickets_state SET status = 2 WHERE event_profile_ticket_id = :id", 
+                    [':id' => $ticket['event_profile_ticket_id']]
+                );
+                
+                // Track counts to restore inventory correctly
+                $tId = $ticket['event_ticket_id'];
+                if ($ticket['isShowTicket'] == 1) {
+                    if (!isset($showInventoryToRestore[$tId])) $showInventoryToRestore[$tId] = 0;
+                    $showInventoryToRestore[$tId]++;
+                } else {
+                    if (!isset($standardInventoryToRestore[$tId])) $standardInventoryToRestore[$tId] = 0;
+                    $standardInventoryToRestore[$tId]++;
+                }
+                $count++;
+            }
+
+            // 6. Restore standard inventory
+            foreach ($standardInventoryToRestore as $tId => $qty) {
+                $this->rawUpdateWithParams(
+                    "UPDATE event_tickets_type SET ticket_purchased = ticket_purchased - :qty WHERE event_ticket_id = :id",
+                    [':qty' => $qty, ':id' => $tId]
+                );
+            }
+
+            // 6.5 Restore multi-show inventory
+            foreach ($showInventoryToRestore as $tId => $qty) {
+                $this->rawUpdateWithParams(
+                    "UPDATE event_show_tickets_type SET ticket_purchased = ticket_purchased - :qty WHERE event_ticket_show_id = :id",
+                    [':qty' => $qty, ':id' => $tId]
+                );
+            }
+
+            $dbTrxn->commit();
+
+            return $this->success(__LINE__ . ":" . __CLASS__, "Successfully Revoked Tickets", [
+                'code' => 200,
+                'message' => "Successfully revoked $count tickets from user found via $foundVia and restored your inventory."
+            ]);
+
+        } catch (Exception $ex) {
+            return $this->serverError(__LINE__ . ":" . __CLASS__, 'Internal Server Error: ' . $ex->getMessage());
+        }
+    }
+    
         }

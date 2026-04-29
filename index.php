@@ -216,6 +216,9 @@ $event->mapVia('edit/show', 'editEventShowAction', ['POST']);
 
 $event->mapVia('ticket/type/name/edit', 'editTicketTypeNameAction', ['POST']);
 
+$event->mapVia('bulk/tickets/revoke', 'bulkRevokeFreeTicketsAction', ['POST']);
+
+
 
 
 
