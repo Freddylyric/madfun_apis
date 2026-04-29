@@ -1325,6 +1325,8 @@ class DashboardController extends ControllerBase {
         $limit = isset($data->limit) ? $data->limit : null;
         $offset = isset($data->page) ? $data->page : null;
         $sort = isset($data->sort) ? $data->sort : null;
+        
+        $isRemmend = isset($data->isRemmend) ? $data->isRemmend : null;
 
         if ($this->checkForMySQLKeywords($token) || $this->checkForMySQLKeywords($sort) || $this->checkForMySQLKeywords($limit) || $this->checkForMySQLKeywords($start)) {
             return $this->unProcessable(__LINE__ . ":" . __CLASS__);
@@ -1364,6 +1366,10 @@ class DashboardController extends ControllerBase {
             if ($stop == null && $start != null) {
                 $searchQuery .= " AND date(event_profile_tickets.created)>='$start'";
             }
+            
+            if ($isRemmend !== null) {
+                $searchQuery .= " AND event_profile_tickets.isRemmend = '$isRemmend'";
+            }
             $hasMultipleShow = 0;
 
             if ($eventID != null) {
@@ -1392,6 +1398,7 @@ class DashboardController extends ControllerBase {
                     . "profile_attribute.surname,profile_attribute.last_name,"
                     . "events.eventName,events.venue, event_tickets_type.amount,ticket_types.ticket_type,"
                     . " event_profile_tickets.barcode, event_profile_tickets.barcodeURL,"
+                    . " event_profile_tickets.isRemmend, "
                     . " event_profile_tickets_state.status, event_profile_tickets.created,"
                     . "(select count(event_profile_tickets.event_profile_ticket_id) FROM "
                     . " event_profile_tickets join event_profile_tickets_state "
@@ -1422,7 +1429,9 @@ class DashboardController extends ControllerBase {
                         . "profile_attribute.surname,profile_attribute.last_name,"
                         . "events.eventName,events.venue, event_show_tickets_type.amount,"
                         . "ticket_types.ticket_type,event_profile_tickets.barcode, "
-                        . "event_profile_tickets.barcodeURL,event_profile_tickets_state.status, "
+                        . "event_profile_tickets.barcodeURL,"
+                        . "event_profile_tickets.isRemmend, "
+                        . "event_profile_tickets_state.status, "
                         . "event_profile_tickets.created,(select "
                         . "count(event_profile_tickets.event_profile_ticket_id) "
                         . "FROM event_profile_tickets join event_profile_tickets_state "
