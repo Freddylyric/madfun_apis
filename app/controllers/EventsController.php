@@ -4387,9 +4387,9 @@ class EventsController extends ControllerBase {
                                     , ['code' => 422, 'message' => 'Invalid Ticket Type Id']);
                 }
                 $checkEventType->setTransaction($dbTrxn);
-                if ($status) {
-                    $checkEventType->status = $status;
-                }
+//                if ($status) {
+//                    $checkEventType->status = $status;
+//                }
                 if ($color_code) {
                     $checkEventType->color_code = $color_code;
                 }
